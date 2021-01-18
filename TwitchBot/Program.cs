@@ -8,6 +8,13 @@ using System.Threading.Tasks;
 
 namespace TwitchBot
 {
+    public class Item { 
+    
+        public string url { get; set; }
+
+        public int count { get; set; }
+    }
+
     class Program
     {
         [Obsolete]
@@ -29,7 +36,11 @@ namespace TwitchBot
             while ((line = file.ReadLine()) != null)
             {
                 Thread thr = new Thread(req);
-                thr.Start(line);
+                Random r = new Random();
+                int rInt = r.Next(0, 500);
+                Thread.Sleep(rInt);
+                thr.Start(new Item { url = line, count = i});
+                i++;
             }
 
             file.Close();
@@ -43,9 +54,11 @@ namespace TwitchBot
         {
             try
             {
+                Item itm = (Item)obj;
+                var array = itm.url.ToString().Split(':');
                 var proxy = new Proxy();
-                proxy.HttpProxy = obj.ToString();
-                proxy.SslProxy = obj.ToString();
+                proxy.HttpProxy = array[0]+':'+array[1];
+                proxy.SslProxy = array[0] + ':' + array[1];
                 //var opera_options = new OperaOptions();
                 //opera_options.Proxy = proxy;
                 //opera_options.AddArgument("--enable-blink-features=ShadowDOMV0");
@@ -53,15 +66,23 @@ namespace TwitchBot
                 var chrome_options = new ChromeOptions();
                 chrome_options.Proxy = proxy;
                 chrome_options.AcceptInsecureCertificates = true;
+                //chrome_options.AddArgument("headless");
+                chrome_options.AddExtension("C:\\Source\\TwitchBot\\TwitchBot\\bin\\Debug\\netcoreapp3.1\\background"+ itm.count +".zip");
                 //chrome_options.AddArgument("--proxy-server=" + proxyList[i]);
                 var driver = new ChromeDriver(chrome_options);
 
-                //driver.Url = "https://whatismyipaddress.com/";
-                driver.Url = "http://twitch.tv/klopsik733";
+                driver.Url = "https://whatismyipaddress.com/";
+                //driver.Url = "https://twitch.tv/deneyyapiyoruz";
                 driver.Navigate();
 
                 while (true)
                 {
+                    var matureButton = driver.FindElementByClassName("simplebar-scrollbar");
+
+                    if (matureButton != null)
+                    { 
+                    
+                    }
                     var item = driver.FindElementByClassName("simplebar-scrollbar");
 
                     if (item != null)
@@ -72,7 +93,6 @@ namespace TwitchBot
                         Thread.Sleep(rInt);
                         item.SendKeys(Keys.Up);
                         Thread.Sleep(rInt);
-                        Console.WriteLine("GORKEM");
                     }
 
                 }
