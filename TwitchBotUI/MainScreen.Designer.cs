@@ -161,6 +161,7 @@
             this.Name = "MainScreen";
             this.Text = "My Twitch Bot";
             this.TopMost = true;
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainScreen_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.startStopButton)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);

@@ -134,5 +134,10 @@ namespace TwitchBotUI
         {
 
         }
+
+        private void MainScreen_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Application.Exit();
+        }
     }
 }
