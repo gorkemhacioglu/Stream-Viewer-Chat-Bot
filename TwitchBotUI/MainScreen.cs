@@ -64,7 +64,6 @@ namespace TwitchBotUI
                 //mainThread = new Thread(RunIt);
                 //mainThread.Start();
                 ConfigurationManager.RefreshSection("appSettings");
-                LogInfo("Bot is running.");
             }
             else
             {
@@ -94,6 +93,7 @@ namespace TwitchBotUI
             configuration.AppSettings.Settings["proxyListDirectory"].Value = txtProxyList.Text;
             configuration.Save(ConfigurationSaveMode.Modified);            
             LogInfo("Configuration saved.");
+            LogInfo("Bot is starting.");
             a.Start(proxyListDirectory, txtStreamUrl.Text, headless);
             LogInfo("Bot did it's job.");
         }
