@@ -32,7 +32,6 @@
             this.startStopButton = new System.Windows.Forms.PictureBox();
             this.txtStreamUrl = new System.Windows.Forms.TextBox();
             this.lblStreamUrl = new System.Windows.Forms.Label();
-            this.logList = new System.Windows.Forms.ListView();
             this.lblLog = new System.Windows.Forms.Label();
             this.checkHeadless = new System.Windows.Forms.CheckBox();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
@@ -40,6 +39,7 @@
             this.txtProxyList = new System.Windows.Forms.TextBox();
             this.browseProxyList = new System.Windows.Forms.Button();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.logScreen = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.startStopButton)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -69,16 +69,6 @@
             this.lblStreamUrl.Size = new System.Drawing.Size(65, 15);
             this.lblStreamUrl.TabIndex = 2;
             this.lblStreamUrl.Text = "Stream Url:";
-            // 
-            // logList
-            // 
-            this.logList.HideSelection = false;
-            this.logList.Location = new System.Drawing.Point(12, 26);
-            this.logList.Name = "logList";
-            this.logList.Size = new System.Drawing.Size(505, 115);
-            this.logList.TabIndex = 3;
-            this.logList.UseCompatibleStateImageBehavior = false;
-            this.logList.View = System.Windows.Forms.View.List;
             // 
             // lblLog
             // 
@@ -142,18 +132,27 @@
             this.pictureBox1.Visible = false;
             this.pictureBox1.Click += new System.EventHandler(this.emergency_Click);
             // 
+            // logScreen
+            // 
+            this.logScreen.Location = new System.Drawing.Point(12, 26);
+            this.logScreen.Multiline = true;
+            this.logScreen.Name = "logScreen";
+            this.logScreen.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.logScreen.Size = new System.Drawing.Size(505, 115);
+            this.logScreen.TabIndex = 10;
+            // 
             // MainScreen
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(529, 233);
+            this.Controls.Add(this.logScreen);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.browseProxyList);
             this.Controls.Add(this.txtProxyList);
             this.Controls.Add(this.lblProxyList);
             this.Controls.Add(this.checkHeadless);
             this.Controls.Add(this.lblLog);
-            this.Controls.Add(this.logList);
             this.Controls.Add(this.lblStreamUrl);
             this.Controls.Add(this.txtStreamUrl);
             this.Controls.Add(this.startStopButton);
@@ -174,16 +173,15 @@
         private System.Windows.Forms.PictureBox startStopButton;
         private System.Windows.Forms.TextBox txtStreamUrl;
         private System.Windows.Forms.Label lblStreamUrl;
-        private System.Windows.Forms.ListView logList;
         private System.Windows.Forms.Label lblLog;
         private System.Windows.Forms.CheckBox chechHeadless;
         private System.Windows.Forms.CheckBox checkHeadless;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.Label lblProxyList;
-        private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button browseProxyList;
         private System.Windows.Forms.TextBox txtProxyList;
         private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.TextBox logScreen;
     }
 }
 

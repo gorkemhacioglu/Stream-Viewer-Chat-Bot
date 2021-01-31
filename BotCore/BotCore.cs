@@ -16,6 +16,7 @@ namespace BotCore
         public static string streamUrl = "";
         public static bool headless = false;
         public static bool first = true;
+        public bool canRun = true;
         public static List<ChromeDriver> chromes = new List<ChromeDriver>();
         public static List<Thread> threads = new List<Thread>();
         public void Start(string proxyListDirectory, string stream, bool headless)
@@ -37,7 +38,7 @@ namespace BotCore
             string line = string.Empty;
 
             System.IO.StreamReader file = new System.IO.StreamReader(proxyListDirectory);
-            while ((line = file.ReadLine()) != null)
+            while ((line = file.ReadLine()) != null && canRun)
             {
                 var array = line.ToString().Split(':');
                 string text = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "\\zipDirectory\\backgroundTemplate.js");
@@ -47,7 +48,6 @@ namespace BotCore
                 ZipFile.CreateFromDirectory(AppDomain.CurrentDomain.BaseDirectory + "\\zipDirectory", AppDomain.CurrentDomain.BaseDirectory + "\\zipSource\\background" + i + ".zip");
 
                 Thread thr = new Thread(Request);
-                threads.Add(thr);
                 Random r = new Random();
                 int rInt = r.Next(0, 10000);
                 if (!first)
@@ -55,6 +55,7 @@ namespace BotCore
 
                 first = false;
                 thr.Start(new Item { url = line, count = i });
+                threads.Add(thr);
                 i++;
             }
 
