@@ -50,7 +50,7 @@ namespace BotCore
 
                 Thread thr = new Thread(Request);
                 Random r = new Random();
-                int rInt = r.Next(0, 10000);
+                int rInt = r.Next(0, 15000);
                 if (!first)
                     Thread.Sleep(rInt);
 
@@ -158,21 +158,18 @@ namespace BotCore
                         }
                     }
 
-                    var cache = driver.FindElementsByClassName("tw-pd-x-1");
+                    var cache = driver.FindElementByXPath("//*[@id=\"root\"]/div/div[2]/div[1]/div/div/div[3]/button/div/div/div");
 
-                    foreach (var btn in cache)
+                    try
                     {
-                        try
-                        {
-                            if (btn.Text != null && btn.Text == "Accept" || btn.Text == "Kabul")
-                            {
-                                btn.Click();
-                            }
-                        }
-                        catch
-                        {
-                        }
+                        if (cache != null)
+                            cache.Click();
                     }
+                    catch (Exception)
+                    {
+                        //ignored
+                    }
+                    
 
                     if (!mute)
                     {
