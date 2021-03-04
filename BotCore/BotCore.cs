@@ -3,6 +3,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Threading;
@@ -102,6 +103,32 @@ namespace BotCore
 
                 //driver.Url = "https://15d7a43b4075c3068ed719ff0b3a5937.m.pipedream.net";
                 //driver.Url = "https://whatismyipaddress.com/";
+
+                //driver.Navigate().GoToUrl("https://www.twitch.tv/login");
+                //var username = driver.FindElement(By.Id("login-username"));
+                //username.SendKeys("gumus_alkan3");
+                //var password = driver.FindElement(By.Id("password-input"));
+                //password.SendKeys("Gorkemtwitch");
+                //driver.FindElement(By.XPath("//button[@class ='ScCoreButton-sc-1qn4ixc-0 ScCoreButtonPrimary-sc-1qn4ixc-1 jCxFvU tw-core-button']")).Click();
+                //Thread.Sleep(2000);
+                //driver.FindElement(By.XPath("//button[@class ='tw-link tw-link--button']")).Click();
+                //Thread.Sleep(2000);
+                //ProcessStartInfo startInfo = new ProcessStartInfo();
+                //startInfo.FileName = @"powershell.exe";
+                //startInfo.Arguments = @"& 'C:\Source\TwitchBot\Login\check.exe'";
+                //startInfo.RedirectStandardOutput = true;
+                //startInfo.RedirectStandardError = true;
+                //startInfo.UseShellExecute = false;
+                //startInfo.CreateNoWindow = true;
+                //Process process = new Process();
+                //process.StartInfo = startInfo;
+                //process.Start();
+                //string code = process.StandardOutput.ReadToEnd();
+                //Console.WriteLine(code);
+                //Debug.WriteLine(code);
+                //var verify = driver.FindElement(By.XPath("//*[@id='root']/div/div[1]/div[3]/div/div/div/div[3]/div[2]/div/div[1]/div/input"));
+                //verify.SendKeys(code);
+
                 driver.Url = streamUrl;
                 chromes.Add(driver);
                 driver.Navigate();
