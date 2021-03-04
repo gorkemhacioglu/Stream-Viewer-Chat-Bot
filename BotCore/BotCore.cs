@@ -50,7 +50,7 @@ namespace BotCore
 
                 Thread thr = new Thread(Request);
                 Random r = new Random();
-                int rInt = r.Next(0, 15000);
+                int rInt = r.Next(10000, 15000);
                 if (!first)
                     Thread.Sleep(rInt);
 
@@ -93,12 +93,13 @@ namespace BotCore
                 if (headless)
                     chrome_options.AddArgument("headless");
 
-                string[] resolutions = { "1152,864", "1080,720", "1400,1050", "1280,800", "1280,720", "1024,600", "1024,768", "800,600" };
+                string[] resolutions = { "1152,864", "1080,720", "1280,800", "1280,720", "1024,600", "1024,768", "800,600" };
                 chrome_options.AddArgument("window-size=" + resolutions[r.Next(0, resolutions.Length - 1)]);
                 chrome_options.AddArgument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36");
                 chrome_options.AddExcludedArgument("enable-automation");
                 chrome_options.AddAdditionalCapability("useAutomationExtension", false);
                 chrome_options.AddExtension(zipDirectory + itm.count + ".zip");
+                chrome_options.PageLoadStrategy = PageLoadStrategy.Default;
                 var driver = new ChromeDriver(chrome_options);
 
                 //driver.Url = "https://15d7a43b4075c3068ed719ff0b3a5937.m.pipedream.net";
@@ -132,7 +133,7 @@ namespace BotCore
                 driver.Url = streamUrl;
                 chromes.Add(driver);
                 driver.Navigate();
-                
+
                 bool mute = false;
                 while (true)
                 {
