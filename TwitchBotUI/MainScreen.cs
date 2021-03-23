@@ -18,14 +18,23 @@ namespace TwitchBotUI
     public partial class MainScreen : Form
     {
         public bool start = false;
+
         public static string proxyListDirectory = "";
+
         public static string streamUrl = "";
+
         public static bool headless = false;
+
         public Thread mainThread = null;
-        CancellationTokenSource tokenSource = new CancellationTokenSource();
-        CancellationToken token = new CancellationToken();
-        Configuration configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+
+        CancellationTokenSource _tokenSource = new CancellationTokenSource();
+
+        readonly CancellationToken _token = new CancellationToken();
+
+        readonly Configuration _configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+
         public Core a = new Core();
+
         public MainScreen()
         {
             InitializeComponent();
@@ -36,13 +45,10 @@ namespace TwitchBotUI
         private void LoadFromAppSettings()
         {
             LogInfo("Reading configuration.");
-            proxyListDirectory = txtProxyList.Text = configuration.AppSettings.Settings["proxyListDirectory"].Value;
-            streamUrl = txtStreamUrl.Text = configuration.AppSettings.Settings["streamUrl"].Value;
-            headless = checkHeadless.Checked = Convert.ToBoolean(configuration.AppSettings.Settings["headless"].Value);
+            proxyListDirectory = txtProxyList.Text = _configuration.AppSettings.Settings["proxyListDirectory"].Value;
+            streamUrl = txtStreamUrl.Text = _configuration.AppSettings.Settings["streamUrl"].Value;
+            headless = checkHeadless.Checked = Convert.ToBoolean(_configuration.AppSettings.Settings["headless"].Value);
             LogInfo("Configuration has been read.");
-            //config.AppSettings.Settings["test"].Value = "blah";
-            //config.Save(ConfigurationSaveMode.Modified);
-            //ConfigurationManager.RefreshSection("appSettings");
         }
 
         [Obsolete]
@@ -52,25 +58,25 @@ namespace TwitchBotUI
 
             if (start)
             {
-                startStopButton.Image = Image.FromFile(Directory.GetCurrentDirectory() + "\\Images\\button_stop.png");
+                startStopButton.BackgroundImage = Image.FromFile(Directory.GetCurrentDirectory() + "\\Images\\button_stop.png");
                 LogInfo("Initializing bot.");
                 a.canRun = true;
-                TaskFactory factory = new TaskFactory(token);
-                tokenSource = new CancellationTokenSource();
-                var task = Task.Run(() =>
+                TaskFactory factory = new TaskFactory(_token);
+                _tokenSource = new CancellationTokenSource();
+
+                Task.Run(() =>
                 {
                     RunIt(null);
-                }, tokenSource.Token);
-                //mainThread = new Thread(RunIt);
-                //mainThread.Start();
+                }, _tokenSource.Token);
+
                 ConfigurationManager.RefreshSection("appSettings");
             }
             else
             {
-                startStopButton.Image = Image.FromFile(Directory.GetCurrentDirectory() + "\\Images\\button_start.png");
+                startStopButton.BackgroundImage = Image.FromFile(Directory.GetCurrentDirectory() + "\\Images\\button_start.png");
                 LogInfo("Terminating bot, please wait.");
 
-                tokenSource.Cancel();
+                _tokenSource.Cancel();
                 a.canRun = false;
 
                 try
@@ -88,13 +94,19 @@ namespace TwitchBotUI
         private void RunIt(object obj)
         {
             LogInfo("Saving the configuration.");
-            configuration.AppSettings.Settings["streamUrl"].Value = txtStreamUrl.Text;
-            configuration.AppSettings.Settings["headless"].Value = checkHeadless.Checked.ToString();
-            configuration.AppSettings.Settings["proxyListDirectory"].Value = txtProxyList.Text;
-            configuration.Save(ConfigurationSaveMode.Modified);            
+
+            _configuration.AppSettings.Settings["streamUrl"].Value = txtStreamUrl.Text;
+            _configuration.AppSettings.Settings["headless"].Value = checkHeadless.Checked.ToString();
+            _configuration.AppSettings.Settings["proxyListDirectory"].Value = txtProxyList.Text;
+            _configuration.Save(ConfigurationSaveMode.Modified);            
+
             LogInfo("Configuration saved.");
             LogInfo("Bot is starting.");
-            a.Start(proxyListDirectory, txtStreamUrl.Text, headless);
+
+            Int32.TryParse(txtBrowserLimit.Text, out var browserLimit);
+
+            a.Start(proxyListDirectory, txtStreamUrl.Text, headless, browserLimit);
+
             LogInfo("Bot did it's job.");
         }
 
@@ -115,8 +127,6 @@ namespace TwitchBotUI
                 logScreen.SelectionStart = logScreen.TextLength;
                 logScreen.ScrollToCaret();
             }
-            
-            //log.Info(str);
         }
 
         private void LogError(string str)
@@ -142,6 +152,7 @@ namespace TwitchBotUI
         private void browseProxyList_Click(object sender, EventArgs e)
         {
             OpenFileDialog fileDialog = new OpenFileDialog();
+
             fileDialog.Filter = "txt files (*.txt)|*.txt";
             fileDialog.FilterIndex = 1;
             fileDialog.Multiselect = false;
@@ -160,6 +171,20 @@ namespace TwitchBotUI
         private void MainScreen_FormClosing(object sender, FormClosingEventArgs e)
         {
             Application.Exit();
+        }
+
+        private void pictureBox2_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string strCmdLine = "/C explorer \"https://www.vultr.com/?ref=8827163\"";
+                var browserProcess = System.Diagnostics.Process.Start("CMD.exe", strCmdLine);
+                browserProcess?.Close();
+            }
+            catch (Exception)
+            {
+                //ignored
+            }
         }
     }
 }
