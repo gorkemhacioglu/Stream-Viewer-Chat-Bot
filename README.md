@@ -1,5 +1,4 @@
 # TwitchBot
-Open Source Twitch Viewer Bot
 
 ![alt text](http://mytwitchbot.com/images/ui.png)
 
