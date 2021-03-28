@@ -11,6 +11,8 @@ using System.IO;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
+using Timer = System.Threading.Timer;
 
 namespace BotCore
 {
@@ -33,6 +35,8 @@ namespace BotCore
         private static readonly ConcurrentQueue<int> _threadIds = new ConcurrentQueue<int>();
 
         private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
+
+        private System.IO.StreamReader _file = null;
 
         public void Start(string proxyListDirectory, string stream, bool headless, int browserLimit)
         {
@@ -61,44 +65,66 @@ namespace BotCore
 
             do
             {
-                System.IO.StreamReader file = new System.IO.StreamReader(proxyListDirectory);
-
-                string line;
-                while ((line = file.ReadLine()) != null && canRun)
+                try
                 {
-                    var array = line.ToString().Split(':');
-                    string text = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "\\zipDirectory\\backgroundTemplate.js");
-                    text = text.Replace("{ip}", array[0]).Replace("{port}", array[1]).Replace("{username}", array[2]).Replace("{password}", array[3]);
-                    File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "\\zipDirectory\\background.js", text);
+                    Debug.WriteLine("New Loop");
 
-                    ZipFile.CreateFromDirectory(AppDomain.CurrentDomain.BaseDirectory + "\\zipDirectory", AppDomain.CurrentDomain.BaseDirectory + "\\zipSource\\background" + i + ".zip");
+                    _file = new System.IO.StreamReader(proxyListDirectory);
 
-                    Thread thr = new Thread(Request) {Priority = ThreadPriority.Normal};
-                    Random r = new Random();
-                    int rInt = r.Next(1000, 3000);
+                    string line;
 
-                    _lock.EnterReadLock();
-                    while (browserLimit > 0 && _threads.Count >= Core.browserLimit)
-                        Thread.Sleep(500);
-                    _lock.ExitReadLock();
+                    while (canRun && (line = _file.ReadLine()) != null)
+                    {
+                        var array = line.ToString().Split(':');
+                        string text = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "\\zipDirectory\\backgroundTemplate.js");
+                        text = text.Replace("{ip}", array[0]).Replace("{port}", array[1]).Replace("{username}", array[2]).Replace("{password}", array[3]);
+                        File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "\\zipDirectory\\background.js", text);
 
-                    _lock.EnterWriteLock();
-                    thr.Start(new Item { Url = line, Count = i });
-                    _threadIds.Enqueue(thr.ManagedThreadId);
-                    _threads.TryAdd(thr.ManagedThreadId, thr);
-                    _lock.ExitWriteLock();
-                    i++;
-                    Thread.Sleep(rInt);
+                        ZipFile.CreateFromDirectory(AppDomain.CurrentDomain.BaseDirectory + "\\zipDirectory", AppDomain.CurrentDomain.BaseDirectory + "\\zipSource\\background" + i + ".zip");
+
+                        Thread thr = new Thread(Request) { Priority = ThreadPriority.Normal };
+                        Random r = new Random();
+                        int rInt = r.Next(1500, 3000);
+
+                        while (browserLimit > 0 && _threads.Count >= Core.browserLimit)
+                        {
+                            Thread.Sleep(500);
+                        }
+
+                        _lock.EnterWriteLock();
+                        thr.Start(new Item { Url = line, Count = i });
+                        _threadIds.Enqueue(thr.ManagedThreadId);
+                        _threads.TryAdd(thr.ManagedThreadId, thr);
+                        _lock.ExitWriteLock();
+                        i++;
+
+                        if (browserLimit == 0)
+                        {
+                            Thread.Sleep(rInt);
+                        }
+                        else
+                        {
+                            Thread.Sleep(50);
+                        }
+                    }
+
+                    _file.Close();
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine("Loop Error:" + e);
                 }
 
-                file.Close();
             } while (browserLimit > 0);
+
 
         }
 
         public void Stop()
         {
             canRun = false;
+
+            _file.Close();
 
             _lock.EnterReadLock();
 
@@ -119,42 +145,47 @@ namespace BotCore
         {
             while (canRun)
             {
-                _lock.EnterWriteLock();
                 try
                 {
                     if (_threads.Count >= browserLimit)
                     {
                         Thread tempThread = null;
+
+                        _lock.EnterWriteLock();
+
                         _threadIds.TryDequeue(out var threadId);
 
-                        do
+                        _threads.TryGetValue(threadId, out tempThread);
+
+                        _lock.ExitWriteLock();
+
+                        if (tempThread != null)
                         {
-                            _threads.TryGetValue(threadId, out tempThread);
-                        } while (tempThread == null);
+                            tempThread.Priority = ThreadPriority.Highest;
 
-                        tempThread.Priority = ThreadPriority.Highest;
-
-                        while (tempThread.IsAlive)
-                            Thread.Sleep(500);
+                            while (tempThread.IsAlive)
+                            {
+                                Thread.Sleep(500);
+                            }
+                        }
                     }
                 }
                 catch (Exception)
                 {
                     //ignored
                 }
-                _lock.ExitWriteLock();
             }
         }
 
-        private static void Request(object obj)
+        private void Request(object obj)
         {
             try
             {
                 Random r = new Random();
                 Item itm = (Item)obj;
                 var array = itm.Url.ToString().Split(':');
-                var proxy = new Proxy {HttpProxy = array[0] + ':' + array[1], SslProxy = array[0] + ':' + array[1]};
-                var chromeOptions = new ChromeOptions {Proxy = proxy, AcceptInsecureCertificates = true};
+                var proxy = new Proxy { HttpProxy = array[0] + ':' + array[1], SslProxy = array[0] + ':' + array[1] };
+                var chromeOptions = new ChromeOptions { Proxy = proxy, AcceptInsecureCertificates = true };
 
                 if (headless)
                     chromeOptions.AddArgument("headless");
@@ -167,7 +198,7 @@ namespace BotCore
                 chromeOptions.AddExtension(zipDirectory + itm.Count + ".zip");
                 chromeOptions.PageLoadStrategy = PageLoadStrategy.Default;
 
-                var driver = new ChromeDriver(chromeOptions) {Url = streamUrl};
+                var driver = new ChromeDriver(chromeOptions) { Url = streamUrl };
 
                 driver.Navigate();
 
@@ -178,6 +209,13 @@ namespace BotCore
 
                 bool cacheClicked = false;
                 int cacheCheckCount = 0;
+
+                if (browserLimit > 0)
+                {
+                    Thread.Sleep(1000);
+
+                    Thread.CurrentThread.Priority = ThreadPriority.Highest;
+                }
 
                 while (Thread.CurrentThread.Priority != ThreadPriority.Highest)
                 {
@@ -305,7 +343,6 @@ namespace BotCore
             {
                 Console.WriteLine("Error" + ex);
             }
-            return;
         }
     }
     public class Item

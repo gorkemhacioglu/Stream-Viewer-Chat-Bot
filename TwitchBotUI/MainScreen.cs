@@ -33,7 +33,7 @@ namespace TwitchBotUI
 
         readonly Configuration _configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
-        public Core a = new Core();
+        public Core core = new Core();
 
         public MainScreen()
         {
@@ -60,7 +60,7 @@ namespace TwitchBotUI
             {
                 startStopButton.BackgroundImage = Image.FromFile(Directory.GetCurrentDirectory() + "\\Images\\button_stop.png");
                 LogInfo("Initializing bot.");
-                a.canRun = true;
+                core.canRun = true;
                 TaskFactory factory = new TaskFactory(_token);
                 _tokenSource = new CancellationTokenSource();
 
@@ -73,21 +73,25 @@ namespace TwitchBotUI
             }
             else
             {
-                startStopButton.BackgroundImage = Image.FromFile(Directory.GetCurrentDirectory() + "\\Images\\button_start.png");
+                startStopButton.BackgroundImage = Image.FromFile(Directory.GetCurrentDirectory() + "\\Images\\button_stopping.png");
+                startStopButton.Enabled = false;
                 LogInfo("Terminating bot, please wait.");
 
                 _tokenSource.Cancel();
-                a.canRun = false;
+                core.canRun = false;
 
                 try
                 {
-                    a.Stop();
+                    core.Stop();
                 }
                 catch (Exception)
                 {
                     LogInfo("Termination error. (Ignored)");
                 }
                 LogInfo("Bot terminated.");
+
+                startStopButton.BackgroundImage = Image.FromFile(Directory.GetCurrentDirectory() + "\\Images\\button_start.png");
+                startStopButton.Enabled = true;
             }
         }
 
@@ -105,7 +109,7 @@ namespace TwitchBotUI
 
             Int32.TryParse(txtBrowserLimit.Text, out var browserLimit);
 
-            a.Start(proxyListDirectory, txtStreamUrl.Text, headless, browserLimit);
+            core.Start(proxyListDirectory, txtStreamUrl.Text, headless, browserLimit);
 
             LogInfo("Bot did it's job.");
         }
@@ -146,7 +150,6 @@ namespace TwitchBotUI
                 logScreen.SelectionStart = logScreen.TextLength;
                 logScreen.ScrollToCaret();
             }
-            //log.Error(str);
         }
 
         private void browseProxyList_Click(object sender, EventArgs e)
