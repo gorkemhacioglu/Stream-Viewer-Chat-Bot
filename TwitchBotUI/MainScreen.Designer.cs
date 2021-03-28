@@ -210,7 +210,6 @@
         private System.Windows.Forms.TextBox txtStreamUrl;
         private System.Windows.Forms.Label lblStreamUrl;
         private System.Windows.Forms.Label lblLog;
-        private System.Windows.Forms.CheckBox chechHeadless;
         private System.Windows.Forms.CheckBox checkHeadless;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.Label lblProxyList;
@@ -219,7 +218,6 @@
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.TextBox logScreen;
         private System.Windows.Forms.Label lblBrowserLimit;
-        private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.TextBox txtBrowserLimit;
         private System.Windows.Forms.PictureBox picVulture;
     }
