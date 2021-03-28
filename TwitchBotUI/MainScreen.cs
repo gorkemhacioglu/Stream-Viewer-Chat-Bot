@@ -54,6 +54,11 @@ namespace TwitchBotUI
         [Obsolete]
         private void startStopButton_Click(object sender, EventArgs e)
         {
+            if (String.IsNullOrEmpty(txtProxyList.Text) || string.IsNullOrEmpty(txtStreamUrl.Text))
+            {
+                LogInfo("Please choose a proxy directory and enter your stream URL.");
+                return;
+            }
             start = !start;
 
             if (start)
