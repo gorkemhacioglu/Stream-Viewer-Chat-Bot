@@ -78,7 +78,7 @@
             // lblLog
             // 
             this.lblLog.AutoSize = true;
-            this.lblLog.Location = new System.Drawing.Point(231, 8);
+            this.lblLog.Location = new System.Drawing.Point(211, 8);
             this.lblLog.Name = "lblLog";
             this.lblLog.Size = new System.Drawing.Size(44, 15);
             this.lblLog.TabIndex = 4;
@@ -90,9 +90,9 @@
             this.checkHeadless.Location = new System.Drawing.Point(11, 177);
             this.checkHeadless.Name = "checkHeadless";
             this.checkHeadless.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.checkHeadless.Size = new System.Drawing.Size(76, 19);
+            this.checkHeadless.Size = new System.Drawing.Size(92, 19);
             this.checkHeadless.TabIndex = 5;
-            this.checkHeadless.Text = ":Headless";
+            this.checkHeadless.Text = ":Don\'t check";
             this.checkHeadless.UseVisualStyleBackColor = true;
             // 
             // openFileDialog1

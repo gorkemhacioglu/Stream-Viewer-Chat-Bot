@@ -30,6 +30,8 @@ namespace BotCore
 
         public bool canRun = true;
 
+        bool _muteClicked = false;
+
         private static readonly ConcurrentDictionary<int, Thread> _threads = new ConcurrentDictionary<int, Thread>();
 
         private static readonly ConcurrentQueue<int> _threadIds = new ConcurrentQueue<int>();
@@ -84,7 +86,7 @@ namespace BotCore
 
                         Thread thr = new Thread(Request) { Priority = ThreadPriority.Normal };
                         Random r = new Random();
-                        int rInt = r.Next(1500, 3000);
+                        int rInt = r.Next(3000, 6000);
 
                         while (browserLimit > 0 && _threads.Count >= Core.browserLimit)
                         {
@@ -98,14 +100,7 @@ namespace BotCore
                         _lock.ExitWriteLock();
                         i++;
 
-                        if (browserLimit == 0)
-                        {
-                            Thread.Sleep(rInt);
-                        }
-                        else
-                        {
-                            Thread.Sleep(50);
-                        }
+                        Thread.Sleep(browserLimit == 0 ? rInt : 50);
                     }
 
                     _file.Close();
@@ -202,8 +197,6 @@ namespace BotCore
 
                 driver.Navigate();
 
-                bool muteClicked = false;
-
                 bool matureClicked = false;
                 int matureCheckCount = 0;
 
@@ -217,13 +210,16 @@ namespace BotCore
                     Thread.CurrentThread.Priority = ThreadPriority.Highest;
                 }
 
+
+                var startDate = DateTime.Now;
+
                 while (Thread.CurrentThread.Priority != ThreadPriority.Highest)
                 {
                     try
                     {
-                        if (!muteClicked)
+                        if (!_muteClicked)
                         {
-                            muteClicked = true;
+                            _muteClicked = true;
                             new Actions(driver).SendKeys("m").Perform();
                         }
 
@@ -285,6 +281,13 @@ namespace BotCore
                         catch (Exception)
                         {
                             //ignored
+                        }
+
+                        if (DateTime.Now - startDate > TimeSpan.FromMinutes(5))
+                        {
+                            driver.Navigate().Refresh();
+
+                            startDate = DateTime.Now;
                         }
 
                         #region StreamQuality
