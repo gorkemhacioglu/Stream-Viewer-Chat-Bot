@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Configuration;
-using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
+using System.Net;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -18,6 +15,8 @@ namespace TwitchBotUI
     public partial class MainScreen : Form
     {
         public bool start = false;
+
+        private static string _productVersion = "1.1";
 
         public static string proxyListDirectory = "";
 
@@ -38,8 +37,80 @@ namespace TwitchBotUI
         public MainScreen()
         {
             InitializeComponent();
+
+            Text += " v" + _productVersion;
+
             LogInfo("Application started.");
             LoadFromAppSettings();
+            var isAvailable = IsNewerVersionAvailable();
+
+            if (isAvailable)
+                UpdateBot();
+        }
+
+        private bool IsNewerVersionAvailable()
+        {
+            try
+            {
+                var webRequest = WebRequest.Create(@"https://mytwitchbot.com/Download/latestVersion.txt");
+                webRequest.Headers.Add("Accept: text/html, application/xhtml+xml, */*");
+                webRequest.Headers.Add("User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
+                using (var response = webRequest.GetResponse())
+                using (var content = response.GetResponseStream())
+                using (var reader = new StreamReader(content))
+                {
+                    var latestVersion = reader.ReadToEnd();
+
+                    return latestVersion != _productVersion;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        private void UpdateBot()
+        {
+            DialogResult dialogResult = MessageBox.Show("Do you want to update?", "Newer version is available", MessageBoxButtons.YesNo);
+            if (dialogResult == DialogResult.Yes)
+            {
+                var args = "https://mytwitchbot.com/Download/win-x64.zip" + " " + Directory.GetCurrentDirectory() + " " + Path.Combine(Directory.GetCurrentDirectory(), "TwitchBotUI.exe");
+                try
+                {
+                    Directory.Delete(Path.Combine(Directory.GetCurrentDirectory(), "AutoUpdaterOld"), true);
+                }
+                catch (Exception)
+                {
+                    //ignored
+                }
+                try
+                {
+                    var tempUpdaterPath = Path.Combine(Directory.GetCurrentDirectory(), "AutoUpdaterTemp");
+                    var updaterPath = Path.Combine(Directory.GetCurrentDirectory(), "AutoUpdater");
+                    Directory.CreateDirectory(tempUpdaterPath);
+                    foreach (var file in Directory.GetFiles(updaterPath))
+                    {
+                        string destFile = Path.Combine(tempUpdaterPath, Path.GetFileName(file));
+                        File.Move(file, destFile, true);
+                    }
+                    var filename = Path.Combine(tempUpdaterPath, "AutoUpdater.exe");
+                    Process.Start(filename, args);
+                    Environment.Exit(0);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Sorry, updater failed.");
+                    return;
+                }
+
+            }
+        }
+
+        public static DirectoryInfo GetExecutingDirectory()
+        {
+            var location = new Uri(Assembly.GetEntryAssembly().GetName().CodeBase);
+            return new FileInfo(location.AbsolutePath).Directory;
         }
 
         private void LoadFromAppSettings()
@@ -54,7 +125,7 @@ namespace TwitchBotUI
         [Obsolete]
         private void startStopButton_Click(object sender, EventArgs e)
         {
-            if (String.IsNullOrEmpty(txtProxyList.Text) || string.IsNullOrEmpty(txtStreamUrl.Text))
+            if (string.IsNullOrEmpty(txtProxyList.Text) || string.IsNullOrEmpty(txtStreamUrl.Text))
             {
                 LogInfo("Please choose a proxy directory and enter your stream URL.");
                 return;
@@ -107,7 +178,7 @@ namespace TwitchBotUI
             _configuration.AppSettings.Settings["streamUrl"].Value = txtStreamUrl.Text;
             _configuration.AppSettings.Settings["headless"].Value = checkHeadless.Checked.ToString();
             _configuration.AppSettings.Settings["proxyListDirectory"].Value = txtProxyList.Text;
-            _configuration.Save(ConfigurationSaveMode.Modified);            
+            _configuration.Save(ConfigurationSaveMode.Modified);
 
             LogInfo("Configuration saved.");
             LogInfo("Bot is starting.");
