@@ -62,6 +62,7 @@
             this.MinimumSize = new System.Drawing.Size(396, 39);
             this.Name = "MainForm";
             this.Text = "Updater";
+            this.TopMost = true;
             this.ResumeLayout(false);
 
         }
