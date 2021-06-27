@@ -1,4 +1,4 @@
-# TwitchBot
+# Twitch Viewer Bot
 
 ![alt text](https://mytwitchbot.com/images/ui.png)
 
