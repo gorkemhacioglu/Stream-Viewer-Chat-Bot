@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainScreen));
             this.startStopButton = new System.Windows.Forms.PictureBox();
             this.txtStreamUrl = new System.Windows.Forms.TextBox();
@@ -35,17 +36,23 @@
             this.lblLog = new System.Windows.Forms.Label();
             this.checkHeadless = new System.Windows.Forms.CheckBox();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.lblProxyList = new System.Windows.Forms.Label();
             this.txtProxyList = new System.Windows.Forms.TextBox();
             this.browseProxyList = new System.Windows.Forms.Button();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.logScreen = new System.Windows.Forms.TextBox();
             this.lblBrowserLimit = new System.Windows.Forms.Label();
             this.txtBrowserLimit = new System.Windows.Forms.TextBox();
             this.picVulture = new System.Windows.Forms.PictureBox();
+            this.numRefreshMinutes = new System.Windows.Forms.NumericUpDown();
+            this.lblRefreshMin = new System.Windows.Forms.Label();
+            this.tipLimitInfo = new System.Windows.Forms.PictureBox();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.tipRefreshBrowser = new System.Windows.Forms.PictureBox();
+            this.lblProxyList = new System.Windows.Forms.LinkLabel();
             ((System.ComponentModel.ISupportInitialize)(this.startStopButton)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picVulture)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numRefreshMinutes)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tipLimitInfo)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tipRefreshBrowser)).BeginInit();
             this.SuspendLayout();
             // 
             // startStopButton
@@ -61,15 +68,15 @@
             // 
             // txtStreamUrl
             // 
-            this.txtStreamUrl.Location = new System.Drawing.Point(74, 232);
+            this.txtStreamUrl.Location = new System.Drawing.Point(79, 232);
             this.txtStreamUrl.Name = "txtStreamUrl";
-            this.txtStreamUrl.Size = new System.Drawing.Size(311, 23);
+            this.txtStreamUrl.Size = new System.Drawing.Size(306, 23);
             this.txtStreamUrl.TabIndex = 1;
             // 
             // lblStreamUrl
             // 
             this.lblStreamUrl.AutoSize = true;
-            this.lblStreamUrl.Location = new System.Drawing.Point(3, 235);
+            this.lblStreamUrl.Location = new System.Drawing.Point(8, 235);
             this.lblStreamUrl.Name = "lblStreamUrl";
             this.lblStreamUrl.Size = new System.Drawing.Size(65, 15);
             this.lblStreamUrl.TabIndex = 2;
@@ -87,55 +94,34 @@
             // checkHeadless
             // 
             this.checkHeadless.AutoSize = true;
-            this.checkHeadless.Location = new System.Drawing.Point(11, 177);
+            this.checkHeadless.Location = new System.Drawing.Point(451, 177);
             this.checkHeadless.Name = "checkHeadless";
             this.checkHeadless.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.checkHeadless.Size = new System.Drawing.Size(92, 19);
+            this.checkHeadless.Size = new System.Drawing.Size(15, 14);
             this.checkHeadless.TabIndex = 5;
-            this.checkHeadless.Text = ":Don\'t check";
             this.checkHeadless.UseVisualStyleBackColor = true;
+            this.checkHeadless.Visible = false;
             // 
             // openFileDialog1
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
-            // lblProxyList
-            // 
-            this.lblProxyList.AutoSize = true;
-            this.lblProxyList.Location = new System.Drawing.Point(10, 206);
-            this.lblProxyList.Name = "lblProxyList";
-            this.lblProxyList.Size = new System.Drawing.Size(58, 15);
-            this.lblProxyList.TabIndex = 6;
-            this.lblProxyList.Text = "ProxyList:";
-            // 
             // txtProxyList
             // 
-            this.txtProxyList.Location = new System.Drawing.Point(104, 203);
+            this.txtProxyList.Location = new System.Drawing.Point(119, 203);
             this.txtProxyList.Name = "txtProxyList";
-            this.txtProxyList.Size = new System.Drawing.Size(281, 23);
+            this.txtProxyList.Size = new System.Drawing.Size(266, 23);
             this.txtProxyList.TabIndex = 7;
             // 
             // browseProxyList
             // 
-            this.browseProxyList.Location = new System.Drawing.Point(74, 203);
+            this.browseProxyList.Location = new System.Drawing.Point(79, 203);
             this.browseProxyList.Name = "browseProxyList";
-            this.browseProxyList.Size = new System.Drawing.Size(28, 23);
+            this.browseProxyList.Size = new System.Drawing.Size(34, 23);
             this.browseProxyList.TabIndex = 8;
             this.browseProxyList.Text = "...";
             this.browseProxyList.UseVisualStyleBackColor = true;
             this.browseProxyList.Click += new System.EventHandler(this.browseProxyList_Click);
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(299, 169);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(87, 30);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.pictureBox1.TabIndex = 9;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.Visible = false;
-            this.pictureBox1.Click += new System.EventHandler(this.emergency_Click);
             // 
             // logScreen
             // 
@@ -149,7 +135,7 @@
             // lblBrowserLimit
             // 
             this.lblBrowserLimit.AutoSize = true;
-            this.lblBrowserLimit.Location = new System.Drawing.Point(105, 177);
+            this.lblBrowserLimit.Location = new System.Drawing.Point(8, 178);
             this.lblBrowserLimit.Name = "lblBrowserLimit";
             this.lblBrowserLimit.Size = new System.Drawing.Size(82, 15);
             this.lblBrowserLimit.TabIndex = 11;
@@ -157,10 +143,10 @@
             // 
             // txtBrowserLimit
             // 
-            this.txtBrowserLimit.Location = new System.Drawing.Point(193, 173);
+            this.txtBrowserLimit.Location = new System.Drawing.Point(96, 173);
             this.txtBrowserLimit.Name = "txtBrowserLimit";
-            this.txtBrowserLimit.PlaceholderText = "0 means No Limit";
-            this.txtBrowserLimit.Size = new System.Drawing.Size(100, 23);
+            this.txtBrowserLimit.PlaceholderText = "0";
+            this.txtBrowserLimit.Size = new System.Drawing.Size(40, 23);
             this.txtBrowserLimit.TabIndex = 12;
             // 
             // picVulture
@@ -173,19 +159,84 @@
             this.picVulture.TabStop = false;
             this.picVulture.Click += new System.EventHandler(this.pictureBox2_Click);
             // 
+            // numRefreshMinutes
+            // 
+            this.numRefreshMinutes.Location = new System.Drawing.Point(248, 173);
+            this.numRefreshMinutes.Maximum = new decimal(new int[] {
+            1440,
+            0,
+            0,
+            0});
+            this.numRefreshMinutes.Name = "numRefreshMinutes";
+            this.numRefreshMinutes.Size = new System.Drawing.Size(48, 23);
+            this.numRefreshMinutes.TabIndex = 14;
+            this.numRefreshMinutes.Tag = "Refresh Browsers (Min.)";
+            // 
+            // lblRefreshMin
+            // 
+            this.lblRefreshMin.AutoSize = true;
+            this.lblRefreshMin.Location = new System.Drawing.Point(166, 177);
+            this.lblRefreshMin.Name = "lblRefreshMin";
+            this.lblRefreshMin.Size = new System.Drawing.Size(81, 15);
+            this.lblRefreshMin.TabIndex = 15;
+            this.lblRefreshMin.Text = "Refresh (Min):";
+            // 
+            // tipLimitInfo
+            // 
+            this.tipLimitInfo.Image = ((System.Drawing.Image)(resources.GetObject("tipLimitInfo.Image")));
+            this.tipLimitInfo.Location = new System.Drawing.Point(140, 169);
+            this.tipLimitInfo.Name = "tipLimitInfo";
+            this.tipLimitInfo.Size = new System.Drawing.Size(16, 16);
+            this.tipLimitInfo.TabIndex = 16;
+            this.tipLimitInfo.TabStop = false;
+            this.tipLimitInfo.MouseHover += new System.EventHandler(this.picLimitInfo_MouseHover);
+            // 
+            // toolTip
+            // 
+            this.toolTip.AutoPopDelay = 10000;
+            this.toolTip.BackColor = System.Drawing.Color.Aqua;
+            this.toolTip.InitialDelay = 300;
+            this.toolTip.IsBalloon = true;
+            this.toolTip.ReshowDelay = 100;
+            // 
+            // tipRefreshBrowser
+            // 
+            this.tipRefreshBrowser.Image = ((System.Drawing.Image)(resources.GetObject("tipRefreshBrowser.Image")));
+            this.tipRefreshBrowser.Location = new System.Drawing.Point(300, 169);
+            this.tipRefreshBrowser.Name = "tipRefreshBrowser";
+            this.tipRefreshBrowser.Size = new System.Drawing.Size(16, 16);
+            this.tipRefreshBrowser.TabIndex = 16;
+            this.tipRefreshBrowser.TabStop = false;
+            this.tipRefreshBrowser.MouseHover += new System.EventHandler(this.refreshInterval_MouseHover);
+            // 
+            // lblProxyList
+            // 
+            this.lblProxyList.AutoSize = true;
+            this.lblProxyList.LinkBehavior = System.Windows.Forms.LinkBehavior.AlwaysUnderline;
+            this.lblProxyList.Location = new System.Drawing.Point(8, 207);
+            this.lblProxyList.Name = "lblProxyList";
+            this.lblProxyList.Size = new System.Drawing.Size(61, 15);
+            this.lblProxyList.TabIndex = 17;
+            this.lblProxyList.TabStop = true;
+            this.lblProxyList.Text = "Proxy List:";
+            this.lblProxyList.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lblProxyList_LinkClicked);
+            // 
             // MainScreen
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(478, 325);
+            this.Controls.Add(this.lblProxyList);
+            this.Controls.Add(this.tipRefreshBrowser);
+            this.Controls.Add(this.tipLimitInfo);
+            this.Controls.Add(this.lblRefreshMin);
+            this.Controls.Add(this.numRefreshMinutes);
             this.Controls.Add(this.picVulture);
             this.Controls.Add(this.txtBrowserLimit);
             this.Controls.Add(this.lblBrowserLimit);
             this.Controls.Add(this.logScreen);
-            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.browseProxyList);
             this.Controls.Add(this.txtProxyList);
-            this.Controls.Add(this.lblProxyList);
             this.Controls.Add(this.checkHeadless);
             this.Controls.Add(this.lblLog);
             this.Controls.Add(this.lblStreamUrl);
@@ -193,12 +244,15 @@
             this.Controls.Add(this.startStopButton);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainScreen";
-            this.Text = "My Twitch Bot";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "My Twitch Viewer Bot";
             this.TopMost = true;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainScreen_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.startStopButton)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picVulture)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numRefreshMinutes)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tipLimitInfo)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tipRefreshBrowser)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -212,14 +266,18 @@
         private System.Windows.Forms.Label lblLog;
         private System.Windows.Forms.CheckBox checkHeadless;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
-        private System.Windows.Forms.Label lblProxyList;
         private System.Windows.Forms.Button browseProxyList;
         private System.Windows.Forms.TextBox txtProxyList;
-        private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.TextBox logScreen;
         private System.Windows.Forms.Label lblBrowserLimit;
         private System.Windows.Forms.TextBox txtBrowserLimit;
         private System.Windows.Forms.PictureBox picVulture;
+        private System.Windows.Forms.NumericUpDown numRefreshMinutes;
+        private System.Windows.Forms.Label lblRefreshMin;
+        private System.Windows.Forms.PictureBox tipLimitInfo;
+        private System.Windows.Forms.ToolTip toolTip;
+        private System.Windows.Forms.PictureBox tipRefreshBrowser;
+        private System.Windows.Forms.LinkLabel lblProxyList;
     }
 }
 

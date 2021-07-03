@@ -27,7 +27,7 @@ namespace TwitchBot
 
             Core a = new Core();
 
-            a.Start(proxyListDirectory, streamUrl, headless, 0);
+            a.Start(proxyListDirectory, streamUrl, headless, 0, 0);
 
         }
         

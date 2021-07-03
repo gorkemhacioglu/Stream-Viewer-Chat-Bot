@@ -16,13 +16,11 @@ namespace TwitchBotUI
     {
         public bool start = false;
 
-        private static string _productVersion = "1.1";
+        private static string _productVersion = "1.2";
 
-        public static string proxyListDirectory = "";
+        private static string proxyListDirectory = "";
 
-        public static string streamUrl = "";
-
-        public static bool headless = false;
+        private static bool headless = false;
 
         public Thread mainThread = null;
 
@@ -72,7 +70,7 @@ namespace TwitchBotUI
 
         private void UpdateBot()
         {
-            DialogResult dialogResult = MessageBox.Show("Do you want to update?", "Newer version is available", MessageBoxButtons.YesNo);
+            DialogResult dialogResult = MessageBox.Show("Do you want to update?", "Newer version is available!", MessageBoxButtons.YesNo);
             if (dialogResult == DialogResult.Yes)
             {
                 var args = "https://mytwitchbot.com/Download/win-x64.zip" + " " + Directory.GetCurrentDirectory() + " " + Path.Combine(Directory.GetCurrentDirectory(), "TwitchBotUI.exe");
@@ -117,8 +115,10 @@ namespace TwitchBotUI
         {
             LogInfo("Reading configuration.");
             proxyListDirectory = txtProxyList.Text = _configuration.AppSettings.Settings["proxyListDirectory"].Value;
-            streamUrl = txtStreamUrl.Text = _configuration.AppSettings.Settings["streamUrl"].Value;
+            txtStreamUrl.Text = _configuration.AppSettings.Settings["streamUrl"].Value;
             headless = checkHeadless.Checked = Convert.ToBoolean(_configuration.AppSettings.Settings["headless"].Value);
+            proxyListDirectory = txtProxyList.Text = _configuration.AppSettings.Settings["proxyListDirectory"].Value;
+            numRefreshMinutes.Value = Convert.ToInt32(_configuration.AppSettings.Settings["refreshInterval"].Value);
             LogInfo("Configuration has been read.");
         }
 
@@ -164,8 +164,7 @@ namespace TwitchBotUI
                 {
                     LogInfo("Termination error. (Ignored)");
                 }
-                LogInfo("Bot terminated.");
-
+                
                 startStopButton.BackgroundImage = Image.FromFile(Directory.GetCurrentDirectory() + "\\Images\\button_start.png");
                 startStopButton.Enabled = true;
             }
@@ -178,6 +177,7 @@ namespace TwitchBotUI
             _configuration.AppSettings.Settings["streamUrl"].Value = txtStreamUrl.Text;
             _configuration.AppSettings.Settings["headless"].Value = checkHeadless.Checked.ToString();
             _configuration.AppSettings.Settings["proxyListDirectory"].Value = txtProxyList.Text;
+            _configuration.AppSettings.Settings["refreshInterval"].Value = numRefreshMinutes.Value.ToString();
             _configuration.Save(ConfigurationSaveMode.Modified);
 
             LogInfo("Configuration saved.");
@@ -185,9 +185,18 @@ namespace TwitchBotUI
 
             Int32.TryParse(txtBrowserLimit.Text, out var browserLimit);
 
-            core.Start(proxyListDirectory, txtStreamUrl.Text, headless, browserLimit);
+            core.AllBrowsersTerminated += AllBrowsersTerminated;
+
+            core.Start(proxyListDirectory, txtStreamUrl.Text, headless, browserLimit, Convert.ToInt32(numRefreshMinutes.Value));
 
             LogInfo("Bot did it's job.");
+        }
+
+        private void AllBrowsersTerminated()
+        {
+            startStopButton.BackgroundImage = Image.FromFile(Directory.GetCurrentDirectory() + "\\Images\\button_stop.png");
+
+            LogInfo("Bot terminated.");
         }
 
         private void LogInfo(string str)
@@ -242,11 +251,6 @@ namespace TwitchBotUI
             }
         }
 
-        private void emergency_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void MainScreen_FormClosing(object sender, FormClosingEventArgs e)
         {
             Application.Exit();
@@ -257,13 +261,37 @@ namespace TwitchBotUI
             try
             {
                 string strCmdLine = "/C explorer \"https://www.vultr.com/?ref=8827163\"";
-                var browserProcess = System.Diagnostics.Process.Start("CMD.exe", strCmdLine);
+                var browserProcess = Process.Start("CMD.exe", strCmdLine);
                 browserProcess?.Close();
             }
             catch (Exception)
             {
                 //ignored
             }
+        }
+
+        private void picLimitInfo_MouseHover(object sender, EventArgs e)
+        {
+            toolTip.SetToolTip(tipLimitInfo, "Rotates proxies with limited quantity of browser. Old ones dies, new ones born. 0 means, no limit.");
+        }
+
+        private void lblProxyList_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            try
+            {
+                string strCmdLine = "/C explorer \"https://github.com/gorkemhacioglu/TwitchViewerBot/wiki/Configuration";
+                var browserProcess = Process.Start("CMD.exe", strCmdLine);
+                browserProcess?.Close();
+            }
+            catch (Exception)
+            {
+                //ignored
+            }
+        }
+
+        private void refreshInterval_MouseHover(object sender, EventArgs e)
+        {
+            toolTip.SetToolTip(tipRefreshBrowser, "Refreshes browser, just in case.");
         }
     }
 }
