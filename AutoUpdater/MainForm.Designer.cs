@@ -61,6 +61,7 @@
             this.MaximumSize = new System.Drawing.Size(396, 123);
             this.MinimumSize = new System.Drawing.Size(396, 39);
             this.Name = "MainForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Updater";
             this.TopMost = true;
             this.ResumeLayout(false);

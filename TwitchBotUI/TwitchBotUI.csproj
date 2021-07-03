@@ -11,6 +11,9 @@
     <None Remove="Images\button_start.png" />
     <None Remove="Images\button_stop.png" />
     <None Remove="Images\button_stopping.png" />
+    <None Remove="Images\favicon.ico" />
+    <None Remove="Images\icon_onwhite.png" />
+    <None Remove="Images\info.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,6 +27,15 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Images\button_stopping.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\favicon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\icon_onwhite.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\info.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>

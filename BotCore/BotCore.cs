@@ -1,18 +1,12 @@
-﻿using Microsoft.Extensions.Configuration;
-using OpenQA.Selenium;
+﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Interactions;
-using OpenQA.Selenium.Remote;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Timers;
-using Timer = System.Threading.Timer;
 
 namespace BotCore
 {
@@ -28,6 +22,8 @@ namespace BotCore
 
         public static int browserLimit = 0;
 
+        private int _refreshInterval = 0;
+
         public bool canRun = true;
 
         bool _muteClicked = false;
@@ -38,16 +34,19 @@ namespace BotCore
 
         private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
 
-        private System.IO.StreamReader _file = null;
+        private StreamReader _file = null;
 
-        public void Start(string proxyListDirectory, string stream, bool headless, int browserLimit)
+        public Action AllBrowsersTerminated;
+
+        public void Start(string proxyListDirectory, string stream, bool headless, int browserLimit, int refreshInterval)
         {
             Core.browserLimit = browserLimit;
             canRun = true;
             Core.headless = headless;
+            _refreshInterval = refreshInterval;
             int i = 0;
             streamUrl = stream;
-            System.IO.DirectoryInfo di = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory + "\\zipSource\\");
+            DirectoryInfo di = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory + "\\zipSource\\");
             foreach (FileInfo res in di.GetFiles())
             {
                 res.Delete();
@@ -69,9 +68,7 @@ namespace BotCore
             {
                 try
                 {
-                    Debug.WriteLine("New Loop");
-
-                    _file = new System.IO.StreamReader(proxyListDirectory);
+                    _file = new StreamReader(proxyListDirectory);
 
                     string line;
 
@@ -92,6 +89,9 @@ namespace BotCore
                         {
                             Thread.Sleep(500);
                         }
+
+                        if (!canRun)
+                            continue;
 
                         _lock.EnterWriteLock();
                         thr.Start(new Item { Url = line, Count = i });
@@ -121,19 +121,19 @@ namespace BotCore
 
             _file.Close();
 
-            _lock.EnterReadLock();
+            _lock.EnterWriteLock();
 
             while (_threads.Count > 0)
             {
                 _threadIds.TryDequeue(out var threadId);
-                _threads.TryRemove(threadId, out var tempThread);
+                _threads.TryGetValue(threadId, out var tempThread);
 
                 if (tempThread != null) tempThread.Priority = ThreadPriority.Highest;
             }
 
-            _threads.Clear();
+            _lock.ExitWriteLock();
 
-            _lock.ExitReadLock();
+            AllBrowsersTerminated.Invoke();
         }
 
         private void LoopWithLimit()
@@ -283,7 +283,7 @@ namespace BotCore
                             //ignored
                         }
 
-                        if (DateTime.Now - startDate > TimeSpan.FromMinutes(5))
+                        if (_refreshInterval != 0 && DateTime.Now - startDate > TimeSpan.FromMinutes(_refreshInterval))
                         {
                             driver.Navigate().Refresh();
 
