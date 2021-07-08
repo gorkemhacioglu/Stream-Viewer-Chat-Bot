@@ -353,4 +353,8 @@
         AAAAAAAAAAAAAAAAAAAAAAAA
 </value>
   </data>
+  <data name="NewLine" xml:space="preserve">
+	  <value>
+</value>
+  </data>
 </root>

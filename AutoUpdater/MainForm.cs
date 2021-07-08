@@ -71,13 +71,13 @@ namespace AutoUpdater
             Environment.Exit(0);
         }
 
-        private Tuple<bool, string> DownloadFiles(string targetUrl, DirectoryInfo directory)
+        private void DownloadFiles(string targetUrl, DirectoryInfo directory)
         {
             try
             {
-                var targetDirectory = "";
                 using (var client = new WebClient())
                 {
+                    var targetDirectory = "";
                     _zipPath = targetDirectory = Path.Combine(directory.FullName, "win-x64.zip");
 
                     SetLabel("Downloading");
@@ -88,13 +88,11 @@ namespace AutoUpdater
                     client.Headers.Add("User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
                     client.DownloadFileAsync(new Uri(targetUrl), targetDirectory);
                 }
-                return new Tuple<bool, string>(true, targetDirectory);
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
                 SetLabel("Failed to download files.");
-                return new Tuple<bool, string>(false, "");
             }
         }
 

@@ -48,6 +48,8 @@
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.tipRefreshBrowser = new System.Windows.Forms.PictureBox();
             this.lblProxyList = new System.Windows.Forms.LinkLabel();
+            this.lblRefreshMin2 = new System.Windows.Forms.Label();
+            this.lblRefreshMin3 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.startStopButton)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picVulture)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numRefreshMinutes)).BeginInit();
@@ -148,6 +150,7 @@
             this.txtBrowserLimit.PlaceholderText = "0";
             this.txtBrowserLimit.Size = new System.Drawing.Size(40, 23);
             this.txtBrowserLimit.TabIndex = 12;
+            this.txtBrowserLimit.TextChanged += new System.EventHandler(this.txtBrowserLimit_TextChanged);
             // 
             // picVulture
             // 
@@ -161,7 +164,7 @@
             // 
             // numRefreshMinutes
             // 
-            this.numRefreshMinutes.Location = new System.Drawing.Point(248, 173);
+            this.numRefreshMinutes.Location = new System.Drawing.Point(263, 174);
             this.numRefreshMinutes.Maximum = new decimal(new int[] {
             1440,
             0,
@@ -175,11 +178,11 @@
             // lblRefreshMin
             // 
             this.lblRefreshMin.AutoSize = true;
-            this.lblRefreshMin.Location = new System.Drawing.Point(166, 177);
+            this.lblRefreshMin.Location = new System.Drawing.Point(178, 181);
             this.lblRefreshMin.Name = "lblRefreshMin";
-            this.lblRefreshMin.Size = new System.Drawing.Size(81, 15);
+            this.lblRefreshMin.Size = new System.Drawing.Size(53, 15);
             this.lblRefreshMin.TabIndex = 15;
-            this.lblRefreshMin.Text = "Refresh (Min):";
+            this.lblRefreshMin.Text = "(Minute)";
             // 
             // tipLimitInfo
             // 
@@ -202,7 +205,7 @@
             // tipRefreshBrowser
             // 
             this.tipRefreshBrowser.Image = ((System.Drawing.Image)(resources.GetObject("tipRefreshBrowser.Image")));
-            this.tipRefreshBrowser.Location = new System.Drawing.Point(300, 169);
+            this.tipRefreshBrowser.Location = new System.Drawing.Point(317, 169);
             this.tipRefreshBrowser.Name = "tipRefreshBrowser";
             this.tipRefreshBrowser.Size = new System.Drawing.Size(16, 16);
             this.tipRefreshBrowser.TabIndex = 16;
@@ -221,11 +224,31 @@
             this.lblProxyList.Text = "Proxy List:";
             this.lblProxyList.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lblProxyList_LinkClicked);
             // 
+            // lblRefreshMin2
+            // 
+            this.lblRefreshMin2.AutoSize = true;
+            this.lblRefreshMin2.Location = new System.Drawing.Point(162, 166);
+            this.lblRefreshMin2.Name = "lblRefreshMin2";
+            this.lblRefreshMin2.Size = new System.Drawing.Size(88, 15);
+            this.lblRefreshMin2.TabIndex = 15;
+            this.lblRefreshMin2.Text = "Refresh Interval";
+            // 
+            // lblRefreshMin3
+            // 
+            this.lblRefreshMin3.AutoSize = true;
+            this.lblRefreshMin3.Location = new System.Drawing.Point(247, 176);
+            this.lblRefreshMin3.Name = "lblRefreshMin3";
+            this.lblRefreshMin3.Size = new System.Drawing.Size(10, 15);
+            this.lblRefreshMin3.TabIndex = 15;
+            this.lblRefreshMin3.Text = ":";
+            // 
             // MainScreen
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(478, 325);
+            this.Controls.Add(this.lblRefreshMin3);
+            this.Controls.Add(this.lblRefreshMin2);
             this.Controls.Add(this.lblProxyList);
             this.Controls.Add(this.tipRefreshBrowser);
             this.Controls.Add(this.tipLimitInfo);
@@ -278,6 +301,8 @@
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.PictureBox tipRefreshBrowser;
         private System.Windows.Forms.LinkLabel lblProxyList;
+        private System.Windows.Forms.Label lblRefreshMin2;
+        private System.Windows.Forms.Label lblRefreshMin3;
     }
 }
 

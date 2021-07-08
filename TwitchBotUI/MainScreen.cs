@@ -14,15 +14,13 @@ namespace TwitchBotUI
 {
     public partial class MainScreen : Form
     {
-        public bool start = false;
+        public bool Start = false;
 
         private static string _productVersion = "1.2";
 
-        private static string proxyListDirectory = "";
+        private static string _proxyListDirectory = "";
 
-        private static bool headless = false;
-
-        public Thread mainThread = null;
+        private static bool _headless = false;
 
         CancellationTokenSource _tokenSource = new CancellationTokenSource();
 
@@ -114,10 +112,10 @@ namespace TwitchBotUI
         private void LoadFromAppSettings()
         {
             LogInfo("Reading configuration.");
-            proxyListDirectory = txtProxyList.Text = _configuration.AppSettings.Settings["proxyListDirectory"].Value;
+            _proxyListDirectory = txtProxyList.Text = _configuration.AppSettings.Settings["proxyListDirectory"].Value;
             txtStreamUrl.Text = _configuration.AppSettings.Settings["streamUrl"].Value;
-            headless = checkHeadless.Checked = Convert.ToBoolean(_configuration.AppSettings.Settings["headless"].Value);
-            proxyListDirectory = txtProxyList.Text = _configuration.AppSettings.Settings["proxyListDirectory"].Value;
+            _headless = checkHeadless.Checked = Convert.ToBoolean(_configuration.AppSettings.Settings["headless"].Value);
+            _proxyListDirectory = txtProxyList.Text = _configuration.AppSettings.Settings["proxyListDirectory"].Value;
             numRefreshMinutes.Value = Convert.ToInt32(_configuration.AppSettings.Settings["refreshInterval"].Value);
             LogInfo("Configuration has been read.");
         }
@@ -130,13 +128,13 @@ namespace TwitchBotUI
                 LogInfo("Please choose a proxy directory and enter your stream URL.");
                 return;
             }
-            start = !start;
+            Start = !Start;
 
-            if (start)
+            if (Start)
             {
                 startStopButton.BackgroundImage = Image.FromFile(Directory.GetCurrentDirectory() + "\\Images\\button_stop.png");
                 LogInfo("Initializing bot.");
-                core.canRun = true;
+                core.CanRun = true;
                 TaskFactory factory = new TaskFactory(_token);
                 _tokenSource = new CancellationTokenSource();
 
@@ -154,7 +152,7 @@ namespace TwitchBotUI
                 LogInfo("Terminating bot, please wait.");
 
                 _tokenSource.Cancel();
-                core.canRun = false;
+                core.CanRun = false;
 
                 try
                 {
@@ -187,9 +185,33 @@ namespace TwitchBotUI
 
             core.AllBrowsersTerminated += AllBrowsersTerminated;
 
-            core.Start(proxyListDirectory, txtStreamUrl.Text, headless, browserLimit, Convert.ToInt32(numRefreshMinutes.Value));
+            core.IntializationError += ErrorOccured;
 
-            LogInfo("Bot did it's job.");
+            core.LogMessage += LogMessage;
+
+            core.DidItsJob += DidItsJob;
+
+            core.Start(_proxyListDirectory, txtStreamUrl.Text, _headless, browserLimit, Convert.ToInt32(numRefreshMinutes.Value));
+        }
+
+        private void ErrorOccured(string message)
+        {
+            core.Stop();
+
+            LogError(message);
+
+            core.AllBrowsersTerminated -= AllBrowsersTerminated;
+
+            core.IntializationError -= ErrorOccured;
+
+            core.LogMessage -= LogMessage;
+
+            core.DidItsJob -= DidItsJob;
+        }
+
+        private void LogMessage(string message)
+        {
+            LogInfo(message);
         }
 
         private void AllBrowsersTerminated()
@@ -197,6 +219,17 @@ namespace TwitchBotUI
             startStopButton.BackgroundImage = Image.FromFile(Directory.GetCurrentDirectory() + "\\Images\\button_stop.png");
 
             LogInfo("Bot terminated.");
+        }
+
+        private void DidItsJob()
+        {
+            core.IntializationError -= ErrorOccured;
+
+            core.LogMessage -= LogMessage;
+
+            core.DidItsJob -= DidItsJob;
+
+            LogInfo("Bot did it's job.");
         }
 
         private void LogInfo(string str)
@@ -247,7 +280,7 @@ namespace TwitchBotUI
 
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
-                string sFileName = proxyListDirectory = txtProxyList.Text = fileDialog.FileName;
+                string sFileName = _proxyListDirectory = txtProxyList.Text = fileDialog.FileName;
             }
         }
 
@@ -292,6 +325,22 @@ namespace TwitchBotUI
         private void refreshInterval_MouseHover(object sender, EventArgs e)
         {
             toolTip.SetToolTip(tipRefreshBrowser, "Refreshes browser, just in case.");
+        }
+
+        private void txtBrowserLimit_TextChanged(object sender, EventArgs e)
+        {
+            var value = txtBrowserLimit.Text;
+
+            if (value == "0" || value == string.Empty)
+            {
+                lblRefreshMin.Enabled = lblRefreshMin2.Enabled = lblRefreshMin3.Enabled = numRefreshMinutes.Enabled = tipRefreshBrowser.Enabled = true;
+            }
+            else 
+            {
+                lblRefreshMin.Enabled = lblRefreshMin2.Enabled = lblRefreshMin3.Enabled = numRefreshMinutes.Enabled = tipRefreshBrowser.Enabled = false;
+                numRefreshMinutes.Value = 0;
+            }
+
         }
     }
 }

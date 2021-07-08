@@ -12,25 +12,25 @@ namespace BotCore
 {
     public class Core
     {
-        public static string zipDirectory = "";
+        public static string ZipDirectory = "";
 
-        public static string proxyListDirectory = "";
+        public static string StreamUrl = "";
 
-        public static string streamUrl = "";
+        public static bool Headless = false;
 
-        public static bool headless = false;
-
-        public static int browserLimit = 0;
+        public static int BrowserLimit = 0;
 
         private int _refreshInterval = 0;
 
-        public bool canRun = true;
+        public bool CanRun = true;
+
+        private bool _error;
 
         bool _muteClicked = false;
 
-        private static readonly ConcurrentDictionary<int, Thread> _threads = new ConcurrentDictionary<int, Thread>();
+        private static readonly ConcurrentDictionary<int, Thread> Threads = new ConcurrentDictionary<int, Thread>();
 
-        private static readonly ConcurrentQueue<int> _threadIds = new ConcurrentQueue<int>();
+        private static readonly ConcurrentQueue<int> ThreadIds = new ConcurrentQueue<int>();
 
         private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
 
@@ -38,14 +38,20 @@ namespace BotCore
 
         public Action AllBrowsersTerminated;
 
+        public Action<string> IntializationError;
+
+        public Action<string> LogMessage;
+
+        public Action DidItsJob;
+
         public void Start(string proxyListDirectory, string stream, bool headless, int browserLimit, int refreshInterval)
         {
-            Core.browserLimit = browserLimit;
-            canRun = true;
-            Core.headless = headless;
+            BrowserLimit = browserLimit;
+            CanRun = true;
+            Headless = headless;
             _refreshInterval = refreshInterval;
             int i = 0;
-            streamUrl = stream;
+            StreamUrl = stream;
             DirectoryInfo di = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory + "\\zipSource\\");
             foreach (FileInfo res in di.GetFiles())
             {
@@ -56,13 +62,13 @@ namespace BotCore
                 dir.Delete(true);
             }
 
-            if (Core.browserLimit > 0)
+            if (Core.BrowserLimit > 0)
             {
                 Thread thr = new Thread(LoopWithLimit);
                 thr.Start();
             }
 
-            zipDirectory = AppDomain.CurrentDomain.BaseDirectory + "\\zipSource\\background";
+            ZipDirectory = AppDomain.CurrentDomain.BaseDirectory + "\\zipSource\\background";
 
             do
             {
@@ -72,9 +78,15 @@ namespace BotCore
 
                     string line;
 
-                    while (canRun && (line = _file.ReadLine()) != null)
+                    while (CanRun && (line = _file.ReadLine()) != null)
                     {
+                        line = line.Replace(" ","");
+
+                        if (string.IsNullOrEmpty(line))
+                            continue;
+
                         var array = line.ToString().Split(':');
+
                         string text = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "\\zipDirectory\\backgroundTemplate.js");
                         text = text.Replace("{ip}", array[0]).Replace("{port}", array[1]).Replace("{username}", array[2]).Replace("{password}", array[3]);
                         File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "\\zipDirectory\\background.js", text);
@@ -85,18 +97,18 @@ namespace BotCore
                         Random r = new Random();
                         int rInt = r.Next(3000, 6000);
 
-                        while (browserLimit > 0 && _threads.Count >= Core.browserLimit)
+                        while (browserLimit > 0 && Threads.Count >= Core.BrowserLimit)
                         {
                             Thread.Sleep(500);
                         }
 
-                        if (!canRun)
+                        if (!CanRun)
                             continue;
 
                         _lock.EnterWriteLock();
                         thr.Start(new Item { Url = line, Count = i });
-                        _threadIds.Enqueue(thr.ManagedThreadId);
-                        _threads.TryAdd(thr.ManagedThreadId, thr);
+                        ThreadIds.Enqueue(thr.ManagedThreadId);
+                        Threads.TryAdd(thr.ManagedThreadId, thr);
                         _lock.ExitWriteLock();
                         i++;
 
@@ -107,50 +119,62 @@ namespace BotCore
                 }
                 catch (Exception e)
                 {
-                    Debug.WriteLine("Loop Error:" + e);
+                    if (e is IndexOutOfRangeException)
+                    {
+                        IntializationError.Invoke("Please select a valid proxy file.");
+                    }
+                    else 
+                    {
+                        IntializationError.Invoke(String.Format("Uppss! {0}", e.Message));
+                    }
+                    _error = true;
                 }
+
+                if (!CanRun)
+                    break;
 
             } while (browserLimit > 0);
 
-
+            if (!_error)
+                DidItsJob.Invoke();
         }
 
         public void Stop()
         {
-            canRun = false;
+            CanRun = false;
 
             _file.Close();
 
             _lock.EnterWriteLock();
 
-            while (_threads.Count > 0)
+            while (Threads.Count > 0)
             {
-                _threadIds.TryDequeue(out var threadId);
-                _threads.TryGetValue(threadId, out var tempThread);
+                ThreadIds.TryDequeue(out var threadId);
+                Threads.TryGetValue(threadId, out var tempThread);
 
                 if (tempThread != null) tempThread.Priority = ThreadPriority.Highest;
             }
 
             _lock.ExitWriteLock();
 
-            AllBrowsersTerminated.Invoke();
+            AllBrowsersTerminated?.Invoke();
         }
 
         private void LoopWithLimit()
         {
-            while (canRun)
+            while (CanRun)
             {
                 try
                 {
-                    if (_threads.Count >= browserLimit)
+                    if (Threads.Count >= BrowserLimit)
                     {
                         Thread tempThread = null;
 
                         _lock.EnterWriteLock();
 
-                        _threadIds.TryDequeue(out var threadId);
+                        ThreadIds.TryDequeue(out var threadId);
 
-                        _threads.TryGetValue(threadId, out tempThread);
+                        Threads.TryGetValue(threadId, out tempThread);
 
                         _lock.ExitWriteLock();
 
@@ -182,7 +206,7 @@ namespace BotCore
                 var proxy = new Proxy { HttpProxy = array[0] + ':' + array[1], SslProxy = array[0] + ':' + array[1] };
                 var chromeOptions = new ChromeOptions { Proxy = proxy, AcceptInsecureCertificates = true };
 
-                if (headless)
+                if (Headless)
                     chromeOptions.AddArgument("headless");
 
                 string[] resolutions = { "960,720", "1080,720", "1280,800", "1280,720", "960,600", "1024,768", "800,600" };
@@ -190,10 +214,10 @@ namespace BotCore
                 chromeOptions.AddArgument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36");
                 chromeOptions.AddExcludedArgument("enable-automation");
                 chromeOptions.AddAdditionalCapability("useAutomationExtension", false);
-                chromeOptions.AddExtension(zipDirectory + itm.Count + ".zip");
+                chromeOptions.AddExtension(ZipDirectory + itm.Count + ".zip");
                 chromeOptions.PageLoadStrategy = PageLoadStrategy.Default;
 
-                var driver = new ChromeDriver(chromeOptions) { Url = streamUrl };
+                var driver = new ChromeDriver(chromeOptions) { Url = StreamUrl };
 
                 driver.Navigate();
 
@@ -203,7 +227,7 @@ namespace BotCore
                 bool cacheClicked = false;
                 int cacheCheckCount = 0;
 
-                if (browserLimit > 0)
+                if (BrowserLimit > 0)
                 {
                     Thread.Sleep(1000);
 
@@ -340,7 +364,7 @@ namespace BotCore
 
                 driver.Quit();
 
-                _threads.TryRemove(Thread.CurrentThread.ManagedThreadId, out _);
+                Threads.TryRemove(Thread.CurrentThread.ManagedThreadId, out _);
             }
             catch (Exception ex)
             {
