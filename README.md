@@ -5,7 +5,7 @@
 
 [Download for Windows x64](http://mytwitchbot.com/Download/win-x64.zip)
 
-You must need **private** proxies. Create a .txt file with them and it must be in this format;
+You must have **private** proxies. Create a .txt file with them and it must be in this format;
 
 IPADRESS:PORT:USERNAME:PASSWORD<br />
 IPADRESS:PORT:USERNAME:PASSWORD<br />
