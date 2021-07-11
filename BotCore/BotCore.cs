@@ -3,7 +3,6 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Interactions;
 using System;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Threading;
@@ -12,40 +11,47 @@ namespace BotCore
 {
     public class Core
     {
-        public static string zipDirectory = "";
+        public static string ZipDirectory = string.Empty;
 
-        public static string proxyListDirectory = "";
+        public static string StreamUrl = string.Empty;
 
-        public static string streamUrl = "";
+        public static bool Headless;
 
-        public static bool headless = false;
+        public static int BrowserLimit;
 
-        public static int browserLimit = 0;
+        public string PreferredQuality;
 
-        private int _refreshInterval = 0;
+        private int _refreshInterval;
 
-        public bool canRun = true;
+        public bool CanRun = true;
 
-        bool _muteClicked = false;
+        private bool _error;
 
-        private static readonly ConcurrentDictionary<int, Thread> _threads = new ConcurrentDictionary<int, Thread>();
+        private static readonly ConcurrentDictionary<int, Thread> Threads = new ConcurrentDictionary<int, Thread>();
 
-        private static readonly ConcurrentQueue<int> _threadIds = new ConcurrentQueue<int>();
+        private static readonly ConcurrentQueue<int> ThreadIds = new ConcurrentQueue<int>();
 
         private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
 
-        private StreamReader _file = null;
+        private StreamReader _file;
 
         public Action AllBrowsersTerminated;
 
-        public void Start(string proxyListDirectory, string stream, bool headless, int browserLimit, int refreshInterval)
+        public Action<string> InitializationError;
+
+        public Action<string> LogMessage;
+
+        public Action DidItsJob;
+
+        public void Start(string proxyListDirectory, string stream, bool headless, int browserLimit, int refreshInterval, string preferredQuality)
         {
-            Core.browserLimit = browserLimit;
-            canRun = true;
-            Core.headless = headless;
+            BrowserLimit = browserLimit;
+            CanRun = true;
+            Headless = headless;
+            PreferredQuality = preferredQuality;
             _refreshInterval = refreshInterval;
             int i = 0;
-            streamUrl = stream;
+            StreamUrl = stream;
             DirectoryInfo di = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory + "\\zipSource\\");
             foreach (FileInfo res in di.GetFiles())
             {
@@ -56,13 +62,13 @@ namespace BotCore
                 dir.Delete(true);
             }
 
-            if (Core.browserLimit > 0)
+            if (Core.BrowserLimit > 0)
             {
                 Thread thr = new Thread(LoopWithLimit);
                 thr.Start();
             }
 
-            zipDirectory = AppDomain.CurrentDomain.BaseDirectory + "\\zipSource\\background";
+            ZipDirectory = AppDomain.CurrentDomain.BaseDirectory + "\\zipSource\\background";
 
             do
             {
@@ -72,9 +78,15 @@ namespace BotCore
 
                     string line;
 
-                    while (canRun && (line = _file.ReadLine()) != null)
+                    while (CanRun && (line = _file.ReadLine()) != null)
                     {
+                        line = line.Replace(" ","");
+
+                        if (string.IsNullOrEmpty(line))
+                            continue;
+
                         var array = line.ToString().Split(':');
+
                         string text = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "\\zipDirectory\\backgroundTemplate.js");
                         text = text.Replace("{ip}", array[0]).Replace("{port}", array[1]).Replace("{username}", array[2]).Replace("{password}", array[3]);
                         File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "\\zipDirectory\\background.js", text);
@@ -85,18 +97,18 @@ namespace BotCore
                         Random r = new Random();
                         int rInt = r.Next(3000, 6000);
 
-                        while (browserLimit > 0 && _threads.Count >= Core.browserLimit)
+                        while (browserLimit > 0 && Threads.Count >= Core.BrowserLimit)
                         {
                             Thread.Sleep(500);
                         }
 
-                        if (!canRun)
+                        if (!CanRun)
                             continue;
 
                         _lock.EnterWriteLock();
-                        thr.Start(new Item { Url = line, Count = i });
-                        _threadIds.Enqueue(thr.ManagedThreadId);
-                        _threads.TryAdd(thr.ManagedThreadId, thr);
+                        thr.Start(new Item { Url = line, Count = i, PreferredQuality = preferredQuality});
+                        ThreadIds.Enqueue(thr.ManagedThreadId);
+                        Threads.TryAdd(thr.ManagedThreadId, thr);
                         _lock.ExitWriteLock();
                         i++;
 
@@ -107,50 +119,57 @@ namespace BotCore
                 }
                 catch (Exception e)
                 {
-                    Debug.WriteLine("Loop Error:" + e);
+                    InitializationError.Invoke(e is IndexOutOfRangeException
+                        ? "Please select a valid proxy file."
+                        : $"Uppss! {e.Message}");
+                    _error = true;
                 }
+
+                if (!CanRun)
+                    break;
 
             } while (browserLimit > 0);
 
-
+            if (!_error)
+                DidItsJob.Invoke();
         }
 
         public void Stop()
         {
-            canRun = false;
+            CanRun = false;
 
             _file.Close();
 
             _lock.EnterWriteLock();
 
-            while (_threads.Count > 0)
+            while (Threads.Count > 0)
             {
-                _threadIds.TryDequeue(out var threadId);
-                _threads.TryGetValue(threadId, out var tempThread);
+                ThreadIds.TryDequeue(out var threadId);
+                Threads.TryGetValue(threadId, out var tempThread);
 
                 if (tempThread != null) tempThread.Priority = ThreadPriority.Highest;
             }
 
             _lock.ExitWriteLock();
 
-            AllBrowsersTerminated.Invoke();
+            AllBrowsersTerminated?.Invoke();
         }
 
         private void LoopWithLimit()
         {
-            while (canRun)
+            while (CanRun)
             {
                 try
                 {
-                    if (_threads.Count >= browserLimit)
+                    if (Threads.Count >= BrowserLimit)
                     {
                         Thread tempThread = null;
 
                         _lock.EnterWriteLock();
 
-                        _threadIds.TryDequeue(out var threadId);
+                        ThreadIds.TryDequeue(out var threadId);
 
-                        _threads.TryGetValue(threadId, out tempThread);
+                        Threads.TryGetValue(threadId, out tempThread);
 
                         _lock.ExitWriteLock();
 
@@ -182,7 +201,7 @@ namespace BotCore
                 var proxy = new Proxy { HttpProxy = array[0] + ':' + array[1], SslProxy = array[0] + ':' + array[1] };
                 var chromeOptions = new ChromeOptions { Proxy = proxy, AcceptInsecureCertificates = true };
 
-                if (headless)
+                if (Headless)
                     chromeOptions.AddArgument("headless");
 
                 string[] resolutions = { "960,720", "1080,720", "1280,800", "1280,720", "960,600", "1024,768", "800,600" };
@@ -190,20 +209,22 @@ namespace BotCore
                 chromeOptions.AddArgument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36");
                 chromeOptions.AddExcludedArgument("enable-automation");
                 chromeOptions.AddAdditionalCapability("useAutomationExtension", false);
-                chromeOptions.AddExtension(zipDirectory + itm.Count + ".zip");
+                chromeOptions.AddExtension(ZipDirectory + itm.Count + ".zip");
                 chromeOptions.PageLoadStrategy = PageLoadStrategy.Default;
 
-                var driver = new ChromeDriver(chromeOptions) { Url = streamUrl };
+                var driver = new ChromeDriver(chromeOptions) { Url = StreamUrl };
 
-                driver.Navigate();
-
+                IJavaScriptExecutor js = driver;
+                js.ExecuteScript("window.localStorage.setItem('video-quality', '" + itm.PreferredQuality + "'); window.localStorage.setItem('volume', '0');");
+                
+                driver.Navigate().Refresh();
+                
                 bool matureClicked = false;
                 int matureCheckCount = 0;
-
                 bool cacheClicked = false;
                 int cacheCheckCount = 0;
 
-                if (browserLimit > 0)
+                if (BrowserLimit > 0)
                 {
                     Thread.Sleep(1000);
 
@@ -217,33 +238,24 @@ namespace BotCore
                 {
                     try
                     {
-                        if (!_muteClicked)
-                        {
-                            _muteClicked = true;
-                            new Actions(driver).SendKeys("m").Perform();
-                        }
-
                         if (!matureClicked && matureCheckCount < 5)
                         {
-                            var mature = driver.FindElementsByClassName("tw-flex-grow-0");
-
-                            foreach (var btn in mature)
+                            try
                             {
-                                try
-                                {
-                                    if (btn.Text != null && btn.Text == "Start Watching")
-                                    {
-                                        btn.Click();
-                                        matureClicked = true;
-                                    }
-                                }
-                                catch
-                                {
-                                    //ignored
-                                }
-                            }
+                                var mature = driver.FindElementByXPath(
+                                    "/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div[5]/div/div[3]/button/div/div");
 
-                            matureCheckCount++;
+                                if (mature != null)
+                                {
+                                    mature.Click();
+                                }
+
+                                matureCheckCount++;
+                            }
+                            catch
+                            {
+                                //ignored because there is no mature button
+                            }
                         }
 
                         if (!cacheClicked && cacheCheckCount < 5)
@@ -262,8 +274,9 @@ namespace BotCore
                             }
                             catch (Exception)
                             {
-                                //ignored because there is no cache button
+                                //ignored because themre is no cache button
                             }
+                            Thread.Sleep(250);
                         }
 
                         try
@@ -289,58 +302,16 @@ namespace BotCore
 
                             startDate = DateTime.Now;
                         }
-
-                        #region StreamQuality
-                        //try
-                        //{
-                        //    var player = driver.FindElementByXPath("/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div[2]");
-
-                        //    if (player != null)
-                        //    {
-                        //        Actions actions = new Actions(driver);
-
-                        //        actions.ContextClick(player).Perform();
-
-                        //        Thread.Sleep(1500);
-
-                        //        var settings = driver.FindElementByXPath("/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div[7]/div/div[2]/div[2]/div[1]/div[2]/div/button/span/div/div/div/svg/g/path[1]");
-
-                        //        if (settings != null)
-                        //        {
-                        //            actions.Click(settings).Perform();
-
-                        //            var quality = driver.FindElementByXPath("/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div[7]/div/div[2]/div[2]/div[1]/div[1]/div/div/div/div/div/div/div[3]/button/div");
-
-                        //            if (quality != null)
-                        //            {
-                        //                actions.Click(quality).Perform();
-
-                        //                var onesixty = driver.FindElementByXPath("/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div[7]/div/div[2]/div[2]/div[1]/div[1]/div/div/div/div/div/div/div[8]/div/div/div/label/div");
-
-                        //                if (onesixty != null)
-                        //                    actions.Click(onesixty).Perform();
-                        //            }
-                        //        }
-                        //    }
-
-
-                        //}
-                        //catch (Exception)
-                        //{
-                        //    //ignored
-                        //}
-                        #endregion
                     }
                     catch (Exception)
                     {
                         //ignored
                     }
-
                 }
 
                 driver.Quit();
 
-                _threads.TryRemove(Thread.CurrentThread.ManagedThreadId, out _);
+                Threads.TryRemove(Thread.CurrentThread.ManagedThreadId, out _);
             }
             catch (Exception ex)
             {
@@ -353,5 +324,7 @@ namespace BotCore
         public string Url { get; set; }
 
         public int Count { get; set; }
+
+        public string PreferredQuality { get; set; }
     }
 }

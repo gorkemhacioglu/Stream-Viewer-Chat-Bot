@@ -48,18 +48,24 @@
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.tipRefreshBrowser = new System.Windows.Forms.PictureBox();
             this.lblProxyList = new System.Windows.Forms.LinkLabel();
+            this.lblRefreshMin2 = new System.Windows.Forms.Label();
+            this.lblRefreshMin3 = new System.Windows.Forms.Label();
+            this.lblQuality = new System.Windows.Forms.Label();
+            this.lstQuality = new System.Windows.Forms.ComboBox();
+            this.tipQuality = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.startStopButton)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picVulture)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numRefreshMinutes)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tipLimitInfo)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tipRefreshBrowser)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tipQuality)).BeginInit();
             this.SuspendLayout();
             // 
             // startStopButton
             // 
             this.startStopButton.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("startStopButton.BackgroundImage")));
             this.startStopButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.startStopButton.Location = new System.Drawing.Point(391, 210);
+            this.startStopButton.Location = new System.Drawing.Point(395, 216);
             this.startStopButton.Name = "startStopButton";
             this.startStopButton.Size = new System.Drawing.Size(80, 40);
             this.startStopButton.TabIndex = 0;
@@ -68,7 +74,7 @@
             // 
             // txtStreamUrl
             // 
-            this.txtStreamUrl.Location = new System.Drawing.Point(79, 232);
+            this.txtStreamUrl.Location = new System.Drawing.Point(83, 238);
             this.txtStreamUrl.Name = "txtStreamUrl";
             this.txtStreamUrl.Size = new System.Drawing.Size(306, 23);
             this.txtStreamUrl.TabIndex = 1;
@@ -76,7 +82,7 @@
             // lblStreamUrl
             // 
             this.lblStreamUrl.AutoSize = true;
-            this.lblStreamUrl.Location = new System.Drawing.Point(8, 235);
+            this.lblStreamUrl.Location = new System.Drawing.Point(12, 241);
             this.lblStreamUrl.Name = "lblStreamUrl";
             this.lblStreamUrl.Size = new System.Drawing.Size(65, 15);
             this.lblStreamUrl.TabIndex = 2;
@@ -94,7 +100,7 @@
             // checkHeadless
             // 
             this.checkHeadless.AutoSize = true;
-            this.checkHeadless.Location = new System.Drawing.Point(451, 177);
+            this.checkHeadless.Location = new System.Drawing.Point(465, 198);
             this.checkHeadless.Name = "checkHeadless";
             this.checkHeadless.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.checkHeadless.Size = new System.Drawing.Size(15, 14);
@@ -108,14 +114,14 @@
             // 
             // txtProxyList
             // 
-            this.txtProxyList.Location = new System.Drawing.Point(119, 203);
+            this.txtProxyList.Location = new System.Drawing.Point(123, 209);
             this.txtProxyList.Name = "txtProxyList";
             this.txtProxyList.Size = new System.Drawing.Size(266, 23);
             this.txtProxyList.TabIndex = 7;
             // 
             // browseProxyList
             // 
-            this.browseProxyList.Location = new System.Drawing.Point(79, 203);
+            this.browseProxyList.Location = new System.Drawing.Point(83, 209);
             this.browseProxyList.Name = "browseProxyList";
             this.browseProxyList.Size = new System.Drawing.Size(34, 23);
             this.browseProxyList.TabIndex = 8;
@@ -129,13 +135,13 @@
             this.logScreen.Multiline = true;
             this.logScreen.Name = "logScreen";
             this.logScreen.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.logScreen.Size = new System.Drawing.Size(460, 137);
+            this.logScreen.Size = new System.Drawing.Size(467, 137);
             this.logScreen.TabIndex = 10;
             // 
             // lblBrowserLimit
             // 
             this.lblBrowserLimit.AutoSize = true;
-            this.lblBrowserLimit.Location = new System.Drawing.Point(8, 178);
+            this.lblBrowserLimit.Location = new System.Drawing.Point(12, 184);
             this.lblBrowserLimit.Name = "lblBrowserLimit";
             this.lblBrowserLimit.Size = new System.Drawing.Size(82, 15);
             this.lblBrowserLimit.TabIndex = 11;
@@ -143,16 +149,17 @@
             // 
             // txtBrowserLimit
             // 
-            this.txtBrowserLimit.Location = new System.Drawing.Point(96, 173);
+            this.txtBrowserLimit.Location = new System.Drawing.Point(100, 179);
             this.txtBrowserLimit.Name = "txtBrowserLimit";
             this.txtBrowserLimit.PlaceholderText = "0";
             this.txtBrowserLimit.Size = new System.Drawing.Size(40, 23);
             this.txtBrowserLimit.TabIndex = 12;
+            this.txtBrowserLimit.TextChanged += new System.EventHandler(this.txtBrowserLimit_TextChanged);
             // 
             // picVulture
             // 
             this.picVulture.Image = ((System.Drawing.Image)(resources.GetObject("picVulture.Image")));
-            this.picVulture.Location = new System.Drawing.Point(4, 260);
+            this.picVulture.Location = new System.Drawing.Point(8, 266);
             this.picVulture.Name = "picVulture";
             this.picVulture.Size = new System.Drawing.Size(468, 60);
             this.picVulture.TabIndex = 13;
@@ -161,7 +168,7 @@
             // 
             // numRefreshMinutes
             // 
-            this.numRefreshMinutes.Location = new System.Drawing.Point(248, 173);
+            this.numRefreshMinutes.Location = new System.Drawing.Point(267, 180);
             this.numRefreshMinutes.Maximum = new decimal(new int[] {
             1440,
             0,
@@ -175,16 +182,16 @@
             // lblRefreshMin
             // 
             this.lblRefreshMin.AutoSize = true;
-            this.lblRefreshMin.Location = new System.Drawing.Point(166, 177);
+            this.lblRefreshMin.Location = new System.Drawing.Point(182, 187);
             this.lblRefreshMin.Name = "lblRefreshMin";
-            this.lblRefreshMin.Size = new System.Drawing.Size(81, 15);
+            this.lblRefreshMin.Size = new System.Drawing.Size(53, 15);
             this.lblRefreshMin.TabIndex = 15;
-            this.lblRefreshMin.Text = "Refresh (Min):";
+            this.lblRefreshMin.Text = "(Minute)";
             // 
             // tipLimitInfo
             // 
             this.tipLimitInfo.Image = ((System.Drawing.Image)(resources.GetObject("tipLimitInfo.Image")));
-            this.tipLimitInfo.Location = new System.Drawing.Point(140, 169);
+            this.tipLimitInfo.Location = new System.Drawing.Point(144, 175);
             this.tipLimitInfo.Name = "tipLimitInfo";
             this.tipLimitInfo.Size = new System.Drawing.Size(16, 16);
             this.tipLimitInfo.TabIndex = 16;
@@ -202,7 +209,7 @@
             // tipRefreshBrowser
             // 
             this.tipRefreshBrowser.Image = ((System.Drawing.Image)(resources.GetObject("tipRefreshBrowser.Image")));
-            this.tipRefreshBrowser.Location = new System.Drawing.Point(300, 169);
+            this.tipRefreshBrowser.Location = new System.Drawing.Point(321, 175);
             this.tipRefreshBrowser.Name = "tipRefreshBrowser";
             this.tipRefreshBrowser.Size = new System.Drawing.Size(16, 16);
             this.tipRefreshBrowser.TabIndex = 16;
@@ -213,7 +220,7 @@
             // 
             this.lblProxyList.AutoSize = true;
             this.lblProxyList.LinkBehavior = System.Windows.Forms.LinkBehavior.AlwaysUnderline;
-            this.lblProxyList.Location = new System.Drawing.Point(8, 207);
+            this.lblProxyList.Location = new System.Drawing.Point(12, 213);
             this.lblProxyList.Name = "lblProxyList";
             this.lblProxyList.Size = new System.Drawing.Size(61, 15);
             this.lblProxyList.TabIndex = 17;
@@ -221,11 +228,62 @@
             this.lblProxyList.Text = "Proxy List:";
             this.lblProxyList.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lblProxyList_LinkClicked);
             // 
+            // lblRefreshMin2
+            // 
+            this.lblRefreshMin2.AutoSize = true;
+            this.lblRefreshMin2.Location = new System.Drawing.Point(166, 172);
+            this.lblRefreshMin2.Name = "lblRefreshMin2";
+            this.lblRefreshMin2.Size = new System.Drawing.Size(88, 15);
+            this.lblRefreshMin2.TabIndex = 15;
+            this.lblRefreshMin2.Text = "Refresh Interval";
+            // 
+            // lblRefreshMin3
+            // 
+            this.lblRefreshMin3.AutoSize = true;
+            this.lblRefreshMin3.Location = new System.Drawing.Point(251, 182);
+            this.lblRefreshMin3.Name = "lblRefreshMin3";
+            this.lblRefreshMin3.Size = new System.Drawing.Size(10, 15);
+            this.lblRefreshMin3.TabIndex = 15;
+            this.lblRefreshMin3.Text = ":";
+            // 
+            // lblQuality
+            // 
+            this.lblQuality.AutoSize = true;
+            this.lblQuality.Location = new System.Drawing.Point(342, 184);
+            this.lblQuality.Name = "lblQuality";
+            this.lblQuality.Size = new System.Drawing.Size(48, 15);
+            this.lblQuality.TabIndex = 19;
+            this.lblQuality.Text = "Quality:";
+            // 
+            // lstQuality
+            // 
+            this.lstQuality.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.lstQuality.Location = new System.Drawing.Point(391, 179);
+            this.lstQuality.Name = "lstQuality";
+            this.lstQuality.Size = new System.Drawing.Size(64, 23);
+            this.lstQuality.TabIndex = 20;
+            this.lstQuality.SelectedIndexChanged += new System.EventHandler(this.lstQuality_SelectedIndexChanged);
+            // 
+            // tipQuality
+            // 
+            this.tipQuality.Image = ((System.Drawing.Image)(resources.GetObject("tipQuality.Image")));
+            this.tipQuality.Location = new System.Drawing.Point(457, 175);
+            this.tipQuality.Name = "tipQuality";
+            this.tipQuality.Size = new System.Drawing.Size(16, 16);
+            this.tipQuality.TabIndex = 16;
+            this.tipQuality.TabStop = false;
+            this.tipQuality.MouseHover += new System.EventHandler(this.streamQuality_MouseHover);
+            // 
             // MainScreen
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(478, 325);
+            this.ClientSize = new System.Drawing.Size(485, 331);
+            this.Controls.Add(this.tipQuality);
+            this.Controls.Add(this.lstQuality);
+            this.Controls.Add(this.lblQuality);
+            this.Controls.Add(this.lblRefreshMin3);
+            this.Controls.Add(this.lblRefreshMin2);
             this.Controls.Add(this.lblProxyList);
             this.Controls.Add(this.tipRefreshBrowser);
             this.Controls.Add(this.tipLimitInfo);
@@ -253,6 +311,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numRefreshMinutes)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.tipLimitInfo)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.tipRefreshBrowser)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tipQuality)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -278,6 +337,11 @@
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.PictureBox tipRefreshBrowser;
         private System.Windows.Forms.LinkLabel lblProxyList;
+        private System.Windows.Forms.Label lblRefreshMin2;
+        private System.Windows.Forms.Label lblRefreshMin3;
+        private System.Windows.Forms.Label lblQuality;
+        private System.Windows.Forms.ComboBox lstQuality;
+        private System.Windows.Forms.PictureBox tipQuality;
     }
 }
 

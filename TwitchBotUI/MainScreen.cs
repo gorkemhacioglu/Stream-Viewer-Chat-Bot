@@ -1,34 +1,35 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Net;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using BotCore;
+using TwitchBotUI.Properties;
 
 namespace TwitchBotUI
 {
     public partial class MainScreen : Form
     {
-        public bool start = false;
+        public bool Start = false;
 
-        private static string _productVersion = "1.2";
+        private static string _productVersion = "1.3";
 
-        private static string proxyListDirectory = "";
+        private static string _proxyListDirectory = "";
 
-        private static bool headless = false;
-
-        public Thread mainThread = null;
+        private static bool _headless = false;
 
         CancellationTokenSource _tokenSource = new CancellationTokenSource();
 
         readonly CancellationToken _token = new CancellationToken();
 
         readonly Configuration _configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+
+        readonly Dictionary<string,string> _dataSourceQuality = new Dictionary<string, string>();
 
         public Core core = new Core();
 
@@ -44,6 +45,24 @@ namespace TwitchBotUI
 
             if (isAvailable)
                 UpdateBot();
+            
+            #region StreamQuality
+
+            FillQualityItems();
+
+            void FillQualityItems()
+            {
+                _dataSourceQuality.Add("Source", string.Empty);
+                _dataSourceQuality.Add("480p", "{\"default\":\"480p30\"}");
+                _dataSourceQuality.Add("360p", "{\"default\":\"360p30\"}");
+                _dataSourceQuality.Add("160p", "{\"default\":\"160p30\"}");
+
+                lstQuality.ValueMember = "Value";
+                lstQuality.DisplayMember = "Key";
+                lstQuality.DataSource = new BindingSource(_dataSourceQuality, null);
+                lstQuality.SelectedIndex = _dataSourceQuality.Count-1;
+            }
+            #endregion
         }
 
         private bool IsNewerVersionAvailable()
@@ -53,14 +72,12 @@ namespace TwitchBotUI
                 var webRequest = WebRequest.Create(@"https://mytwitchbot.com/Download/latestVersion.txt");
                 webRequest.Headers.Add("Accept: text/html, application/xhtml+xml, */*");
                 webRequest.Headers.Add("User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
-                using (var response = webRequest.GetResponse())
-                using (var content = response.GetResponseStream())
-                using (var reader = new StreamReader(content))
-                {
-                    var latestVersion = reader.ReadToEnd();
+                using var response = webRequest.GetResponse();
+                using var content = response.GetResponseStream();
+                using var reader = new StreamReader(content);
+                var latestVersion = reader.ReadToEnd();
 
-                    return latestVersion != _productVersion;
-                }
+                return latestVersion != _productVersion;
             }
             catch (Exception)
             {
@@ -70,7 +87,8 @@ namespace TwitchBotUI
 
         private void UpdateBot()
         {
-            DialogResult dialogResult = MessageBox.Show("Do you want to update?", "Newer version is available!", MessageBoxButtons.YesNo);
+            DialogResult dialogResult = MessageBox.Show(GetFromResource("MainScreen_UpdateBot_Do_you_want_to_update_"), GetFromResource("MainScreen_UpdateBot_Newer_version_is_available_"), MessageBoxButtons.YesNo);
+
             if (dialogResult == DialogResult.Yes)
             {
                 var args = "https://mytwitchbot.com/Download/win-x64.zip" + " " + Directory.GetCurrentDirectory() + " " + Path.Combine(Directory.GetCurrentDirectory(), "TwitchBotUI.exe");
@@ -98,26 +116,23 @@ namespace TwitchBotUI
                 }
                 catch (Exception)
                 {
-                    MessageBox.Show("Sorry, updater failed.");
-                    return;
+                    MessageBox.Show(GetFromResource("MainScreen_UpdateBot_Sorry__updater_failed_"));
                 }
-
             }
         }
 
-        public static DirectoryInfo GetExecutingDirectory()
+        private string GetFromResource(string key)
         {
-            var location = new Uri(Assembly.GetEntryAssembly().GetName().CodeBase);
-            return new FileInfo(location.AbsolutePath).Directory;
+            return Resources.ResourceManager.GetString(key);
         }
 
         private void LoadFromAppSettings()
         {
             LogInfo("Reading configuration.");
-            proxyListDirectory = txtProxyList.Text = _configuration.AppSettings.Settings["proxyListDirectory"].Value;
+            _proxyListDirectory = txtProxyList.Text = _configuration.AppSettings.Settings["proxyListDirectory"].Value;
             txtStreamUrl.Text = _configuration.AppSettings.Settings["streamUrl"].Value;
-            headless = checkHeadless.Checked = Convert.ToBoolean(_configuration.AppSettings.Settings["headless"].Value);
-            proxyListDirectory = txtProxyList.Text = _configuration.AppSettings.Settings["proxyListDirectory"].Value;
+            _headless = checkHeadless.Checked = Convert.ToBoolean(_configuration.AppSettings.Settings["headless"].Value);
+            _proxyListDirectory = txtProxyList.Text = _configuration.AppSettings.Settings["proxyListDirectory"].Value;
             numRefreshMinutes.Value = Convert.ToInt32(_configuration.AppSettings.Settings["refreshInterval"].Value);
             LogInfo("Configuration has been read.");
         }
@@ -130,13 +145,13 @@ namespace TwitchBotUI
                 LogInfo("Please choose a proxy directory and enter your stream URL.");
                 return;
             }
-            start = !start;
+            Start = !Start;
 
-            if (start)
+            if (Start)
             {
                 startStopButton.BackgroundImage = Image.FromFile(Directory.GetCurrentDirectory() + "\\Images\\button_stop.png");
                 LogInfo("Initializing bot.");
-                core.canRun = true;
+                core.CanRun = true;
                 TaskFactory factory = new TaskFactory(_token);
                 _tokenSource = new CancellationTokenSource();
 
@@ -154,7 +169,7 @@ namespace TwitchBotUI
                 LogInfo("Terminating bot, please wait.");
 
                 _tokenSource.Cancel();
-                core.canRun = false;
+                core.CanRun = false;
 
                 try
                 {
@@ -187,9 +202,47 @@ namespace TwitchBotUI
 
             core.AllBrowsersTerminated += AllBrowsersTerminated;
 
-            core.Start(proxyListDirectory, txtStreamUrl.Text, headless, browserLimit, Convert.ToInt32(numRefreshMinutes.Value));
+            core.InitializationError += ErrorOccured;
 
-            LogInfo("Bot did it's job.");
+            core.LogMessage += LogMessage;
+
+            core.DidItsJob += DidItsJob;
+
+            var quality = string.Empty;
+
+            if (lstQuality.InvokeRequired)
+            {
+                lstQuality.BeginInvoke(new Action(() =>
+                {
+                    quality = lstQuality.SelectedValue.ToString();
+                }));
+            }
+            else
+            {
+                quality = lstQuality.SelectedValue.ToString();
+            }
+
+            core.Start(_proxyListDirectory, txtStreamUrl.Text, _headless, browserLimit, Convert.ToInt32(numRefreshMinutes.Value), quality);
+        }
+
+        private void ErrorOccured(string message)
+        {
+            core.Stop();
+
+            LogError(message);
+
+            core.AllBrowsersTerminated -= AllBrowsersTerminated;
+
+            core.InitializationError -= ErrorOccured;
+
+            core.LogMessage -= LogMessage;
+
+            core.DidItsJob -= DidItsJob;
+        }
+
+        private void LogMessage(string message)
+        {
+            LogInfo(message);
         }
 
         private void AllBrowsersTerminated()
@@ -197,6 +250,17 @@ namespace TwitchBotUI
             startStopButton.BackgroundImage = Image.FromFile(Directory.GetCurrentDirectory() + "\\Images\\button_stop.png");
 
             LogInfo("Bot terminated.");
+        }
+
+        private void DidItsJob()
+        {
+            core.InitializationError -= ErrorOccured;
+
+            core.LogMessage -= LogMessage;
+
+            core.DidItsJob -= DidItsJob;
+
+            LogInfo("Bot did it's job.");
         }
 
         private void LogInfo(string str)
@@ -247,7 +311,7 @@ namespace TwitchBotUI
 
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
-                string sFileName = proxyListDirectory = txtProxyList.Text = fileDialog.FileName;
+                string sFileName = _proxyListDirectory = txtProxyList.Text = fileDialog.FileName;
             }
         }
 
@@ -292,6 +356,42 @@ namespace TwitchBotUI
         private void refreshInterval_MouseHover(object sender, EventArgs e)
         {
             toolTip.SetToolTip(tipRefreshBrowser, "Refreshes browser, just in case.");
+        }
+
+        private void txtBrowserLimit_TextChanged(object sender, EventArgs e)
+        {
+            var value = txtBrowserLimit.Text;
+
+            if (value == "0" || value == string.Empty)
+            {
+                lblRefreshMin.Enabled = lblRefreshMin2.Enabled = lblRefreshMin3.Enabled = numRefreshMinutes.Enabled = tipRefreshBrowser.Enabled = true;
+            }
+            else 
+            {
+                lblRefreshMin.Enabled = lblRefreshMin2.Enabled = lblRefreshMin3.Enabled = numRefreshMinutes.Enabled = tipRefreshBrowser.Enabled = false;
+                numRefreshMinutes.Value = 0;
+            }
+
+        }
+
+        private void lstQuality_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (lstQuality.InvokeRequired)
+            {
+                lstQuality.BeginInvoke(new Action(() =>
+                {
+                    core.PreferredQuality = lstQuality.SelectedValue.ToString();
+                }));
+            }
+            else
+            {
+                core.PreferredQuality = lstQuality.SelectedValue.ToString();
+            }
+        }
+
+        private void streamQuality_MouseHover(object sender, EventArgs e)
+        {
+            toolTip.SetToolTip(tipQuality, "Stream quality.");
         }
     }
 }

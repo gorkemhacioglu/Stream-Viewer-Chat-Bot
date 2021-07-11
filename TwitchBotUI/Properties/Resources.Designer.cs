@@ -79,5 +79,32 @@ namespace TwitchBotUI.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Do you want to update?.
+        /// </summary>
+        internal static string MainScreen_UpdateBot_Do_you_want_to_update_ {
+            get {
+                return ResourceManager.GetString("MainScreen_UpdateBot_Do_you_want_to_update_", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Newer version is available!.
+        /// </summary>
+        internal static string MainScreen_UpdateBot_Newer_version_is_available_ {
+            get {
+                return ResourceManager.GetString("MainScreen_UpdateBot_Newer_version_is_available_", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sorry, updater failed.
+        /// </summary>
+        internal static string MainScreen_UpdateBot_Sorry__updater_failed_ {
+            get {
+                return ResourceManager.GetString("MainScreen_UpdateBot_Sorry__updater_failed_", resourceCulture);
+            }
+        }
     }
 }
