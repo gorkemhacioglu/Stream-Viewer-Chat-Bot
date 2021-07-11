@@ -3,7 +3,6 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Interactions;
 using System;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Threading;
@@ -12,21 +11,21 @@ namespace BotCore
 {
     public class Core
     {
-        public static string ZipDirectory = "";
+        public static string ZipDirectory = string.Empty;
 
-        public static string StreamUrl = "";
+        public static string StreamUrl = string.Empty;
 
-        public static bool Headless = false;
+        public static bool Headless;
 
-        public static int BrowserLimit = 0;
+        public static int BrowserLimit;
 
-        private int _refreshInterval = 0;
+        public string PreferredQuality;
+
+        private int _refreshInterval;
 
         public bool CanRun = true;
 
         private bool _error;
-
-        bool _muteClicked = false;
 
         private static readonly ConcurrentDictionary<int, Thread> Threads = new ConcurrentDictionary<int, Thread>();
 
@@ -34,21 +33,22 @@ namespace BotCore
 
         private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
 
-        private StreamReader _file = null;
+        private StreamReader _file;
 
         public Action AllBrowsersTerminated;
 
-        public Action<string> IntializationError;
+        public Action<string> InitializationError;
 
         public Action<string> LogMessage;
 
         public Action DidItsJob;
 
-        public void Start(string proxyListDirectory, string stream, bool headless, int browserLimit, int refreshInterval)
+        public void Start(string proxyListDirectory, string stream, bool headless, int browserLimit, int refreshInterval, string preferredQuality)
         {
             BrowserLimit = browserLimit;
             CanRun = true;
             Headless = headless;
+            PreferredQuality = preferredQuality;
             _refreshInterval = refreshInterval;
             int i = 0;
             StreamUrl = stream;
@@ -106,7 +106,7 @@ namespace BotCore
                             continue;
 
                         _lock.EnterWriteLock();
-                        thr.Start(new Item { Url = line, Count = i });
+                        thr.Start(new Item { Url = line, Count = i, PreferredQuality = preferredQuality});
                         ThreadIds.Enqueue(thr.ManagedThreadId);
                         Threads.TryAdd(thr.ManagedThreadId, thr);
                         _lock.ExitWriteLock();
@@ -119,14 +119,9 @@ namespace BotCore
                 }
                 catch (Exception e)
                 {
-                    if (e is IndexOutOfRangeException)
-                    {
-                        IntializationError.Invoke("Please select a valid proxy file.");
-                    }
-                    else 
-                    {
-                        IntializationError.Invoke(String.Format("Uppss! {0}", e.Message));
-                    }
+                    InitializationError.Invoke(e is IndexOutOfRangeException
+                        ? "Please select a valid proxy file."
+                        : $"Uppss! {e.Message}");
                     _error = true;
                 }
 
@@ -219,11 +214,13 @@ namespace BotCore
 
                 var driver = new ChromeDriver(chromeOptions) { Url = StreamUrl };
 
-                driver.Navigate();
-
+                IJavaScriptExecutor js = driver;
+                js.ExecuteScript("window.localStorage.setItem('video-quality', '" + itm.PreferredQuality + "'); window.localStorage.setItem('volume', '0');");
+                
+                driver.Navigate().Refresh();
+                
                 bool matureClicked = false;
                 int matureCheckCount = 0;
-
                 bool cacheClicked = false;
                 int cacheCheckCount = 0;
 
@@ -241,33 +238,24 @@ namespace BotCore
                 {
                     try
                     {
-                        if (!_muteClicked)
-                        {
-                            _muteClicked = true;
-                            new Actions(driver).SendKeys("m").Perform();
-                        }
-
                         if (!matureClicked && matureCheckCount < 5)
                         {
-                            var mature = driver.FindElementsByClassName("tw-flex-grow-0");
-
-                            foreach (var btn in mature)
+                            try
                             {
-                                try
-                                {
-                                    if (btn.Text != null && btn.Text == "Start Watching")
-                                    {
-                                        btn.Click();
-                                        matureClicked = true;
-                                    }
-                                }
-                                catch
-                                {
-                                    //ignored
-                                }
-                            }
+                                var mature = driver.FindElementByXPath(
+                                    "/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div[5]/div/div[3]/button/div/div");
 
-                            matureCheckCount++;
+                                if (mature != null)
+                                {
+                                    mature.Click();
+                                }
+
+                                matureCheckCount++;
+                            }
+                            catch
+                            {
+                                //ignored because there is no mature button
+                            }
                         }
 
                         if (!cacheClicked && cacheCheckCount < 5)
@@ -286,8 +274,9 @@ namespace BotCore
                             }
                             catch (Exception)
                             {
-                                //ignored because there is no cache button
+                                //ignored because themre is no cache button
                             }
+                            Thread.Sleep(250);
                         }
 
                         try
@@ -313,53 +302,11 @@ namespace BotCore
 
                             startDate = DateTime.Now;
                         }
-
-                        #region StreamQuality
-                        //try
-                        //{
-                        //    var player = driver.FindElementByXPath("/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div[2]");
-
-                        //    if (player != null)
-                        //    {
-                        //        Actions actions = new Actions(driver);
-
-                        //        actions.ContextClick(player).Perform();
-
-                        //        Thread.Sleep(1500);
-
-                        //        var settings = driver.FindElementByXPath("/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div[7]/div/div[2]/div[2]/div[1]/div[2]/div/button/span/div/div/div/svg/g/path[1]");
-
-                        //        if (settings != null)
-                        //        {
-                        //            actions.Click(settings).Perform();
-
-                        //            var quality = driver.FindElementByXPath("/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div[7]/div/div[2]/div[2]/div[1]/div[1]/div/div/div/div/div/div/div[3]/button/div");
-
-                        //            if (quality != null)
-                        //            {
-                        //                actions.Click(quality).Perform();
-
-                        //                var onesixty = driver.FindElementByXPath("/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div[7]/div/div[2]/div[2]/div[1]/div[1]/div/div/div/div/div/div/div[8]/div/div/div/label/div");
-
-                        //                if (onesixty != null)
-                        //                    actions.Click(onesixty).Perform();
-                        //            }
-                        //        }
-                        //    }
-
-
-                        //}
-                        //catch (Exception)
-                        //{
-                        //    //ignored
-                        //}
-                        #endregion
                     }
                     catch (Exception)
                     {
                         //ignored
                     }
-
                 }
 
                 driver.Quit();
@@ -377,5 +324,7 @@ namespace BotCore
         public string Url { get; set; }
 
         public int Count { get; set; }
+
+        public string PreferredQuality { get; set; }
     }
 }
