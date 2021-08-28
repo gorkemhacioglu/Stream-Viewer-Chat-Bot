@@ -55,6 +55,7 @@
             this.tipQuality = new System.Windows.Forms.PictureBox();
             this.txtLoginInfos = new System.Windows.Forms.TextBox();
             this.btnWithLoggedIn = new System.Windows.Forms.PictureBox();
+            this.lblLoginInfoTitle = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.startStopButton)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picVulture)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numRefreshMinutes)).BeginInit();
@@ -279,7 +280,7 @@
             // 
             // txtLoginInfos
             // 
-            this.txtLoginInfos.Location = new System.Drawing.Point(520, 23);
+            this.txtLoginInfos.Location = new System.Drawing.Point(520, 26);
             this.txtLoginInfos.Multiline = true;
             this.txtLoginInfos.Name = "txtLoginInfos";
             this.txtLoginInfos.PlaceholderText = "Format is =>Username{Blank}Password{Enter}";
@@ -298,11 +299,21 @@
             this.btnWithLoggedIn.TabStop = false;
             this.btnWithLoggedIn.Click += new System.EventHandler(this.btnWithLoggedIn_Click);
             // 
+            // lblLoginInfoTitle
+            // 
+            this.lblLoginInfoTitle.AutoSize = true;
+            this.lblLoginInfoTitle.Location = new System.Drawing.Point(609, 8);
+            this.lblLoginInfoTitle.Name = "lblLoginInfoTitle";
+            this.lblLoginInfoTitle.Size = new System.Drawing.Size(99, 15);
+            this.lblLoginInfoTitle.TabIndex = 23;
+            this.lblLoginInfoTitle.Text = "Login Credentials";
+            // 
             // MainScreen
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(820, 335);
+            this.Controls.Add(this.lblLoginInfoTitle);
             this.Controls.Add(this.btnWithLoggedIn);
             this.Controls.Add(this.txtLoginInfos);
             this.Controls.Add(this.tipQuality);
@@ -371,6 +382,7 @@
         private System.Windows.Forms.PictureBox tipQuality;
         private System.Windows.Forms.TextBox txtLoginInfos;
         private System.Windows.Forms.PictureBox btnWithLoggedIn;
+        private System.Windows.Forms.Label lblLoginInfoTitle;
     }
 }
 
