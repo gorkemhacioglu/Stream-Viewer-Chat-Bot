@@ -53,12 +53,16 @@
             this.lblQuality = new System.Windows.Forms.Label();
             this.lstQuality = new System.Windows.Forms.ComboBox();
             this.tipQuality = new System.Windows.Forms.PictureBox();
+            this.txtLoginInfos = new System.Windows.Forms.TextBox();
+            this.btnWithLoggedIn = new System.Windows.Forms.PictureBox();
+            this.lblLoginInfoTitle = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.startStopButton)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picVulture)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numRefreshMinutes)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tipLimitInfo)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tipRefreshBrowser)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tipQuality)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.btnWithLoggedIn)).BeginInit();
             this.SuspendLayout();
             // 
             // startStopButton
@@ -100,7 +104,7 @@
             // checkHeadless
             // 
             this.checkHeadless.AutoSize = true;
-            this.checkHeadless.Location = new System.Drawing.Point(465, 198);
+            this.checkHeadless.Location = new System.Drawing.Point(457, 6);
             this.checkHeadless.Name = "checkHeadless";
             this.checkHeadless.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.checkHeadless.Size = new System.Drawing.Size(15, 14);
@@ -274,11 +278,44 @@
             this.tipQuality.TabStop = false;
             this.tipQuality.MouseHover += new System.EventHandler(this.streamQuality_MouseHover);
             // 
+            // txtLoginInfos
+            // 
+            this.txtLoginInfos.Location = new System.Drawing.Point(520, 26);
+            this.txtLoginInfos.Multiline = true;
+            this.txtLoginInfos.Name = "txtLoginInfos";
+            this.txtLoginInfos.PlaceholderText = "Format is =>Username{Blank}Password{Enter}";
+            this.txtLoginInfos.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.txtLoginInfos.Size = new System.Drawing.Size(288, 300);
+            this.txtLoginInfos.TabIndex = 21;
+            this.txtLoginInfos.WordWrap = false;
+            // 
+            // btnWithLoggedIn
+            // 
+            this.btnWithLoggedIn.Image = ((System.Drawing.Image)(resources.GetObject("btnWithLoggedIn.Image")));
+            this.btnWithLoggedIn.Location = new System.Drawing.Point(485, 109);
+            this.btnWithLoggedIn.Name = "btnWithLoggedIn";
+            this.btnWithLoggedIn.Size = new System.Drawing.Size(29, 144);
+            this.btnWithLoggedIn.TabIndex = 22;
+            this.btnWithLoggedIn.TabStop = false;
+            this.btnWithLoggedIn.Click += new System.EventHandler(this.btnWithLoggedIn_Click);
+            // 
+            // lblLoginInfoTitle
+            // 
+            this.lblLoginInfoTitle.AutoSize = true;
+            this.lblLoginInfoTitle.Location = new System.Drawing.Point(609, 8);
+            this.lblLoginInfoTitle.Name = "lblLoginInfoTitle";
+            this.lblLoginInfoTitle.Size = new System.Drawing.Size(99, 15);
+            this.lblLoginInfoTitle.TabIndex = 23;
+            this.lblLoginInfoTitle.Text = "Login Credentials";
+            // 
             // MainScreen
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(485, 331);
+            this.ClientSize = new System.Drawing.Size(820, 335);
+            this.Controls.Add(this.lblLoginInfoTitle);
+            this.Controls.Add(this.btnWithLoggedIn);
+            this.Controls.Add(this.txtLoginInfos);
             this.Controls.Add(this.tipQuality);
             this.Controls.Add(this.lstQuality);
             this.Controls.Add(this.lblQuality);
@@ -312,6 +349,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.tipLimitInfo)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.tipRefreshBrowser)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.tipQuality)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.btnWithLoggedIn)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -342,6 +380,9 @@
         private System.Windows.Forms.Label lblQuality;
         private System.Windows.Forms.ComboBox lstQuality;
         private System.Windows.Forms.PictureBox tipQuality;
+        private System.Windows.Forms.TextBox txtLoginInfos;
+        private System.Windows.Forms.PictureBox btnWithLoggedIn;
+        private System.Windows.Forms.Label lblLoginInfoTitle;
     }
 }
 

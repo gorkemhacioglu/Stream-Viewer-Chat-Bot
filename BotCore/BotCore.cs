@@ -3,9 +3,11 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Interactions;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Threading;
+using BotCore.Dto;
 
 namespace BotCore
 {
@@ -43,7 +45,7 @@ namespace BotCore
 
         public Action DidItsJob;
 
-        public void Start(string proxyListDirectory, string stream, bool headless, int browserLimit, int refreshInterval, string preferredQuality)
+        public void Start(string proxyListDirectory, string stream, bool headless, int browserLimit, int refreshInterval, string preferredQuality, ConcurrentQueue<LoginDto> loginInfos)
         {
             BrowserLimit = browserLimit;
             CanRun = true;
@@ -80,7 +82,7 @@ namespace BotCore
 
                     while (CanRun && (line = _file.ReadLine()) != null)
                     {
-                        line = line.Replace(" ","");
+                        line = line.Replace(" ", "");
 
                         if (string.IsNullOrEmpty(line))
                             continue;
@@ -106,7 +108,13 @@ namespace BotCore
                             continue;
 
                         _lock.EnterWriteLock();
-                        thr.Start(new Item { Url = line, Count = i, PreferredQuality = preferredQuality});
+                        loginInfos.TryDequeue(out var loginInfo);
+
+                        thr.Start(new SessionConfigurationDto { Url = line, Count = i, PreferredQuality = preferredQuality, LoginInfo = loginInfo });
+
+                        if (loginInfo != null)
+                            loginInfos.Enqueue(loginInfo);
+
                         ThreadIds.Enqueue(thr.ManagedThreadId);
                         Threads.TryAdd(thr.ManagedThreadId, thr);
                         _lock.ExitWriteLock();
@@ -163,13 +171,11 @@ namespace BotCore
                 {
                     if (Threads.Count >= BrowserLimit)
                     {
-                        Thread tempThread = null;
-
                         _lock.EnterWriteLock();
 
                         ThreadIds.TryDequeue(out var threadId);
 
-                        Threads.TryGetValue(threadId, out tempThread);
+                        Threads.TryGetValue(threadId, out var tempThread);
 
                         _lock.ExitWriteLock();
 
@@ -196,7 +202,7 @@ namespace BotCore
             try
             {
                 Random r = new Random();
-                Item itm = (Item)obj;
+                SessionConfigurationDto itm = (SessionConfigurationDto)obj;
                 var array = itm.Url.ToString().Split(':');
                 var proxy = new Proxy { HttpProxy = array[0] + ':' + array[1], SslProxy = array[0] + ':' + array[1] };
                 var chromeOptions = new ChromeOptions { Proxy = proxy, AcceptInsecureCertificates = true };
@@ -216,9 +222,9 @@ namespace BotCore
 
                 IJavaScriptExecutor js = driver;
                 js.ExecuteScript("window.localStorage.setItem('video-quality', '" + itm.PreferredQuality + "'); window.localStorage.setItem('volume', '0');");
-                
+
                 driver.Navigate().Refresh();
-                
+
                 bool matureClicked = false;
                 int matureCheckCount = 0;
                 bool cacheClicked = false;
@@ -231,6 +237,58 @@ namespace BotCore
                     Thread.CurrentThread.Priority = ThreadPriority.Highest;
                 }
 
+                if (itm.LoginInfo != null)
+                {
+                    try
+                    {
+                        var loginButton = driver.FindElementByXPath(
+                        "/html/body/div[1]/div/div[2]/nav/div/div[3]/div[3]/div/div[1]/div[1]/button/div/div");
+
+                        if (loginButton != null)
+                        {
+                            loginButton.Click();
+
+                            Thread.Sleep(1000);
+
+                            var usernameBox = driver.FindElementByXPath(
+                                "/html/body/div[3]/div/div/div/div/div/div[1]/div/div/div[3]/form/div/div[1]/div/div[2]/input");
+
+                            if (usernameBox != null)
+                            {
+                                usernameBox.Click();
+
+                                Thread.Sleep(1000);
+
+                                usernameBox.SendKeys(itm.LoginInfo.Username);
+
+                                var passwordBox = driver.FindElementByXPath(
+                                    "/html/body/div[3]/div/div/div/div/div/div[1]/div/div/div[3]/form/div/div[2]/div/div[1]/div[2]/div[1]/input");
+
+                                if (passwordBox != null)
+                                {
+                                    passwordBox.Click();
+
+                                    Thread.Sleep(1000);
+
+                                    passwordBox.SendKeys(itm.LoginInfo.Password);
+
+                                    Thread.Sleep(1000);
+
+                                    var login = driver.FindElementByXPath(
+                                        "/html/body/div[3]/div/div/div/div/div/div[1]/div/div/div[3]/form/div/div[3]/button/div/div");
+
+                                    Thread.Sleep(1000);
+
+                                    login?.Click();
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        LogMessage.Invoke("Login failed.");
+                    }
+                }
 
                 var startDate = DateTime.Now;
 
@@ -245,10 +303,7 @@ namespace BotCore
                                 var mature = driver.FindElementByXPath(
                                     "/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div[5]/div/div[3]/button/div/div");
 
-                                if (mature != null)
-                                {
-                                    mature.Click();
-                                }
+                                mature?.Click();
 
                                 matureCheckCount++;
                             }
@@ -274,7 +329,7 @@ namespace BotCore
                             }
                             catch (Exception)
                             {
-                                //ignored because themre is no cache button
+                                //ignored because there is no cache button
                             }
                             Thread.Sleep(250);
                         }
@@ -318,13 +373,5 @@ namespace BotCore
                 Console.WriteLine("Error" + ex);
             }
         }
-    }
-    public class Item
-    {
-        public string Url { get; set; }
-
-        public int Count { get; set; }
-
-        public string PreferredQuality { get; set; }
     }
 }

@@ -1,14 +1,17 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using BotCore;
+using BotCore.Dto;
 using TwitchBotUI.Properties;
 
 namespace TwitchBotUI
@@ -17,11 +20,13 @@ namespace TwitchBotUI
     {
         public bool Start = false;
 
-        private static string _productVersion = "1.3";
+        private static string _productVersion = "1.4";
 
         private static string _proxyListDirectory = "";
 
         private static bool _headless = false;
+
+        private bool _withLoggedIn = false;
 
         CancellationTokenSource _tokenSource = new CancellationTokenSource();
 
@@ -29,9 +34,11 @@ namespace TwitchBotUI
 
         readonly Configuration _configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
-        readonly Dictionary<string,string> _dataSourceQuality = new Dictionary<string, string>();
+        readonly Dictionary<string, string> _dataSourceQuality = new Dictionary<string, string>();
 
-        public Core core = new Core();
+        private readonly ConcurrentQueue<LoginDto> _lstLoginInfo = new ConcurrentQueue<LoginDto>();
+
+        public Core Core = new Core();
 
         public MainScreen()
         {
@@ -45,7 +52,7 @@ namespace TwitchBotUI
 
             if (isAvailable)
                 UpdateBot();
-            
+
             #region StreamQuality
 
             FillQualityItems();
@@ -60,7 +67,7 @@ namespace TwitchBotUI
                 lstQuality.ValueMember = "Value";
                 lstQuality.DisplayMember = "Key";
                 lstQuality.DataSource = new BindingSource(_dataSourceQuality, null);
-                lstQuality.SelectedIndex = _dataSourceQuality.Count-1;
+                lstQuality.SelectedIndex = _dataSourceQuality.Count - 1;
             }
             #endregion
         }
@@ -132,12 +139,18 @@ namespace TwitchBotUI
             _proxyListDirectory = txtProxyList.Text = _configuration.AppSettings.Settings["proxyListDirectory"].Value;
             txtStreamUrl.Text = _configuration.AppSettings.Settings["streamUrl"].Value;
             _headless = checkHeadless.Checked = Convert.ToBoolean(_configuration.AppSettings.Settings["headless"].Value);
-            _proxyListDirectory = txtProxyList.Text = _configuration.AppSettings.Settings["proxyListDirectory"].Value;
             numRefreshMinutes.Value = Convert.ToInt32(_configuration.AppSettings.Settings["refreshInterval"].Value);
-            LogInfo("Configuration has been read.");
+            _withLoggedIn = Convert.ToBoolean(_configuration.AppSettings.Settings["withLoggedIn"].Value);
+            txtLoginInfos.Text = _configuration.AppSettings.Settings["loginInfos"].Value;
+
+            ShowLoggedInPart(_withLoggedIn);
         }
 
-        [Obsolete]
+        private void ShowLoggedInPart(bool visibility)
+        {
+            this.ClientSize = visibility ? new System.Drawing.Size(820, 335) : new System.Drawing.Size(517, 335);
+        }
+
         private void startStopButton_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(txtProxyList.Text) || string.IsNullOrEmpty(txtStreamUrl.Text))
@@ -145,13 +158,33 @@ namespace TwitchBotUI
                 LogInfo("Please choose a proxy directory and enter your stream URL.");
                 return;
             }
+
+            _lstLoginInfo.Clear();
+
+            if (_withLoggedIn)
+            {
+                foreach (var line in txtLoginInfos.Text.Split("\r\n"))
+                {
+                    var parts = line.Split(' ');
+
+                    if (parts.Length != 2)
+                    {
+                        LogInfo("Please correct the format of your login credentials");
+
+                        return;
+                    }
+
+                    _lstLoginInfo.Enqueue(new LoginDto() { Username = parts[0], Password = parts[1] });
+                }
+            }
+
             Start = !Start;
 
             if (Start)
             {
                 startStopButton.BackgroundImage = Image.FromFile(Directory.GetCurrentDirectory() + "\\Images\\button_stop.png");
                 LogInfo("Initializing bot.");
-                core.CanRun = true;
+                Core.CanRun = true;
                 TaskFactory factory = new TaskFactory(_token);
                 _tokenSource = new CancellationTokenSource();
 
@@ -169,17 +202,17 @@ namespace TwitchBotUI
                 LogInfo("Terminating bot, please wait.");
 
                 _tokenSource.Cancel();
-                core.CanRun = false;
+                Core.CanRun = false;
 
                 try
                 {
-                    core.Stop();
+                    Core.Stop();
                 }
                 catch (Exception)
                 {
                     LogInfo("Termination error. (Ignored)");
                 }
-                
+
                 startStopButton.BackgroundImage = Image.FromFile(Directory.GetCurrentDirectory() + "\\Images\\button_start.png");
                 startStopButton.Enabled = true;
             }
@@ -193,6 +226,8 @@ namespace TwitchBotUI
             _configuration.AppSettings.Settings["headless"].Value = checkHeadless.Checked.ToString();
             _configuration.AppSettings.Settings["proxyListDirectory"].Value = txtProxyList.Text;
             _configuration.AppSettings.Settings["refreshInterval"].Value = numRefreshMinutes.Value.ToString();
+            _configuration.AppSettings.Settings["withLoggedIn"].Value = _withLoggedIn.ToString();
+            _configuration.AppSettings.Settings["loginInfos"].Value = txtLoginInfos.Text;
             _configuration.Save(ConfigurationSaveMode.Modified);
 
             LogInfo("Configuration saved.");
@@ -200,13 +235,13 @@ namespace TwitchBotUI
 
             Int32.TryParse(txtBrowserLimit.Text, out var browserLimit);
 
-            core.AllBrowsersTerminated += AllBrowsersTerminated;
+            Core.AllBrowsersTerminated += AllBrowsersTerminated;
 
-            core.InitializationError += ErrorOccured;
+            Core.InitializationError += ErrorOccured;
 
-            core.LogMessage += LogMessage;
+            Core.LogMessage += LogMessage;
 
-            core.DidItsJob += DidItsJob;
+            Core.DidItsJob += DidItsJob;
 
             var quality = string.Empty;
 
@@ -222,22 +257,22 @@ namespace TwitchBotUI
                 quality = lstQuality.SelectedValue.ToString();
             }
 
-            core.Start(_proxyListDirectory, txtStreamUrl.Text, _headless, browserLimit, Convert.ToInt32(numRefreshMinutes.Value), quality);
+            Core.Start(_proxyListDirectory, txtStreamUrl.Text, _headless, browserLimit, Convert.ToInt32(numRefreshMinutes.Value), quality, _lstLoginInfo);
         }
 
         private void ErrorOccured(string message)
         {
-            core.Stop();
+            Core.Stop();
 
             LogError(message);
 
-            core.AllBrowsersTerminated -= AllBrowsersTerminated;
+            Core.AllBrowsersTerminated -= AllBrowsersTerminated;
 
-            core.InitializationError -= ErrorOccured;
+            Core.InitializationError -= ErrorOccured;
 
-            core.LogMessage -= LogMessage;
+            Core.LogMessage -= LogMessage;
 
-            core.DidItsJob -= DidItsJob;
+            Core.DidItsJob -= DidItsJob;
         }
 
         private void LogMessage(string message)
@@ -254,11 +289,11 @@ namespace TwitchBotUI
 
         private void DidItsJob()
         {
-            core.InitializationError -= ErrorOccured;
+            Core.InitializationError -= ErrorOccured;
 
-            core.LogMessage -= LogMessage;
+            Core.LogMessage -= LogMessage;
 
-            core.DidItsJob -= DidItsJob;
+            Core.DidItsJob -= DidItsJob;
 
             LogInfo("Bot did it's job.");
         }
@@ -366,12 +401,13 @@ namespace TwitchBotUI
             {
                 lblRefreshMin.Enabled = lblRefreshMin2.Enabled = lblRefreshMin3.Enabled = numRefreshMinutes.Enabled = tipRefreshBrowser.Enabled = true;
             }
-            else 
+            else
             {
                 lblRefreshMin.Enabled = lblRefreshMin2.Enabled = lblRefreshMin3.Enabled = numRefreshMinutes.Enabled = tipRefreshBrowser.Enabled = false;
                 numRefreshMinutes.Value = 0;
+                _withLoggedIn = false;
+                ShowLoggedInPart(false);
             }
-
         }
 
         private void lstQuality_SelectedIndexChanged(object sender, EventArgs e)
@@ -380,18 +416,25 @@ namespace TwitchBotUI
             {
                 lstQuality.BeginInvoke(new Action(() =>
                 {
-                    core.PreferredQuality = lstQuality.SelectedValue.ToString();
+                    Core.PreferredQuality = lstQuality.SelectedValue.ToString();
                 }));
             }
             else
             {
-                core.PreferredQuality = lstQuality.SelectedValue.ToString();
+                Core.PreferredQuality = lstQuality.SelectedValue.ToString();
             }
         }
 
         private void streamQuality_MouseHover(object sender, EventArgs e)
         {
             toolTip.SetToolTip(tipQuality, "Stream quality.");
+        }
+
+        private void btnWithLoggedIn_Click(object sender, EventArgs e)
+        {
+            _withLoggedIn = !_withLoggedIn;
+
+            ShowLoggedInPart(_withLoggedIn);
         }
     }
 }

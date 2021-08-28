@@ -106,5 +106,15 @@ namespace TwitchBotUI.Properties {
                 return ResourceManager.GetString("MainScreen_UpdateBot_Sorry__updater_failed_", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap withLoggedInUsers {
+            get {
+                object obj = ResourceManager.GetObject("withLoggedInUsers", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }
