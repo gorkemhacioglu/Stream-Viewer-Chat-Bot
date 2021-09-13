@@ -5,7 +5,6 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -238,6 +237,16 @@ namespace TwitchBotUI
                     LogInfo("Termination error. (Ignored)");
                 }
 
+                Core.InitializationError -= ErrorOccured;
+
+                Core.LogMessage -= LogMessage;
+
+                Core.DidItsJob -= DidItsJob;
+
+                Core.IncreaseViewer -= IncreaseViewer;
+
+                Core.DecreaseViewer -= DecreaseViewer;
+
                 startStopButton.BackgroundImage = Image.FromFile(Directory.GetCurrentDirectory() + "\\Images\\button_start.png");
                 startStopButton.Enabled = true;
             }
@@ -274,7 +283,7 @@ namespace TwitchBotUI
 
             Core.DecreaseViewer += DecreaseViewer;
 
-            Core.LiveViewer += LiveViewer;
+            Core.LiveViewer += SetLiveViewer;
 
             var quality = string.Empty;
 
@@ -293,7 +302,23 @@ namespace TwitchBotUI
             Core.Start(_proxyListDirectory, txtStreamUrl.Text, _headless, browserLimit, Convert.ToInt32(numRefreshMinutes.Value), quality, _lstLoginInfo);
         }
 
-        private void LiveViewer(string count)
+
+        private void SetBotViewer(string count)
+        {
+            if (lblViewer.InvokeRequired)
+            {
+                lblViewer.BeginInvoke(new Action(() =>
+                {
+                    lblViewer.Text = count;
+                }));
+            }
+            else
+            {
+                lblViewer.Text = count;
+            }
+        }
+
+        private void SetLiveViewer(string count)
         {
             if (lblLiveViewer.InvokeRequired)
             {
@@ -366,21 +391,16 @@ namespace TwitchBotUI
         {
             startStopButton.BackgroundImage = Image.FromFile(Directory.GetCurrentDirectory() + "\\Images\\button_stop.png");
 
+            SetBotViewer("0");
+            SetLiveViewer("0");
+
             LogInfo("Bot terminated.");
+
+            Core.AllBrowsersTerminated -= AllBrowsersTerminated;
         }
 
         private void DidItsJob()
         {
-            Core.InitializationError -= ErrorOccured;
-
-            Core.LogMessage -= LogMessage;
-
-            Core.DidItsJob -= DidItsJob;
-
-            Core.IncreaseViewer -= IncreaseViewer;
-
-            Core.DecreaseViewer -= DecreaseViewer;
-
             LogInfo("Bot did it's job.");
         }
 
@@ -457,7 +477,7 @@ namespace TwitchBotUI
 
         private void picLimitInfo_MouseHover(object sender, EventArgs e)
         {
-            toolTip.SetToolTip(tipLimitInfo, "Rotates proxies with limited quantity of browser. Old ones dies, new ones born. 0 means, no limit.");
+            toolTip.SetToolTip(tipLimitInfo, "Feature disabled temporarily.");//"Rotates proxies with limited quantity of browser. Old ones dies, new ones born. 0 means, no limit.");
         }
 
         private void lblProxyList_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -476,7 +496,7 @@ namespace TwitchBotUI
 
         private void refreshInterval_MouseHover(object sender, EventArgs e)
         {
-            toolTip.SetToolTip(tipRefreshBrowser, "Refreshes browser, just in case.");
+            toolTip.SetToolTip(tipRefreshBrowser, "Refreshes browser, just in case. Example: Connection loss");
         }
 
         private void txtBrowserLimit_TextChanged(object sender, EventArgs e)

@@ -69,7 +69,7 @@ namespace BotCore
                 dir.Delete(true);
             }
 
-            if (Core.BrowserLimit > 0)
+            if (BrowserLimit > 0)
             {
                 Thread thr = new Thread(LoopWithLimit);
                 thr.Start();
@@ -104,9 +104,9 @@ namespace BotCore
                         Random r = new Random();
                         int rInt = r.Next(3000, 6000);
 
-                        while (browserLimit > 0 && DriverServices.Count >= Core.BrowserLimit)
+                        while (BrowserLimit > 0 && DriverServices.Count >= BrowserLimit)
                         {
-                            Thread.Sleep(500);
+                            Thread.Sleep(1000);
                         }
 
                         if (!CanRun)
@@ -121,7 +121,7 @@ namespace BotCore
 
                         i++;
 
-                        Thread.Sleep(browserLimit == 0 ? rInt : 50);
+                        Thread.Sleep(BrowserLimit == 0 ? rInt : 1000);
                     }
 
                     _file.Close();
@@ -140,7 +140,39 @@ namespace BotCore
             } while (browserLimit > 0);
 
             if (!_error)
-                DidItsJob.Invoke();
+                DidItsJob?.Invoke();
+        }
+
+        private void KillAllProcesses() 
+        {
+            string strCmd = string.Empty;
+
+            strCmd = "/C taskkill /IM " + "chrome.exe" + " /F";
+            Process.Start("CMD.exe", strCmd);
+
+            //foreach (var driverService in DriverServices)
+            //{
+            //    while (true)
+            //    {
+            //        try
+            //        {
+            //            if (!driverService.IsRunning)
+            //                break;
+
+            //            strCmdText = "/C taskkill /F /PID " + Process.GetProcessById(driverService.ProcessId);
+            //            Process.Start("CMD.exe", strCmdText);
+
+            //            break;
+            //        }
+            //        catch (Exception ex)
+            //        {
+            //            //ignored
+            //        }
+            //    }
+            //}
+
+            strCmd = "/C taskkill /IM " + "chromedriver.exe" + " /F";
+            Process.Start("CMD.exe", strCmd);
         }
 
         public void Stop()
@@ -149,29 +181,14 @@ namespace BotCore
 
             _file.Close();
 
-            foreach (var driverService in DriverServices)
+            KillAllProcesses();
+
+            var files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory + "\\zipSource");
+
+            foreach (var file in files)
             {
-                while (true)
-                {
-                    try
-                    {
-                        if (!driverService.IsRunning)
-                            break;
-
-                        string strCmdText = "/C taskkill /F /PID " + Process.GetProcessById(driverService.ProcessId);
-                        Process.Start("CMD.exe", strCmdText);
-
-                        break;
-                    }
-                    catch (Exception )
-                    {
-                        //ignored
-                    }
-                }
+                File.Delete(file);
             }
-
-            var cmd = "/C taskkill /IM '" + "chromedriver.exe" + "'";
-            Process.Start("CMD.exe", cmd);
 
             DriverServices.Clear();
 
@@ -184,7 +201,12 @@ namespace BotCore
             {
                 try
                 {
-
+                    if(DriverServices.Count >= BrowserLimit) 
+                    { 
+                        KillAllProcesses();
+                        DriverServices.Clear();
+                    }
+                    Thread.Sleep(500);
                 }
                 catch (Exception)
                 {
@@ -214,7 +236,7 @@ namespace BotCore
 
                 if (Headless)
                     chromeOptions.AddArgument("headless");
-                if (!Headless)
+                else
                     chromeOptions.AddExtension(ZipDirectory + itm.Count + ".zip");
 
                 string[] resolutions = { "960,720", "1080,720", "1280,800", "1280,720", "960,600", "1024,768", "800,600" };
@@ -231,26 +253,26 @@ namespace BotCore
 
                 var driver = new ChromeDriver(driverService, chromeOptions) { Url = StreamUrl };//"https://www.twitch.tv/"+ Guid.NewGuid() };
 
-                DriverServices.Enqueue(driverService);
-
                 if (!Headless)
                 {
                     IJavaScriptExecutor js = driver;
                     js.ExecuteScript("window.localStorage.setItem('video-quality', '" + itm.PreferredQuality + "');");
-                    driver.Navigate().GoToUrl(StreamUrl);
+                    driver.Navigate().Refresh();
                 }
-
-                bool matureClicked = false;
-                int matureCheckCount = 0;
-                bool cacheClicked = false;
-                int cacheCheckCount = 0;
 
                 if (BrowserLimit > 0)
                 {
                     Thread.Sleep(1000);
 
-                    Thread.CurrentThread.Priority = ThreadPriority.Highest;
-                }
+                    return;
+                 }
+
+                DriverServices.Enqueue(driverService);
+
+                bool matureClicked = false;
+                int matureCheckCount = 0;
+                bool cacheClicked = false;
+                int cacheCheckCount = 0;
 
                 if (itm.LoginInfo != null)
                 {
@@ -309,11 +331,11 @@ namespace BotCore
 
                 IncreaseViewer?.Invoke();
 
-                var firstPage = false;
-
                 try
                 {
                     var shoudIRun = true;
+
+                    bool firstPage = false;
 
                     while (shoudIRun)
                     {
@@ -328,15 +350,43 @@ namespace BotCore
 
                         try
                         {
+
+                            if (_firstPage) 
+                            {
+                                firstPage = _firstPage;
+                            }
+
+                            if (firstPage)
+                            {
+                                var liveViewers = driver.FindElementByXPath(
+                                    "/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[1]/div[1]/div[2]/div/div[1]/div/div/div/div[2]/div[2]/div[2]/div/div/div[1]/div[1]/div/p/span");
+
+                                if (liveViewers != null)
+                                {
+                                    LiveViewer.Invoke(liveViewers.Text);
+
+                                    _firstPage = false;
+                                }
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            // ignored
+                        }
+
+                        Thread.Sleep(1000);
+
+                        try
+                        {
                             if (!matureClicked && matureCheckCount < 5)
                             {
                                 try
                                 {
                                     var mature = driver.FindElementByXPath(
-                                        "/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div[5]/div/div[3]/button/div/div");
+                                        "/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div/div[5]/div/div[3]/button/div/div");
 
                                     mature?.Click();
-
+                                    matureClicked = true;
                                     matureCheckCount++;
                                 }
                                 catch
@@ -370,7 +420,6 @@ namespace BotCore
                                 {
                                     //ignored because there is no cache button
                                 }
-                                Thread.Sleep(250);
                             }
                         }
                         catch (Exception)
@@ -400,29 +449,6 @@ namespace BotCore
                             driver.Navigate().Refresh();
 
                             startDate = DateTime.Now;
-                        }
-
-                        try
-                        {
-                            if (_firstPage || firstPage)
-                            {
-                                var liveViewers = driver.FindElementByXPath(
-                                    "/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[1]/div[1]/div[2]/div/div[1]/div/div/div/div[2]/div[2]/div[2]/div/div/div[1]/div[1]/div/p/span");
-
-                                if (liveViewers != null)
-                                {
-                                    LiveViewer.Invoke(liveViewers.Text);
-
-                                    firstPage = true;
-                                    _firstPage = false;
-
-                                    Thread.Sleep(5000);
-                                }
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            // ignored
                         }
                     }
                 }

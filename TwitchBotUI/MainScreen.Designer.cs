@@ -78,29 +78,29 @@
             // 
             this.startStopButton.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("startStopButton.BackgroundImage")));
             this.startStopButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.startStopButton.Location = new System.Drawing.Point(889, 506);
-            this.startStopButton.Margin = new System.Windows.Forms.Padding(7, 7, 7, 7);
+            this.startStopButton.Location = new System.Drawing.Point(988, 562);
+            this.startStopButton.Margin = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.startStopButton.Name = "startStopButton";
-            this.startStopButton.Size = new System.Drawing.Size(180, 90);
+            this.startStopButton.Size = new System.Drawing.Size(200, 100);
             this.startStopButton.TabIndex = 0;
             this.startStopButton.TabStop = false;
             this.startStopButton.Click += new System.EventHandler(this.startStopButton_Click);
             // 
             // txtStreamUrl
             // 
-            this.txtStreamUrl.Location = new System.Drawing.Point(187, 533);
-            this.txtStreamUrl.Margin = new System.Windows.Forms.Padding(7, 7, 7, 7);
+            this.txtStreamUrl.Location = new System.Drawing.Point(208, 592);
+            this.txtStreamUrl.Margin = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.txtStreamUrl.Name = "txtStreamUrl";
-            this.txtStreamUrl.Size = new System.Drawing.Size(684, 43);
+            this.txtStreamUrl.Size = new System.Drawing.Size(760, 47);
             this.txtStreamUrl.TabIndex = 1;
             // 
             // lblStreamUrl
             // 
             this.lblStreamUrl.AutoSize = true;
-            this.lblStreamUrl.Location = new System.Drawing.Point(27, 540);
-            this.lblStreamUrl.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+            this.lblStreamUrl.Location = new System.Drawing.Point(30, 600);
+            this.lblStreamUrl.Margin = new System.Windows.Forms.Padding(8, 0, 8, 0);
             this.lblStreamUrl.Name = "lblStreamUrl";
-            this.lblStreamUrl.Size = new System.Drawing.Size(147, 37);
+            this.lblStreamUrl.Size = new System.Drawing.Size(163, 41);
             this.lblStreamUrl.TabIndex = 2;
             this.lblStreamUrl.Text = "Stream Url:";
             // 
@@ -110,21 +110,21 @@
             this.lblLog.BackColor = System.Drawing.Color.White;
             this.lblLog.Font = new System.Drawing.Font("Segoe UI", 9F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point);
             this.lblLog.ForeColor = System.Drawing.SystemColors.HotTrack;
-            this.lblLog.Location = new System.Drawing.Point(922, 34);
-            this.lblLog.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+            this.lblLog.Location = new System.Drawing.Point(1024, 38);
+            this.lblLog.Margin = new System.Windows.Forms.Padding(8, 0, 8, 0);
             this.lblLog.Name = "lblLog";
-            this.lblLog.Size = new System.Drawing.Size(104, 37);
+            this.lblLog.Size = new System.Drawing.Size(114, 41);
             this.lblLog.TabIndex = 4;
             this.lblLog.Text = "Logger";
             // 
             // checkHeadless
             // 
             this.checkHeadless.AutoSize = true;
-            this.checkHeadless.Location = new System.Drawing.Point(225, 407);
-            this.checkHeadless.Margin = new System.Windows.Forms.Padding(7, 7, 7, 7);
+            this.checkHeadless.Location = new System.Drawing.Point(250, 452);
+            this.checkHeadless.Margin = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.checkHeadless.Name = "checkHeadless";
             this.checkHeadless.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.checkHeadless.Size = new System.Drawing.Size(28, 27);
+            this.checkHeadless.Size = new System.Drawing.Size(34, 33);
             this.checkHeadless.TabIndex = 5;
             this.checkHeadless.UseVisualStyleBackColor = true;
             // 
@@ -134,18 +134,18 @@
             // 
             // txtProxyList
             // 
-            this.txtProxyList.Location = new System.Drawing.Point(277, 459);
-            this.txtProxyList.Margin = new System.Windows.Forms.Padding(7, 7, 7, 7);
+            this.txtProxyList.Location = new System.Drawing.Point(308, 510);
+            this.txtProxyList.Margin = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.txtProxyList.Name = "txtProxyList";
-            this.txtProxyList.Size = new System.Drawing.Size(594, 43);
+            this.txtProxyList.Size = new System.Drawing.Size(660, 47);
             this.txtProxyList.TabIndex = 7;
             // 
             // browseProxyList
             // 
-            this.browseProxyList.Location = new System.Drawing.Point(187, 459);
-            this.browseProxyList.Margin = new System.Windows.Forms.Padding(7, 7, 7, 7);
+            this.browseProxyList.Location = new System.Drawing.Point(208, 510);
+            this.browseProxyList.Margin = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.browseProxyList.Name = "browseProxyList";
-            this.browseProxyList.Size = new System.Drawing.Size(76, 52);
+            this.browseProxyList.Size = new System.Drawing.Size(84, 58);
             this.browseProxyList.TabIndex = 8;
             this.browseProxyList.Text = "...";
             this.browseProxyList.UseVisualStyleBackColor = true;
@@ -153,31 +153,32 @@
             // 
             // logScreen
             // 
-            this.logScreen.Location = new System.Drawing.Point(20, 27);
-            this.logScreen.Margin = new System.Windows.Forms.Padding(7, 7, 7, 7);
+            this.logScreen.Location = new System.Drawing.Point(22, 30);
+            this.logScreen.Margin = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.logScreen.Multiline = true;
             this.logScreen.Name = "logScreen";
             this.logScreen.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.logScreen.Size = new System.Drawing.Size(1046, 281);
+            this.logScreen.Size = new System.Drawing.Size(1162, 312);
             this.logScreen.TabIndex = 10;
             // 
             // lblBrowserLimit
             // 
             this.lblBrowserLimit.AutoSize = true;
-            this.lblBrowserLimit.Location = new System.Drawing.Point(27, 340);
-            this.lblBrowserLimit.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+            this.lblBrowserLimit.Location = new System.Drawing.Point(30, 378);
+            this.lblBrowserLimit.Margin = new System.Windows.Forms.Padding(8, 0, 8, 0);
             this.lblBrowserLimit.Name = "lblBrowserLimit";
-            this.lblBrowserLimit.Size = new System.Drawing.Size(190, 37);
+            this.lblBrowserLimit.Size = new System.Drawing.Size(211, 41);
             this.lblBrowserLimit.TabIndex = 11;
             this.lblBrowserLimit.Text = "Browser Limit :";
             // 
             // txtBrowserLimit
             // 
-            this.txtBrowserLimit.Location = new System.Drawing.Point(225, 331);
-            this.txtBrowserLimit.Margin = new System.Windows.Forms.Padding(7, 7, 7, 7);
+            this.txtBrowserLimit.Enabled = false;
+            this.txtBrowserLimit.Location = new System.Drawing.Point(250, 368);
+            this.txtBrowserLimit.Margin = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.txtBrowserLimit.Name = "txtBrowserLimit";
             this.txtBrowserLimit.PlaceholderText = "0";
-            this.txtBrowserLimit.Size = new System.Drawing.Size(85, 43);
+            this.txtBrowserLimit.Size = new System.Drawing.Size(94, 47);
             this.txtBrowserLimit.TabIndex = 12;
             this.txtBrowserLimit.TextChanged += new System.EventHandler(this.txtBrowserLimit_TextChanged);
             // 
@@ -185,35 +186,35 @@
             // 
             this.picVulture.BackgroundImage = global::TwitchBotUI.Properties.Resources.icon_onwhite1;
             this.picVulture.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.picVulture.Location = new System.Drawing.Point(18, 598);
-            this.picVulture.Margin = new System.Windows.Forms.Padding(7, 7, 7, 7);
+            this.picVulture.Location = new System.Drawing.Point(20, 664);
+            this.picVulture.Margin = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.picVulture.Name = "picVulture";
-            this.picVulture.Size = new System.Drawing.Size(1053, 135);
+            this.picVulture.Size = new System.Drawing.Size(1170, 150);
             this.picVulture.TabIndex = 13;
             this.picVulture.TabStop = false;
             this.picVulture.Click += new System.EventHandler(this.pictureBox2_Click);
             // 
             // numRefreshMinutes
             // 
-            this.numRefreshMinutes.Location = new System.Drawing.Point(596, 331);
-            this.numRefreshMinutes.Margin = new System.Windows.Forms.Padding(7, 7, 7, 7);
+            this.numRefreshMinutes.Location = new System.Drawing.Point(662, 368);
+            this.numRefreshMinutes.Margin = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.numRefreshMinutes.Maximum = new decimal(new int[] {
             1440,
             0,
             0,
             0});
             this.numRefreshMinutes.Name = "numRefreshMinutes";
-            this.numRefreshMinutes.Size = new System.Drawing.Size(144, 43);
+            this.numRefreshMinutes.Size = new System.Drawing.Size(160, 47);
             this.numRefreshMinutes.TabIndex = 14;
             this.numRefreshMinutes.Tag = "Refresh Browsers (Min.)";
             // 
             // lblRefreshMin
             // 
             this.lblRefreshMin.AutoSize = true;
-            this.lblRefreshMin.Location = new System.Drawing.Point(412, 356);
-            this.lblRefreshMin.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+            this.lblRefreshMin.Location = new System.Drawing.Point(458, 396);
+            this.lblRefreshMin.Margin = new System.Windows.Forms.Padding(8, 0, 8, 0);
             this.lblRefreshMin.Name = "lblRefreshMin";
-            this.lblRefreshMin.Size = new System.Drawing.Size(117, 37);
+            this.lblRefreshMin.Size = new System.Drawing.Size(130, 41);
             this.lblRefreshMin.TabIndex = 15;
             this.lblRefreshMin.Text = "(Minute)";
             // 
@@ -221,10 +222,10 @@
             // 
             this.tipLimitInfo.BackgroundImage = global::TwitchBotUI.Properties.Resources.info;
             this.tipLimitInfo.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.tipLimitInfo.Location = new System.Drawing.Point(320, 326);
-            this.tipLimitInfo.Margin = new System.Windows.Forms.Padding(7, 7, 7, 7);
+            this.tipLimitInfo.Location = new System.Drawing.Point(356, 362);
+            this.tipLimitInfo.Margin = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.tipLimitInfo.Name = "tipLimitInfo";
-            this.tipLimitInfo.Size = new System.Drawing.Size(36, 36);
+            this.tipLimitInfo.Size = new System.Drawing.Size(40, 40);
             this.tipLimitInfo.TabIndex = 16;
             this.tipLimitInfo.TabStop = false;
             this.tipLimitInfo.MouseHover += new System.EventHandler(this.picLimitInfo_MouseHover);
@@ -241,10 +242,10 @@
             // 
             this.tipRefreshBrowser.BackgroundImage = global::TwitchBotUI.Properties.Resources.info;
             this.tipRefreshBrowser.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.tipRefreshBrowser.Location = new System.Drawing.Point(754, 326);
-            this.tipRefreshBrowser.Margin = new System.Windows.Forms.Padding(7, 7, 7, 7);
+            this.tipRefreshBrowser.Location = new System.Drawing.Point(838, 362);
+            this.tipRefreshBrowser.Margin = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.tipRefreshBrowser.Name = "tipRefreshBrowser";
-            this.tipRefreshBrowser.Size = new System.Drawing.Size(36, 36);
+            this.tipRefreshBrowser.Size = new System.Drawing.Size(40, 40);
             this.tipRefreshBrowser.TabIndex = 16;
             this.tipRefreshBrowser.TabStop = false;
             this.tipRefreshBrowser.MouseHover += new System.EventHandler(this.refreshInterval_MouseHover);
@@ -253,10 +254,10 @@
             // 
             this.lblProxyList.AutoSize = true;
             this.lblProxyList.LinkBehavior = System.Windows.Forms.LinkBehavior.AlwaysUnderline;
-            this.lblProxyList.Location = new System.Drawing.Point(27, 468);
-            this.lblProxyList.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+            this.lblProxyList.Location = new System.Drawing.Point(30, 520);
+            this.lblProxyList.Margin = new System.Windows.Forms.Padding(8, 0, 8, 0);
             this.lblProxyList.Name = "lblProxyList";
-            this.lblProxyList.Size = new System.Drawing.Size(135, 37);
+            this.lblProxyList.Size = new System.Drawing.Size(151, 41);
             this.lblProxyList.TabIndex = 17;
             this.lblProxyList.TabStop = true;
             this.lblProxyList.Text = "Proxy List:";
@@ -265,40 +266,40 @@
             // lblRefreshMin2
             // 
             this.lblRefreshMin2.AutoSize = true;
-            this.lblRefreshMin2.Location = new System.Drawing.Point(369, 324);
-            this.lblRefreshMin2.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+            this.lblRefreshMin2.Location = new System.Drawing.Point(410, 360);
+            this.lblRefreshMin2.Margin = new System.Windows.Forms.Padding(8, 0, 8, 0);
             this.lblRefreshMin2.Name = "lblRefreshMin2";
-            this.lblRefreshMin2.Size = new System.Drawing.Size(198, 37);
+            this.lblRefreshMin2.Size = new System.Drawing.Size(221, 41);
             this.lblRefreshMin2.TabIndex = 15;
             this.lblRefreshMin2.Text = "Refresh Interval";
             // 
             // lblRefreshMin3
             // 
             this.lblRefreshMin3.AutoSize = true;
-            this.lblRefreshMin3.Location = new System.Drawing.Point(565, 335);
-            this.lblRefreshMin3.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+            this.lblRefreshMin3.Location = new System.Drawing.Point(628, 372);
+            this.lblRefreshMin3.Margin = new System.Windows.Forms.Padding(8, 0, 8, 0);
             this.lblRefreshMin3.Name = "lblRefreshMin3";
-            this.lblRefreshMin3.Size = new System.Drawing.Size(23, 37);
+            this.lblRefreshMin3.Size = new System.Drawing.Size(25, 41);
             this.lblRefreshMin3.TabIndex = 15;
             this.lblRefreshMin3.Text = ":";
             // 
             // lblQuality
             // 
             this.lblQuality.AutoSize = true;
-            this.lblQuality.Location = new System.Drawing.Point(423, 398);
-            this.lblQuality.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+            this.lblQuality.Location = new System.Drawing.Point(470, 442);
+            this.lblQuality.Margin = new System.Windows.Forms.Padding(8, 0, 8, 0);
             this.lblQuality.Name = "lblQuality";
-            this.lblQuality.Size = new System.Drawing.Size(164, 37);
+            this.lblQuality.Size = new System.Drawing.Size(183, 41);
             this.lblQuality.TabIndex = 19;
             this.lblQuality.Text = "Quality        :";
             // 
             // lstQuality
             // 
             this.lstQuality.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.lstQuality.Location = new System.Drawing.Point(596, 392);
-            this.lstQuality.Margin = new System.Windows.Forms.Padding(7, 7, 7, 7);
+            this.lstQuality.Location = new System.Drawing.Point(662, 436);
+            this.lstQuality.Margin = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.lstQuality.Name = "lstQuality";
-            this.lstQuality.Size = new System.Drawing.Size(139, 45);
+            this.lstQuality.Size = new System.Drawing.Size(154, 49);
             this.lstQuality.TabIndex = 20;
             this.lstQuality.SelectedIndexChanged += new System.EventHandler(this.lstQuality_SelectedIndexChanged);
             // 
@@ -306,23 +307,23 @@
             // 
             this.tipQuality.BackgroundImage = global::TwitchBotUI.Properties.Resources.info;
             this.tipQuality.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.tipQuality.Location = new System.Drawing.Point(754, 376);
-            this.tipQuality.Margin = new System.Windows.Forms.Padding(7, 7, 7, 7);
+            this.tipQuality.Location = new System.Drawing.Point(838, 418);
+            this.tipQuality.Margin = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.tipQuality.Name = "tipQuality";
-            this.tipQuality.Size = new System.Drawing.Size(36, 36);
+            this.tipQuality.Size = new System.Drawing.Size(40, 40);
             this.tipQuality.TabIndex = 16;
             this.tipQuality.TabStop = false;
             this.tipQuality.MouseHover += new System.EventHandler(this.streamQuality_MouseHover);
             // 
             // txtLoginInfos
             // 
-            this.txtLoginInfos.Location = new System.Drawing.Point(1170, 58);
-            this.txtLoginInfos.Margin = new System.Windows.Forms.Padding(7, 7, 7, 7);
+            this.txtLoginInfos.Location = new System.Drawing.Point(1300, 64);
+            this.txtLoginInfos.Margin = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.txtLoginInfos.Multiline = true;
             this.txtLoginInfos.Name = "txtLoginInfos";
             this.txtLoginInfos.PlaceholderText = "Format is =>Username{Blank}Password{Enter}";
             this.txtLoginInfos.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtLoginInfos.Size = new System.Drawing.Size(643, 670);
+            this.txtLoginInfos.Size = new System.Drawing.Size(714, 744);
             this.txtLoginInfos.TabIndex = 21;
             this.txtLoginInfos.WordWrap = false;
             // 
@@ -330,10 +331,10 @@
             // 
             this.btnWithLoggedIn.BackgroundImage = global::TwitchBotUI.Properties.Resources.withLoggedInUsers1;
             this.btnWithLoggedIn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnWithLoggedIn.Location = new System.Drawing.Point(1091, 245);
-            this.btnWithLoggedIn.Margin = new System.Windows.Forms.Padding(7, 7, 7, 7);
+            this.btnWithLoggedIn.Location = new System.Drawing.Point(1212, 272);
+            this.btnWithLoggedIn.Margin = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.btnWithLoggedIn.Name = "btnWithLoggedIn";
-            this.btnWithLoggedIn.Size = new System.Drawing.Size(65, 324);
+            this.btnWithLoggedIn.Size = new System.Drawing.Size(72, 360);
             this.btnWithLoggedIn.TabIndex = 22;
             this.btnWithLoggedIn.TabStop = false;
             this.btnWithLoggedIn.Click += new System.EventHandler(this.btnWithLoggedIn_Click);
@@ -341,20 +342,20 @@
             // lblLoginInfoTitle
             // 
             this.lblLoginInfoTitle.AutoSize = true;
-            this.lblLoginInfoTitle.Location = new System.Drawing.Point(1370, 18);
-            this.lblLoginInfoTitle.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+            this.lblLoginInfoTitle.Location = new System.Drawing.Point(1522, 20);
+            this.lblLoginInfoTitle.Margin = new System.Windows.Forms.Padding(8, 0, 8, 0);
             this.lblLoginInfoTitle.Name = "lblLoginInfoTitle";
-            this.lblLoginInfoTitle.Size = new System.Drawing.Size(224, 37);
+            this.lblLoginInfoTitle.Size = new System.Drawing.Size(248, 41);
             this.lblLoginInfoTitle.TabIndex = 23;
             this.lblLoginInfoTitle.Text = "Login Credentials";
             // 
             // lblHeadless
             // 
             this.lblHeadless.AutoSize = true;
-            this.lblHeadless.Location = new System.Drawing.Point(27, 405);
-            this.lblHeadless.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
+            this.lblHeadless.Location = new System.Drawing.Point(30, 450);
+            this.lblHeadless.Margin = new System.Windows.Forms.Padding(8, 0, 8, 0);
             this.lblHeadless.Name = "lblHeadless";
-            this.lblHeadless.Size = new System.Drawing.Size(192, 37);
+            this.lblHeadless.Size = new System.Drawing.Size(216, 41);
             this.lblHeadless.TabIndex = 24;
             this.lblHeadless.Text = "Headless         :";
             // 
@@ -362,20 +363,20 @@
             // 
             this.picLiveViewer.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("picLiveViewer.BackgroundImage")));
             this.picLiveViewer.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.picLiveViewer.Location = new System.Drawing.Point(956, 331);
-            this.picLiveViewer.Margin = new System.Windows.Forms.Padding(7, 7, 7, 7);
+            this.picLiveViewer.Location = new System.Drawing.Point(1062, 368);
+            this.picLiveViewer.Margin = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.picLiveViewer.Name = "picLiveViewer";
-            this.picLiveViewer.Size = new System.Drawing.Size(72, 72);
+            this.picLiveViewer.Size = new System.Drawing.Size(80, 80);
             this.picLiveViewer.TabIndex = 25;
             this.picLiveViewer.TabStop = false;
             // 
             // lblViewer
             // 
-            this.lblViewer.Location = new System.Drawing.Point(846, 414);
-            this.lblViewer.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
-            this.lblViewer.MaximumSize = new System.Drawing.Size(112, 29);
+            this.lblViewer.Location = new System.Drawing.Point(940, 460);
+            this.lblViewer.Margin = new System.Windows.Forms.Padding(8, 0, 8, 0);
+            this.lblViewer.MaximumSize = new System.Drawing.Size(124, 32);
             this.lblViewer.Name = "lblViewer";
-            this.lblViewer.Size = new System.Drawing.Size(72, 29);
+            this.lblViewer.Size = new System.Drawing.Size(80, 32);
             this.lblViewer.TabIndex = 26;
             this.lblViewer.Text = "0";
             this.lblViewer.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -384,20 +385,20 @@
             // 
             this.picBotViewer.BackgroundImage = global::TwitchBotUI.Properties.Resources.bot;
             this.picBotViewer.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.picBotViewer.Location = new System.Drawing.Point(846, 331);
-            this.picBotViewer.Margin = new System.Windows.Forms.Padding(7, 7, 7, 7);
+            this.picBotViewer.Location = new System.Drawing.Point(940, 368);
+            this.picBotViewer.Margin = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.picBotViewer.Name = "picBotViewer";
-            this.picBotViewer.Size = new System.Drawing.Size(72, 72);
+            this.picBotViewer.Size = new System.Drawing.Size(80, 80);
             this.picBotViewer.TabIndex = 27;
             this.picBotViewer.TabStop = false;
             // 
             // lblLiveViewer
             // 
-            this.lblLiveViewer.Location = new System.Drawing.Point(956, 414);
-            this.lblLiveViewer.Margin = new System.Windows.Forms.Padding(7, 0, 7, 0);
-            this.lblLiveViewer.MaximumSize = new System.Drawing.Size(112, 29);
+            this.lblLiveViewer.Location = new System.Drawing.Point(1062, 460);
+            this.lblLiveViewer.Margin = new System.Windows.Forms.Padding(8, 0, 8, 0);
+            this.lblLiveViewer.MaximumSize = new System.Drawing.Size(124, 32);
             this.lblLiveViewer.Name = "lblLiveViewer";
-            this.lblLiveViewer.Size = new System.Drawing.Size(72, 29);
+            this.lblLiveViewer.Size = new System.Drawing.Size(80, 32);
             this.lblLiveViewer.TabIndex = 28;
             this.lblLiveViewer.Text = "0";
             this.lblLiveViewer.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -406,19 +407,19 @@
             // 
             this.tipLiveViewer.BackgroundImage = global::TwitchBotUI.Properties.Resources.info;
             this.tipLiveViewer.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.tipLiveViewer.Location = new System.Drawing.Point(1033, 326);
-            this.tipLiveViewer.Margin = new System.Windows.Forms.Padding(7, 7, 7, 7);
+            this.tipLiveViewer.Location = new System.Drawing.Point(1148, 362);
+            this.tipLiveViewer.Margin = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.tipLiveViewer.Name = "tipLiveViewer";
-            this.tipLiveViewer.Size = new System.Drawing.Size(36, 36);
+            this.tipLiveViewer.Size = new System.Drawing.Size(40, 40);
             this.tipLiveViewer.TabIndex = 29;
             this.tipLiveViewer.TabStop = false;
             this.tipLiveViewer.MouseHover += new System.EventHandler(this.tipLiveViewer_MouseHover);
             // 
             // MainScreen
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(216F, 216F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(240F, 240F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(1834, 754);
+            this.ClientSize = new System.Drawing.Size(2033, 828);
             this.Controls.Add(this.tipLiveViewer);
             this.Controls.Add(this.lblLiveViewer);
             this.Controls.Add(this.picBotViewer);
@@ -450,8 +451,8 @@
             this.Controls.Add(this.startStopButton);
             this.Controls.Add(this.logScreen);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(7, 7, 7, 7);
-            this.MaximumSize = new System.Drawing.Size(1862, 833);
+            this.Margin = new System.Windows.Forms.Padding(8, 8, 8, 8);
+            this.MaximumSize = new System.Drawing.Size(2065, 916);
             this.Name = "MainScreen";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "My Twitch Viewer Bot";
