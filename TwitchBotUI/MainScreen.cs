@@ -38,6 +38,8 @@ namespace TwitchBotUI
 
         private readonly ConcurrentQueue<LoginDto> _lstLoginInfo = new ConcurrentQueue<LoginDto>();
 
+        private Size loginSize = new Size();
+
         public Core Core = new Core();
 
         public MainScreen()
@@ -47,7 +49,7 @@ namespace TwitchBotUI
             Text += " v" + _productVersion;
 
             LogInfo("Application started.");
-            LoadFromAppSettings();
+
             var isAvailable = IsNewerVersionAvailable();
 
             if (isAvailable)
@@ -71,8 +73,8 @@ namespace TwitchBotUI
             }
             #endregion
 
-            MaximumSize = new Size(836, 374);
-            MinimumSize = new Size(517, 374);
+            //MaximumSize = ScaleSize(new Size(836, 374));
+            //MinimumSize = ScaleSize(new Size(517, 374));
         }
 
         public sealed override Size MinimumSize
@@ -143,6 +145,14 @@ namespace TwitchBotUI
             }
         }
 
+        private Size ScaleSize(Size size) 
+        {
+            Screen myScreen = Screen.FromControl(this);
+            Rectangle area = myScreen.WorkingArea;
+
+            return new Size { Height = area.Height * size.Height / 1080, Width = area.Width * size.Width / 1920 };
+        }
+
         private string GetFromResource(string key)
         {
             return Resources.ResourceManager.GetString(key);
@@ -163,7 +173,7 @@ namespace TwitchBotUI
 
         private void ShowLoggedInPart(bool visibility)
         {
-            this.ClientSize = visibility ? new Size(820, 335) : new Size(517, 335);
+            ClientSize = visibility ? loginSize : new Size(loginSize.Width - txtLoginInfos.Width - (tipLiveViewer.Width / 2), loginSize.Height);
         }
 
         private void startStopButton_Click(object sender, EventArgs e)
@@ -516,6 +526,13 @@ namespace TwitchBotUI
         private void tipLiveViewer_MouseHover(object sender, EventArgs e)
         {
             toolTip.SetToolTip(tipLiveViewer, "Your bots will be here soon.");
+        }
+
+        private void MainScreen_Shown(object sender, EventArgs e)
+        {
+            loginSize = ClientSize;
+
+            LoadFromAppSettings();
         }
     }
 }
