@@ -4,6 +4,7 @@ using OpenQA.Selenium.Interactions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Threading;
@@ -29,11 +30,9 @@ namespace BotCore
 
         private bool _error;
 
-        private static readonly ConcurrentDictionary<int, Thread> Threads = new ConcurrentDictionary<int, Thread>();
+        private bool _firstPage = true;
 
-        private static readonly ConcurrentQueue<int> ThreadIds = new ConcurrentQueue<int>();
-
-        private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
+        private static readonly ConcurrentQueue<ChromeDriverService> DriverServices = new ConcurrentQueue<ChromeDriverService>();
 
         private StreamReader _file;
 
@@ -44,6 +43,12 @@ namespace BotCore
         public Action<string> LogMessage;
 
         public Action DidItsJob;
+
+        public Action IncreaseViewer;
+
+        public Action DecreaseViewer;
+
+        public Action<string> LiveViewer;
 
         public void Start(string proxyListDirectory, string stream, bool headless, int browserLimit, int refreshInterval, string preferredQuality, ConcurrentQueue<LoginDto> loginInfos)
         {
@@ -99,7 +104,7 @@ namespace BotCore
                         Random r = new Random();
                         int rInt = r.Next(3000, 6000);
 
-                        while (browserLimit > 0 && Threads.Count >= Core.BrowserLimit)
+                        while (browserLimit > 0 && DriverServices.Count >= Core.BrowserLimit)
                         {
                             Thread.Sleep(500);
                         }
@@ -107,7 +112,6 @@ namespace BotCore
                         if (!CanRun)
                             continue;
 
-                        _lock.EnterWriteLock();
                         loginInfos.TryDequeue(out var loginInfo);
 
                         thr.Start(new SessionConfigurationDto { Url = line, Count = i, PreferredQuality = preferredQuality, LoginInfo = loginInfo });
@@ -115,9 +119,6 @@ namespace BotCore
                         if (loginInfo != null)
                             loginInfos.Enqueue(loginInfo);
 
-                        ThreadIds.Enqueue(thr.ManagedThreadId);
-                        Threads.TryAdd(thr.ManagedThreadId, thr);
-                        _lock.ExitWriteLock();
                         i++;
 
                         Thread.Sleep(browserLimit == 0 ? rInt : 50);
@@ -148,17 +149,31 @@ namespace BotCore
 
             _file.Close();
 
-            _lock.EnterWriteLock();
-
-            while (Threads.Count > 0)
+            foreach (var driverService in DriverServices)
             {
-                ThreadIds.TryDequeue(out var threadId);
-                Threads.TryGetValue(threadId, out var tempThread);
+                while (true)
+                {
+                    try
+                    {
+                        if (!driverService.IsRunning)
+                            break;
 
-                if (tempThread != null) tempThread.Priority = ThreadPriority.Highest;
+                        string strCmdText = "/C taskkill /F /PID " + Process.GetProcessById(driverService.ProcessId);
+                        Process.Start("CMD.exe", strCmdText);
+
+                        break;
+                    }
+                    catch (Exception )
+                    {
+                        //ignored
+                    }
+                }
             }
 
-            _lock.ExitWriteLock();
+            var cmd = "/C taskkill /IM '" + "chromedriver.exe" + "'";
+            Process.Start("CMD.exe", cmd);
+
+            DriverServices.Clear();
 
             AllBrowsersTerminated?.Invoke();
         }
@@ -169,26 +184,7 @@ namespace BotCore
             {
                 try
                 {
-                    if (Threads.Count >= BrowserLimit)
-                    {
-                        _lock.EnterWriteLock();
 
-                        ThreadIds.TryDequeue(out var threadId);
-
-                        Threads.TryGetValue(threadId, out var tempThread);
-
-                        _lock.ExitWriteLock();
-
-                        if (tempThread != null)
-                        {
-                            tempThread.Priority = ThreadPriority.Highest;
-
-                            while (tempThread.IsAlive)
-                            {
-                                Thread.Sleep(500);
-                            }
-                        }
-                    }
                 }
                 catch (Exception)
                 {
@@ -203,27 +199,46 @@ namespace BotCore
             {
                 Random r = new Random();
                 SessionConfigurationDto itm = (SessionConfigurationDto)obj;
-                var array = itm.Url.ToString().Split(':');
-                var proxy = new Proxy { HttpProxy = array[0] + ':' + array[1], SslProxy = array[0] + ':' + array[1] };
+                var array = itm.Url.Split(':');
+
+                var driverService = ChromeDriverService.CreateDefaultService();
+                driverService.HideCommandPromptWindow = true;
+
+                Proxy proxy = new Proxy();
+                proxy.Kind = ProxyKind.Manual;
+                string proxyUrl = array[0] + ":" + array[1];
+                proxy.SslProxy = proxyUrl;
+                proxy.HttpProxy = proxyUrl;
+
                 var chromeOptions = new ChromeOptions { Proxy = proxy, AcceptInsecureCertificates = true };
 
                 if (Headless)
                     chromeOptions.AddArgument("headless");
+                if (!Headless)
+                    chromeOptions.AddExtension(ZipDirectory + itm.Count + ".zip");
 
                 string[] resolutions = { "960,720", "1080,720", "1280,800", "1280,720", "960,600", "1024,768", "800,600" };
+
                 chromeOptions.AddArgument("window-size=" + resolutions[r.Next(0, resolutions.Length - 1)]);
                 chromeOptions.AddArgument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36");
+                chromeOptions.AddArgument("mute-audio");
+
                 chromeOptions.AddExcludedArgument("enable-automation");
+
                 chromeOptions.AddAdditionalCapability("useAutomationExtension", false);
-                chromeOptions.AddExtension(ZipDirectory + itm.Count + ".zip");
+
                 chromeOptions.PageLoadStrategy = PageLoadStrategy.Default;
 
-                var driver = new ChromeDriver(chromeOptions) { Url = StreamUrl };
+                var driver = new ChromeDriver(driverService, chromeOptions) { Url = StreamUrl };//"https://www.twitch.tv/"+ Guid.NewGuid() };
 
-                IJavaScriptExecutor js = driver;
-                js.ExecuteScript("window.localStorage.setItem('video-quality', '" + itm.PreferredQuality + "'); window.localStorage.setItem('volume', '0');");
+                DriverServices.Enqueue(driverService);
 
-                driver.Navigate().Refresh();
+                if (!Headless)
+                {
+                    IJavaScriptExecutor js = driver;
+                    js.ExecuteScript("window.localStorage.setItem('video-quality', '" + itm.PreferredQuality + "');");
+                    driver.Navigate().GoToUrl(StreamUrl);
+                }
 
                 bool matureClicked = false;
                 int matureCheckCount = 0;
@@ -292,47 +307,77 @@ namespace BotCore
 
                 var startDate = DateTime.Now;
 
-                while (Thread.CurrentThread.Priority != ThreadPriority.Highest)
+                IncreaseViewer?.Invoke();
+
+                var firstPage = false;
+
+                try
                 {
-                    try
+                    var shoudIRun = true;
+
+                    while (shoudIRun)
                     {
-                        if (!matureClicked && matureCheckCount < 5)
+                        try
                         {
-                            try
-                            {
-                                var mature = driver.FindElementByXPath(
-                                    "/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div[5]/div/div[3]/button/div/div");
-
-                                mature?.Click();
-
-                                matureCheckCount++;
-                            }
-                            catch
-                            {
-                                //ignored because there is no mature button
-                            }
+                            shoudIRun = !Process.GetProcessById(driverService.ProcessId).HasExited;
+                        }
+                        catch (Exception)
+                        {
+                            // ignored
                         }
 
-                        if (!cacheClicked && cacheCheckCount < 5)
+                        try
                         {
-                            try
+                            if (!matureClicked && matureCheckCount < 5)
                             {
-                                var cache = driver.FindElementByXPath("/html/body/div[1]/div/div[2]/div[1]/div/div/div[3]/button/div/div/div");
-
-                                if (cache != null)
+                                try
                                 {
-                                    cache.Click();
-                                    cacheClicked = true;
-                                }
+                                    var mature = driver.FindElementByXPath(
+                                        "/html/body/div[1]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div[5]/div/div[3]/button/div/div");
 
-                                cacheCheckCount++;
+                                    mature?.Click();
+
+                                    matureCheckCount++;
+                                }
+                                catch
+                                {
+                                    //ignored because there is no mature button
+                                }
                             }
-                            catch (Exception)
-                            {
-                                //ignored because there is no cache button
-                            }
-                            Thread.Sleep(250);
                         }
+                        catch (Exception)
+                        {
+                            // ignored
+                        }
+
+                        try
+                        {
+                            if (!cacheClicked && cacheCheckCount < 5)
+                            {
+                                try
+                                {
+                                    var cache = driver.FindElementByXPath("/html/body/div[1]/div/div[2]/div[1]/div/div/div[3]/button/div/div/div");
+
+                                    if (cache != null)
+                                    {
+                                        cache.Click();
+                                        cacheClicked = true;
+                                    }
+
+                                    cacheCheckCount++;
+                                }
+                                catch (Exception)
+                                {
+                                    //ignored because there is no cache button
+                                }
+                                Thread.Sleep(250);
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            // ignored
+                        }
+
 
                         try
                         {
@@ -344,7 +389,6 @@ namespace BotCore
 
                                 actions.Click(connectionError).Perform();
                             }
-
                         }
                         catch (Exception)
                         {
@@ -357,16 +401,46 @@ namespace BotCore
 
                             startDate = DateTime.Now;
                         }
-                    }
-                    catch (Exception)
-                    {
-                        //ignored
+
+                        try
+                        {
+                            if (_firstPage || firstPage)
+                            {
+                                var liveViewers = driver.FindElementByXPath(
+                                    "/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[1]/div[1]/div[2]/div/div[1]/div/div/div/div[2]/div[2]/div[2]/div/div/div[1]/div[1]/div/p/span");
+
+                                if (liveViewers != null)
+                                {
+                                    LiveViewer.Invoke(liveViewers.Text);
+
+                                    firstPage = true;
+                                    _firstPage = false;
+
+                                    Thread.Sleep(5000);
+                                }
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            // ignored
+                        }
                     }
                 }
+                catch (Exception ex)
+                {
+                    //ignored
+                }
 
-                driver.Quit();
+                DecreaseViewer?.Invoke();
 
-                Threads.TryRemove(Thread.CurrentThread.ManagedThreadId, out _);
+                try
+                {
+                    driver.Quit();
+                }
+                catch (Exception)
+                {
+                    //ignored
+                }
             }
             catch (Exception ex)
             {
