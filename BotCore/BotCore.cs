@@ -54,6 +54,7 @@ namespace BotCore
         {
             BrowserLimit = browserLimit;
             CanRun = true;
+            _firstPage = true;
             Headless = headless;
             PreferredQuality = preferredQuality;
             _refreshInterval = refreshInterval;
@@ -265,7 +266,7 @@ namespace BotCore
                     Thread.Sleep(1000);
 
                     return;
-                 }
+                }
 
                 DriverServices.Enqueue(driverService);
 
@@ -333,27 +334,16 @@ namespace BotCore
 
                 try
                 {
-                    var shoudIRun = true;
-
                     bool firstPage = false;
 
-                    while (shoudIRun)
+                    while (true)
                     {
                         try
                         {
-                            shoudIRun = !Process.GetProcessById(driverService.ProcessId).HasExited;
-                        }
-                        catch (Exception)
-                        {
-                            // ignored
-                        }
-
-                        try
-                        {
-
                             if (_firstPage) 
                             {
-                                firstPage = _firstPage;
+                                firstPage = true;
+                                _firstPage = false;
                             }
 
                             if (firstPage)
@@ -364,8 +354,7 @@ namespace BotCore
                                 if (liveViewers != null)
                                 {
                                     LiveViewer.Invoke(liveViewers.Text);
-
-                                    _firstPage = false;
+                                    Thread.Sleep(5000);
                                 }
                             }
                         }
