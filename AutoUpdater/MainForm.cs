@@ -132,7 +132,7 @@ namespace AutoUpdater
         {
             try
             {
-                ZipFile.ExtractToDirectory(zipFile, Directory.GetParent(Directory.GetCurrentDirectory()).FullName, true);
+                ZipFile.ExtractToDirectory(zipFile, _appDirectory, true);
                 SetLabel("Application updated.");
                 return true;
             }

@@ -5,7 +5,6 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,7 +19,7 @@ namespace TwitchBotUI
     {
         public bool Start = false;
 
-        private static string _productVersion = "1.4";
+        private static string _productVersion = "2.0";
 
         private static string _proxyListDirectory = "";
 
@@ -38,6 +37,8 @@ namespace TwitchBotUI
 
         private readonly ConcurrentQueue<LoginDto> _lstLoginInfo = new ConcurrentQueue<LoginDto>();
 
+        private Size _loginSize = new Size();
+
         public Core Core = new Core();
 
         public MainScreen()
@@ -47,7 +48,7 @@ namespace TwitchBotUI
             Text += " v" + _productVersion;
 
             LogInfo("Application started.");
-            LoadFromAppSettings();
+
             var isAvailable = IsNewerVersionAvailable();
 
             if (isAvailable)
@@ -70,6 +71,21 @@ namespace TwitchBotUI
                 lstQuality.SelectedIndex = _dataSourceQuality.Count - 1;
             }
             #endregion
+
+            //MaximumSize = ScaleSize(new Size(836, 374));
+            //MinimumSize = ScaleSize(new Size(517, 374));
+        }
+
+        public sealed override Size MinimumSize
+        {
+            get => base.MinimumSize;
+            set => base.MinimumSize = value;
+        }
+
+        public sealed override Size MaximumSize
+        {
+            get => base.MaximumSize;
+            set => base.MaximumSize = value;
         }
 
         private bool IsNewerVersionAvailable()
@@ -98,7 +114,7 @@ namespace TwitchBotUI
 
             if (dialogResult == DialogResult.Yes)
             {
-                var args = "https://mytwitchbot.com/Download/win-x64.zip" + " " + Directory.GetCurrentDirectory() + " " + Path.Combine(Directory.GetCurrentDirectory(), "TwitchBotUI.exe");
+                var args = "\"https://mytwitchbot.com/Download/win-x64.zip\"" + " \"" + Directory.GetCurrentDirectory() + "\" \"" + Path.Combine(Directory.GetCurrentDirectory(), "TwitchBotUI.exe\"");
                 try
                 {
                     Directory.Delete(Path.Combine(Directory.GetCurrentDirectory(), "AutoUpdaterOld"), true);
@@ -128,6 +144,14 @@ namespace TwitchBotUI
             }
         }
 
+        private Size ScaleSize(Size size) 
+        {
+            Screen myScreen = Screen.FromControl(this);
+            Rectangle area = myScreen.WorkingArea;
+
+            return new Size { Height = area.Height * size.Height / 1080, Width = area.Width * size.Width / 1920 };
+        }
+
         private string GetFromResource(string key)
         {
             return Resources.ResourceManager.GetString(key);
@@ -148,7 +172,7 @@ namespace TwitchBotUI
 
         private void ShowLoggedInPart(bool visibility)
         {
-            this.ClientSize = visibility ? new System.Drawing.Size(820, 335) : new System.Drawing.Size(517, 335);
+            ClientSize = visibility ? _loginSize : new Size(_loginSize.Width - txtLoginInfos.Width - (tipLiveViewer.Width / 2), _loginSize.Height);
         }
 
         private void startStopButton_Click(object sender, EventArgs e)
@@ -213,6 +237,16 @@ namespace TwitchBotUI
                     LogInfo("Termination error. (Ignored)");
                 }
 
+                Core.InitializationError -= ErrorOccured;
+
+                Core.LogMessage -= LogMessage;
+
+                Core.DidItsJob -= DidItsJob;
+
+                Core.IncreaseViewer -= IncreaseViewer;
+
+                Core.DecreaseViewer -= DecreaseViewer;
+
                 startStopButton.BackgroundImage = Image.FromFile(Directory.GetCurrentDirectory() + "\\Images\\button_start.png");
                 startStopButton.Enabled = true;
             }
@@ -235,6 +269,8 @@ namespace TwitchBotUI
 
             Int32.TryParse(txtBrowserLimit.Text, out var browserLimit);
 
+            _headless = checkHeadless.Checked;
+
             Core.AllBrowsersTerminated += AllBrowsersTerminated;
 
             Core.InitializationError += ErrorOccured;
@@ -242,6 +278,12 @@ namespace TwitchBotUI
             Core.LogMessage += LogMessage;
 
             Core.DidItsJob += DidItsJob;
+
+            Core.IncreaseViewer += IncreaseViewer;
+
+            Core.DecreaseViewer += DecreaseViewer;
+
+            Core.LiveViewer += SetLiveViewer;
 
             var quality = string.Empty;
 
@@ -260,6 +302,67 @@ namespace TwitchBotUI
             Core.Start(_proxyListDirectory, txtStreamUrl.Text, _headless, browserLimit, Convert.ToInt32(numRefreshMinutes.Value), quality, _lstLoginInfo);
         }
 
+
+        private void SetBotViewer(string count)
+        {
+            if (lblViewer.InvokeRequired)
+            {
+                lblViewer.BeginInvoke(new Action(() =>
+                {
+                    lblViewer.Text = count;
+                }));
+            }
+            else
+            {
+                lblViewer.Text = count;
+            }
+        }
+
+        private void SetLiveViewer(string count)
+        {
+            if (lblLiveViewer.InvokeRequired)
+            {
+                lblLiveViewer.BeginInvoke(new Action(() =>
+                {
+                    lblLiveViewer.Text = count;
+                }));
+            }
+            else
+            {
+                lblLiveViewer.Text = count;
+            }
+        }
+
+        private void DecreaseViewer()
+        {
+            if (lblViewer.InvokeRequired)
+            {
+                lblViewer.BeginInvoke(new Action(() =>
+                {
+                    lblViewer.Text = (Convert.ToInt32(lblViewer.Text) - 1).ToString();
+                }));
+            }
+            else
+            {
+                lblViewer.Text = (Convert.ToInt32(lblViewer.Text) - 1).ToString();
+            }
+        }
+
+        private void IncreaseViewer()
+        {
+            if (lblViewer.InvokeRequired)
+            {
+                lblViewer.BeginInvoke(new Action(() =>
+                {
+                    lblViewer.Text = (Convert.ToInt32(lblViewer.Text) + 1).ToString();
+                }));
+            }
+            else
+            {
+                lblViewer.Text = (Convert.ToInt32(lblViewer.Text) + 1).ToString();
+            }
+        }
+
         private void ErrorOccured(string message)
         {
             Core.Stop();
@@ -273,6 +376,10 @@ namespace TwitchBotUI
             Core.LogMessage -= LogMessage;
 
             Core.DidItsJob -= DidItsJob;
+
+            Core.IncreaseViewer -= IncreaseViewer;
+
+            Core.DecreaseViewer -= DecreaseViewer;
         }
 
         private void LogMessage(string message)
@@ -284,17 +391,16 @@ namespace TwitchBotUI
         {
             startStopButton.BackgroundImage = Image.FromFile(Directory.GetCurrentDirectory() + "\\Images\\button_stop.png");
 
+            SetBotViewer("0");
+            SetLiveViewer("0");
+
             LogInfo("Bot terminated.");
+
+            Core.AllBrowsersTerminated -= AllBrowsersTerminated;
         }
 
         private void DidItsJob()
         {
-            Core.InitializationError -= ErrorOccured;
-
-            Core.LogMessage -= LogMessage;
-
-            Core.DidItsJob -= DidItsJob;
-
             LogInfo("Bot did it's job.");
         }
 
@@ -346,7 +452,7 @@ namespace TwitchBotUI
 
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
-                string sFileName = _proxyListDirectory = txtProxyList.Text = fileDialog.FileName;
+                _proxyListDirectory = txtProxyList.Text = fileDialog.FileName;
             }
         }
 
@@ -371,7 +477,7 @@ namespace TwitchBotUI
 
         private void picLimitInfo_MouseHover(object sender, EventArgs e)
         {
-            toolTip.SetToolTip(tipLimitInfo, "Rotates proxies with limited quantity of browser. Old ones dies, new ones born. 0 means, no limit.");
+            toolTip.SetToolTip(tipLimitInfo, "Feature disabled temporarily.");//"Rotates proxies with limited quantity of browser. Old ones dies, new ones born. 0 means, no limit.");
         }
 
         private void lblProxyList_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -390,7 +496,7 @@ namespace TwitchBotUI
 
         private void refreshInterval_MouseHover(object sender, EventArgs e)
         {
-            toolTip.SetToolTip(tipRefreshBrowser, "Refreshes browser, just in case.");
+            toolTip.SetToolTip(tipRefreshBrowser, "Refreshes browser, just in case. Example: Connection loss");
         }
 
         private void txtBrowserLimit_TextChanged(object sender, EventArgs e)
@@ -435,6 +541,24 @@ namespace TwitchBotUI
             _withLoggedIn = !_withLoggedIn;
 
             ShowLoggedInPart(_withLoggedIn);
+        }
+
+        private void tipLiveViewer_MouseHover(object sender, EventArgs e)
+        {
+            toolTip.SetToolTip(tipLiveViewer, "Your bots will be here soon.");
+        }
+
+        private void MainScreen_Shown(object sender, EventArgs e)
+        {
+            _loginSize = ClientSize;
+
+            LoadFromAppSettings();
+        }
+
+        private void checkHeadless_CheckedChanged(object sender, EventArgs e)
+        {
+            if(checkHeadless.Checked)
+                MessageBox.Show(GetFromResource("MainScreen_checkHeadless_CheckedChanged_Enable_IP_authorization_to_use_your_proxies_in_headless_mode"), GetFromResource("MainScreen_checkHeadless_CheckedChanged_Warning") , MessageBoxButtons.OK);
         }
     }
 }

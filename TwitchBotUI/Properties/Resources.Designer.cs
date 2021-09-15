@@ -63,9 +63,39 @@ namespace TwitchBotUI.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap bot {
+            get {
+                object obj = ResourceManager.GetObject("bot", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap button_start {
             get {
                 object obj = ResourceManager.GetObject("button_start", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap icon_onwhite {
+            get {
+                object obj = ResourceManager.GetObject("icon_onwhite", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap icon_onwhite1 {
+            get {
+                object obj = ResourceManager.GetObject("icon_onwhite1", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -77,6 +107,35 @@ namespace TwitchBotUI.Properties {
             get {
                 object obj = ResourceManager.GetObject("info", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap info1 {
+            get {
+                object obj = ResourceManager.GetObject("info1", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enable IP authorization to use your proxies in headless mode.
+        /// </summary>
+        internal static string MainScreen_checkHeadless_CheckedChanged_Enable_IP_authorization_to_use_your_proxies_in_headless_mode {
+            get {
+                return ResourceManager.GetString("MainScreen_checkHeadless_CheckedChanged_Enable_IP_authorization_to_use_your_proxi" +
+                        "es_in_headless_mode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Warning.
+        /// </summary>
+        internal static string MainScreen_checkHeadless_CheckedChanged_Warning {
+            get {
+                return ResourceManager.GetString("MainScreen_checkHeadless_CheckedChanged_Warning", resourceCulture);
             }
         }
         
@@ -110,9 +169,29 @@ namespace TwitchBotUI.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap viewers {
+            get {
+                object obj = ResourceManager.GetObject("viewers", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap withLoggedInUsers {
             get {
                 object obj = ResourceManager.GetObject("withLoggedInUsers", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap withLoggedInUsers1 {
+            get {
+                object obj = ResourceManager.GetObject("withLoggedInUsers1", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
