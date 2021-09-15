@@ -7,8 +7,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using BotCore.Dto;
+using Newtonsoft.Json;
 
 namespace BotCore
 {
@@ -49,6 +52,16 @@ namespace BotCore
         public Action DecreaseViewer;
 
         public Action<string> LiveViewer;
+
+        private readonly object _lockObject = new object ();
+
+        private readonly string _loginCookiesPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "loginCookies.json");
+
+        readonly JsonSerializerSettings _isoDateFormatSettings = new JsonSerializerSettings
+        {
+            DateFormatHandling = DateFormatHandling.MicrosoftDateFormat,
+            DateParseHandling = DateParseHandling.DateTime,
+        };
 
         public void Start(string proxyListDirectory, string stream, bool headless, int browserLimit, int refreshInterval, string preferredQuality, ConcurrentQueue<LoginDto> loginInfos)
         {
@@ -144,11 +157,78 @@ namespace BotCore
                 DidItsJob?.Invoke();
         }
 
+        private void StoreCookie(Tuple<string,List<Cookie>> cookie)
+        {
+
+            var myCookie = new List<MyCookie>();
+
+            foreach (var item in cookie.Item2)
+            {
+                if (item.Expiry != null)
+                    myCookie.Add(new MyCookie()
+                    {
+                        domain = item.Domain, expiry = item.Expiry.Value.Ticks, httpOnly = item.IsHttpOnly,
+                        name = item.Name, path = item.Path, value = item.Value, secure = item.Secure
+                    });
+                else
+                {
+                    myCookie.Add(new MyCookie()
+                    {
+                        domain = item.Domain,
+                        expiry = DateTime.MaxValue.Ticks,
+                        httpOnly = item.IsHttpOnly,
+                        name = item.Name,
+                        path = item.Path,
+                        value = item.Value,
+                        secure = item.Secure
+                    });
+                }
+            }
+            lock (_lockObject)
+            {
+                if (!File.Exists(_loginCookiesPath))
+                {
+                    var item = new Dictionary<string, List<MyCookie>> { { cookie.Item1, myCookie } };
+                    File.WriteAllText(_loginCookiesPath, Newtonsoft.Json.JsonConvert.SerializeObject(item), Encoding.UTF8);
+                    return;
+                }
+
+                string readCookiesJson = File.ReadAllText(_loginCookiesPath);
+                var readCookies = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, List<MyCookie>>>(readCookiesJson);
+
+                readCookies.TryGetValue(cookie.Item1, out var value);
+
+                if (value?.Count > 0)
+                {
+                    readCookies[cookie.Item1] = myCookie;
+                }
+                else
+                    readCookies.Add(cookie.Item1, myCookie);
+
+                
+                File.WriteAllText(_loginCookiesPath, Newtonsoft.Json.JsonConvert.SerializeObject(readCookies), Encoding.UTF8);
+            }
+        }
+
+        private List<MyCookie> GetCookie(string username)
+        {
+            lock (_lockObject)
+            {
+                if (!File.Exists(_loginCookiesPath))
+                {
+                    return new List<MyCookie>();
+                }
+
+                string readCookiesJson = File.ReadAllText(_loginCookiesPath);
+                var readCookies = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, List<MyCookie>>>(readCookiesJson);
+                
+                return readCookies.FirstOrDefault(x => x.Key == username).Value;
+            }
+        }
+
         private void KillAllProcesses() 
         {
-            string strCmd = string.Empty;
-
-            strCmd = "/C taskkill /IM " + "chrome.exe" + " /F";
+            string strCmd = "/C taskkill /IM " + "chrome.exe" + " /F";
             Process.Start("CMD.exe", strCmd);
 
             //foreach (var driverService in DriverServices)
@@ -227,8 +307,10 @@ namespace BotCore
                 var driverService = ChromeDriverService.CreateDefaultService();
                 driverService.HideCommandPromptWindow = true;
 
-                Proxy proxy = new Proxy();
-                proxy.Kind = ProxyKind.Manual;
+                Proxy proxy = new Proxy
+                {
+                    Kind = ProxyKind.Manual
+                };
                 string proxyUrl = array[0] + ":" + array[1];
                 proxy.SslProxy = proxyUrl;
                 proxy.HttpProxy = proxyUrl;
@@ -277,6 +359,18 @@ namespace BotCore
 
                 if (itm.LoginInfo != null)
                 {
+                    Thread.Sleep(1000);
+
+                    var allCookies = GetCookie(itm.LoginInfo.Username);
+
+                    if (allCookies != null)
+                    {
+                        foreach (var cookie in allCookies)
+                        {
+                            driver.Manage().Cookies.AddCookie(new Cookie(cookie.name,cookie.value,cookie.domain,cookie.path, new DateTime(ticks:cookie.expiry)));
+                        }
+                    }
+
                     try
                     {
                         var loginButton = driver.FindElementByXPath(
@@ -326,6 +420,20 @@ namespace BotCore
                     {
                         LogMessage.Invoke("Login failed.");
                     }
+
+                    while (true)
+                    {
+                        Thread.Sleep(1000);
+
+                        var cookie = driver.Manage().Cookies.GetCookieNamed("auth-token");
+
+                        if (!string.IsNullOrEmpty(cookie?.Value))
+                        {
+                            StoreCookie(new Tuple<string, List<Cookie>>(itm.LoginInfo.Username, new List<Cookie>(driver.Manage().Cookies.AllCookies)));
+
+                            break;
+                        }
+                    }
                 }
 
                 var startDate = DateTime.Now;
@@ -360,7 +468,7 @@ namespace BotCore
                         }
                         catch (Exception)
                         {
-                            // ignored
+                            LiveViewer.Invoke("N/A");
                         }
 
                         Thread.Sleep(1000);
@@ -441,7 +549,7 @@ namespace BotCore
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     //ignored
                 }
@@ -461,6 +569,17 @@ namespace BotCore
             {
                 Console.WriteLine("Error" + ex);
             }
+        }
+
+        private class MyCookie
+        {
+            public bool secure { get; set; }
+            public bool httpOnly { get; set; }
+            public string name { get; set; }
+            public string value { get; set; }
+            public string domain { get; set; }
+            public string path { get; set; }
+            public long expiry { get; set; }
         }
     }
 }

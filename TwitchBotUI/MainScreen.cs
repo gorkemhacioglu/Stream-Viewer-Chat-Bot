@@ -19,7 +19,7 @@ namespace TwitchBotUI
     {
         public bool Start = false;
 
-        private static string _productVersion = "1.5";
+        private static string _productVersion = "2.0";
 
         private static string _proxyListDirectory = "";
 
@@ -37,7 +37,7 @@ namespace TwitchBotUI
 
         private readonly ConcurrentQueue<LoginDto> _lstLoginInfo = new ConcurrentQueue<LoginDto>();
 
-        private Size loginSize = new Size();
+        private Size _loginSize = new Size();
 
         public Core Core = new Core();
 
@@ -114,7 +114,7 @@ namespace TwitchBotUI
 
             if (dialogResult == DialogResult.Yes)
             {
-                var args = "https://mytwitchbot.com/Download/win-x64.zip" + " " + Directory.GetCurrentDirectory() + " " + Path.Combine(Directory.GetCurrentDirectory(), "TwitchBotUI.exe");
+                var args = "\"https://mytwitchbot.com/Download/win-x64.zip\"" + " \"" + Directory.GetCurrentDirectory() + "\" \"" + Path.Combine(Directory.GetCurrentDirectory(), "TwitchBotUI.exe\"");
                 try
                 {
                     Directory.Delete(Path.Combine(Directory.GetCurrentDirectory(), "AutoUpdaterOld"), true);
@@ -172,7 +172,7 @@ namespace TwitchBotUI
 
         private void ShowLoggedInPart(bool visibility)
         {
-            ClientSize = visibility ? loginSize : new Size(loginSize.Width - txtLoginInfos.Width - (tipLiveViewer.Width / 2), loginSize.Height);
+            ClientSize = visibility ? _loginSize : new Size(_loginSize.Width - txtLoginInfos.Width - (tipLiveViewer.Width / 2), _loginSize.Height);
         }
 
         private void startStopButton_Click(object sender, EventArgs e)
@@ -550,7 +550,7 @@ namespace TwitchBotUI
 
         private void MainScreen_Shown(object sender, EventArgs e)
         {
-            loginSize = ClientSize;
+            _loginSize = ClientSize;
 
             LoadFromAppSettings();
         }

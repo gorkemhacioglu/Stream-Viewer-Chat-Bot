@@ -12,6 +12,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Data\loginCookies.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="zipDirectory\backgroundTemplate.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
