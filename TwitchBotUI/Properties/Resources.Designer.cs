@@ -121,6 +121,25 @@ namespace TwitchBotUI.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Enable IP authorization to use your proxies in headless mode.
+        /// </summary>
+        internal static string MainScreen_checkHeadless_CheckedChanged_Enable_IP_authorization_to_use_your_proxies_in_headless_mode {
+            get {
+                return ResourceManager.GetString("MainScreen_checkHeadless_CheckedChanged_Enable_IP_authorization_to_use_your_proxi" +
+                        "es_in_headless_mode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Warning.
+        /// </summary>
+        internal static string MainScreen_checkHeadless_CheckedChanged_Warning {
+            get {
+                return ResourceManager.GetString("MainScreen_checkHeadless_CheckedChanged_Warning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Do you want to update?.
         /// </summary>
         internal static string MainScreen_UpdateBot_Do_you_want_to_update_ {

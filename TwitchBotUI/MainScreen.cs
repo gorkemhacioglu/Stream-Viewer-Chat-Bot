@@ -554,5 +554,11 @@ namespace TwitchBotUI
 
             LoadFromAppSettings();
         }
+
+        private void checkHeadless_CheckedChanged(object sender, EventArgs e)
+        {
+            if(checkHeadless.Checked)
+                MessageBox.Show(GetFromResource("MainScreen_checkHeadless_CheckedChanged_Enable_IP_authorization_to_use_your_proxies_in_headless_mode"), GetFromResource("MainScreen_checkHeadless_CheckedChanged_Warning") , MessageBoxButtons.OK);
+        }
     }
 }
