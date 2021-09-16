@@ -19,7 +19,7 @@ namespace TwitchBotUI
     {
         public bool Start = false;
 
-        private static string _productVersion = "2.0";
+        private static string _productVersion = "2.1";
 
         private static string _proxyListDirectory = "";
 
@@ -114,10 +114,10 @@ namespace TwitchBotUI
 
             if (dialogResult == DialogResult.Yes)
             {
-                var args = "\"https://mytwitchbot.com/Download/win-x64.zip\"" + " \"" + Directory.GetCurrentDirectory() + "\" \"" + Path.Combine(Directory.GetCurrentDirectory(), "TwitchBotUI.exe\"");
+                var args = "https://mytwitchbot.com/Download/win-x64.zip" + "*" + AppDomain.CurrentDomain.BaseDirectory.Replace(' ', '?') + "*" + Path.Combine(AppDomain.CurrentDomain.BaseDirectory.Replace(' ','?'), "TwitchBotUI.exe");
                 try
                 {
-                    Directory.Delete(Path.Combine(Directory.GetCurrentDirectory(), "AutoUpdaterOld"), true);
+                    Directory.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AutoUpdaterOld"), true);
                 }
                 catch (Exception)
                 {
@@ -125,8 +125,8 @@ namespace TwitchBotUI
                 }
                 try
                 {
-                    var tempUpdaterPath = Path.Combine(Directory.GetCurrentDirectory(), "AutoUpdaterTemp");
-                    var updaterPath = Path.Combine(Directory.GetCurrentDirectory(), "AutoUpdater");
+                    var tempUpdaterPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AutoUpdaterTemp");
+                    var updaterPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AutoUpdater");
                     Directory.CreateDirectory(tempUpdaterPath);
                     foreach (var file in Directory.GetFiles(updaterPath))
                     {
@@ -206,7 +206,7 @@ namespace TwitchBotUI
 
             if (Start)
             {
-                startStopButton.BackgroundImage = Image.FromFile(Directory.GetCurrentDirectory() + "\\Images\\button_stop.png");
+                startStopButton.BackgroundImage = Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "\\Images\\button_stop.png");
                 LogInfo("Initializing bot.");
                 Core.CanRun = true;
                 TaskFactory factory = new TaskFactory(_token);
@@ -221,7 +221,7 @@ namespace TwitchBotUI
             }
             else
             {
-                startStopButton.BackgroundImage = Image.FromFile(Directory.GetCurrentDirectory() + "\\Images\\button_stopping.png");
+                startStopButton.BackgroundImage = Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "\\Images\\button_stopping.png");
                 startStopButton.Enabled = false;
                 LogInfo("Terminating bot, please wait.");
 
@@ -247,7 +247,7 @@ namespace TwitchBotUI
 
                 Core.DecreaseViewer -= DecreaseViewer;
 
-                startStopButton.BackgroundImage = Image.FromFile(Directory.GetCurrentDirectory() + "\\Images\\button_start.png");
+                startStopButton.BackgroundImage = Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "\\Images\\button_start.png");
                 startStopButton.Enabled = true;
             }
         }
@@ -389,7 +389,7 @@ namespace TwitchBotUI
 
         private void AllBrowsersTerminated()
         {
-            startStopButton.BackgroundImage = Image.FromFile(Directory.GetCurrentDirectory() + "\\Images\\button_stop.png");
+            startStopButton.BackgroundImage = Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "\\Images\\button_stop.png");
 
             SetBotViewer("0");
             SetLiveViewer("0");
