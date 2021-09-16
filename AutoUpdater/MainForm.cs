@@ -31,7 +31,7 @@ namespace AutoUpdater
         {
             try
             {
-                var args = Environment.GetCommandLineArgs().Skip(1).ToArray();
+                var args = Environment.GetCommandLineArgs().Skip(1).ToArray().First().Replace('?', ' ').Split('*');
 
                 if (args.Length == 1)
                 {
@@ -118,7 +118,7 @@ namespace AutoUpdater
 
         private DirectoryInfo PrepareTempFolder()
         {
-            var directory = Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "tempFolder"));
+            var directory = Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tempFolder"));
 
             foreach (var files in directory.GetFiles())
             {

@@ -55,7 +55,7 @@ namespace BotCore
 
         private readonly object _lockObject = new object ();
 
-        private readonly string _loginCookiesPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "loginCookies.json");
+        private readonly string _loginCookiesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "loginCookies.json");
 
         readonly JsonSerializerSettings _isoDateFormatSettings = new JsonSerializerSettings
         {

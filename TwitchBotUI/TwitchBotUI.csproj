@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Images\bot.png" />
     <None Remove="Images\button_emergency.png" />
     <None Remove="Images\button_start.png" />
     <None Remove="Images\button_stop.png" />
@@ -14,9 +15,14 @@
     <None Remove="Images\favicon.ico" />
     <None Remove="Images\icon_onwhite.png" />
     <None Remove="Images\info.png" />
+    <None Remove="Images\viewers.png" />
+    <None Remove="Images\withLoggedInUsers.png" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Images\bot.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Images\button_emergency.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -36,6 +42,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Images\info.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\viewers.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\withLoggedInUsers.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
