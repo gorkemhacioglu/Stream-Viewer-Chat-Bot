@@ -3,7 +3,7 @@
 
 *If you had any AutoUpdater issue, please download version 2.0 manually.*
 
-![alt text](https://mytwitchbot.com/images/ui2_0.png)
+![alt text](https://mytwitchbot.com/images/ui2_1.png)
 
 **[Download for Windows x64](http://mytwitchbot.com/Download/win-x64.zip)**
 
