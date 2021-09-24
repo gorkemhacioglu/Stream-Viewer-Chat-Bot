@@ -1,9 +1,9 @@
 # Twitch Viewer Bot
 ## **[Wiki for more information](https://github.com/gorkemhacioglu/TwitchViewerBot/wiki)**
 
-*Please update to 2.0 version manually, if you faced any AutoUpdater problem.*
+*Please download latest version manually, if you faced any AutoUpdater problem.*
 
-![alt text](https://mytwitchbot.com/images/ui2_0.png)
+![alt text](https://mytwitchbot.com/images/ui2_1.png)
 
 **[Download for Windows x64](http://mytwitchbot.com/Download/win-x64.zip)**
 
