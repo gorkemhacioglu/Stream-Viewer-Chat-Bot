@@ -1,7 +1,7 @@
 # Twitch Viewer Bot
 ## **[Wiki for more information](https://github.com/gorkemhacioglu/TwitchViewerBot/wiki)**
 
-*If you had any AutoUpdater issue, please download version 2.0 manually.*
+*Please download latest version manually, if you faced any AutoUpdater problem.*
 
 ![alt text](https://mytwitchbot.com/images/ui2_1.png)
 
