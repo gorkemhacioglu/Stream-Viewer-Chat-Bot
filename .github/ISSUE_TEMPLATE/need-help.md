@@ -7,4 +7,5 @@ assignees: gorkemhacioglu
 
 ---
 
-
+Chrome Version: ...
+Bot Version: ...
