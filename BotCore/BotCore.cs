@@ -65,6 +65,7 @@ namespace BotCore
 
         public void Start(string proxyListDirectory, string stream, bool headless, int browserLimit, int refreshInterval, string preferredQuality, ConcurrentQueue<LoginDto> loginInfos)
         {
+            _error = false;
             BrowserLimit = browserLimit;
             CanRun = true;
             _firstPage = true;
@@ -130,9 +131,6 @@ namespace BotCore
 
                         thr.Start(new SessionConfigurationDto { Url = line, Count = i, PreferredQuality = preferredQuality, LoginInfo = loginInfo });
 
-                        if (loginInfo != null)
-                            loginInfos.Enqueue(loginInfo);
-
                         i++;
 
                         Thread.Sleep(BrowserLimit == 0 ? rInt : 1000);
@@ -142,7 +140,7 @@ namespace BotCore
                 }
                 catch (Exception e)
                 {
-                    InitializationError.Invoke(e is IndexOutOfRangeException
+                    InitializationError?.Invoke(e is IndexOutOfRangeException
                         ? "Please select a valid proxy file."
                         : $"Uppss! {e.Message}");
                     _error = true;
@@ -155,6 +153,10 @@ namespace BotCore
 
             if (!_error)
                 DidItsJob?.Invoke();
+            else
+            {
+                InitializationError?.Invoke("Uppss! Something went wrong");
+            }
         }
 
         private void StoreCookie(Tuple<string,List<Cookie>> cookie)
@@ -416,9 +418,9 @@ namespace BotCore
                             }
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        LogMessage.Invoke("Login failed.");
+                        LogMessage?.Invoke($"Login failed: {ex}");
                     }
 
                     while (true)
@@ -567,7 +569,9 @@ namespace BotCore
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error" + ex);
+                InitializationError?.Invoke($"Uppss! Something went wrong => {ex}");
+
+                _error = true;
             }
         }
 

@@ -19,7 +19,7 @@ namespace TwitchBotUI
     {
         public bool Start = false;
 
-        private static string _productVersion = "2.1";
+        private static string _productVersion = "2.2";
 
         private static string _proxyListDirectory = "";
 
@@ -95,6 +95,7 @@ namespace TwitchBotUI
                 var webRequest = WebRequest.Create(@"https://mytwitchbot.com/Download/latestVersion.txt");
                 webRequest.Headers.Add("Accept: text/html, application/xhtml+xml, */*");
                 webRequest.Headers.Add("User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
+                webRequest.Timeout = 5000;
                 using var response = webRequest.GetResponse();
                 using var content = response.GetResponseStream();
                 using var reader = new StreamReader(content);
