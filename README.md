@@ -1,9 +1,9 @@
 # Twitch Viewer Bot
 ## **[Wiki for more information](https://github.com/gorkemhacioglu/TwitchViewerBot/wiki)**
 
-*Please download latest version manually, if you faced any AutoUpdater problem.*
+Give us a star, if you liked it!
 
-![alt text](https://mytwitchbot.com/images/ui2_1.png)
+![alt text](https://mytwitchbot.com/images/ui2_2.png)
 
 **[Download for Windows x64](http://mytwitchbot.com/Download/win-x64.zip)**
 
@@ -15,3 +15,5 @@ IPADRESS:PORT:USERNAME:PASSWORD<br />
 IPADRESS:PORT:USERNAME:PASSWORD<br />
 IPADRESS:PORT:USERNAME:PASSWORD<br />
 ....
+
+*Please download latest version manually, if you faced any AutoUpdater problem.*
