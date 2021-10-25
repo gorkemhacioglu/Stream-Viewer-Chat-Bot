@@ -19,7 +19,7 @@ namespace TwitchBotUI
     {
         public bool Start = false;
 
-        private static string _productVersion = "2.2";
+        private static string _productVersion = "2.3";
 
         private static string _proxyListDirectory = "";
 
@@ -115,7 +115,7 @@ namespace TwitchBotUI
 
             if (dialogResult == DialogResult.Yes)
             {
-                var args = "https://mytwitchbot.com/Download/win-x64.zip" + "*" + AppDomain.CurrentDomain.BaseDirectory.Replace(' ', '?') + "*" + Path.Combine(AppDomain.CurrentDomain.BaseDirectory.Replace(' ','?'), "TwitchBotUI.exe");
+                var args = "https://mytwitchbot.com/Download/win-x64.zip" + "*" + AppDomain.CurrentDomain.BaseDirectory.Replace(' ', '?') + "*" + Path.Combine(AppDomain.CurrentDomain.BaseDirectory.Replace(' ', '?'), "TwitchBotUI.exe");
                 try
                 {
                     Directory.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AutoUpdaterOld"), true);
@@ -145,7 +145,7 @@ namespace TwitchBotUI
             }
         }
 
-        private Size ScaleSize(Size size) 
+        private Size ScaleSize(Size size)
         {
             Screen myScreen = Screen.FromControl(this);
             Rectangle area = myScreen.WorkingArea;
@@ -558,8 +558,8 @@ namespace TwitchBotUI
 
         private void checkHeadless_CheckedChanged(object sender, EventArgs e)
         {
-            if(checkHeadless.Checked)
-                MessageBox.Show(GetFromResource("MainScreen_checkHeadless_CheckedChanged_Enable_IP_authorization_to_use_your_proxies_in_headless_mode"), GetFromResource("MainScreen_checkHeadless_CheckedChanged_Warning") , MessageBoxButtons.OK);
+            if (checkHeadless.Checked)
+                MessageBox.Show(GetFromResource("MainScreen_checkHeadless_CheckedChanged_Enable_IP_authorization_to_use_your_proxies_in_headless_mode"), GetFromResource("MainScreen_checkHeadless_CheckedChanged_Warning"), MessageBoxButtons.OK);
         }
     }
 }

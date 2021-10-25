@@ -53,7 +53,7 @@ namespace BotCore
 
         public Action<string> LiveViewer;
 
-        private readonly object _lockObject = new object ();
+        private readonly object _lockObject = new object();
 
         private readonly string _loginCookiesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "loginCookies.json");
 
@@ -159,7 +159,7 @@ namespace BotCore
             }
         }
 
-        private void StoreCookie(Tuple<string,List<Cookie>> cookie)
+        private void StoreCookie(Tuple<string, List<Cookie>> cookie)
         {
 
             var myCookie = new List<MyCookie>();
@@ -169,8 +169,13 @@ namespace BotCore
                 if (item.Expiry != null)
                     myCookie.Add(new MyCookie()
                     {
-                        domain = item.Domain, expiry = item.Expiry.Value.Ticks, httpOnly = item.IsHttpOnly,
-                        name = item.Name, path = item.Path, value = item.Value, secure = item.Secure
+                        domain = item.Domain,
+                        expiry = item.Expiry.Value.Ticks,
+                        httpOnly = item.IsHttpOnly,
+                        name = item.Name,
+                        path = item.Path,
+                        value = item.Value,
+                        secure = item.Secure
                     });
                 else
                 {
@@ -207,7 +212,7 @@ namespace BotCore
                 else
                     readCookies.Add(cookie.Item1, myCookie);
 
-                
+
                 File.WriteAllText(_loginCookiesPath, Newtonsoft.Json.JsonConvert.SerializeObject(readCookies), Encoding.UTF8);
             }
         }
@@ -223,12 +228,12 @@ namespace BotCore
 
                 string readCookiesJson = File.ReadAllText(_loginCookiesPath);
                 var readCookies = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, List<MyCookie>>>(readCookiesJson);
-                
+
                 return readCookies.FirstOrDefault(x => x.Key == username).Value;
             }
         }
 
-        private void KillAllProcesses() 
+        private void KillAllProcesses()
         {
             string strCmd = "/C taskkill /IM " + "chrome.exe" + " /F";
             Process.Start("CMD.exe", strCmd);
@@ -284,8 +289,8 @@ namespace BotCore
             {
                 try
                 {
-                    if(DriverServices.Count >= BrowserLimit) 
-                    { 
+                    if (DriverServices.Count >= BrowserLimit)
+                    {
                         KillAllProcesses();
                         DriverServices.Clear();
                     }
@@ -332,7 +337,7 @@ namespace BotCore
 
                 chromeOptions.AddExcludedArgument("enable-automation");
 
-                chromeOptions.AddAdditionalCapability("useAutomationExtension", false);
+                chromeOptions.AddAdditionalOption("useAutomationExtension", false);
 
                 chromeOptions.PageLoadStrategy = PageLoadStrategy.Default;
 
@@ -369,14 +374,13 @@ namespace BotCore
                     {
                         foreach (var cookie in allCookies)
                         {
-                            driver.Manage().Cookies.AddCookie(new Cookie(cookie.name,cookie.value,cookie.domain,cookie.path, new DateTime(ticks:cookie.expiry)));
+                            driver.Manage().Cookies.AddCookie(new Cookie(cookie.name, cookie.value, cookie.domain, cookie.path, new DateTime(ticks: cookie.expiry)));
                         }
                     }
 
                     try
                     {
-                        var loginButton = driver.FindElementByXPath(
-                        "/html/body/div[1]/div/div[2]/nav/div/div[3]/div[3]/div/div[1]/div[1]/button/div/div");
+                        var loginButton = driver.FindElement(By.XPath("/html/body/div[1]/div/div[2]/nav/div/div[3]/div[3]/div/div[1]/div[1]/button/div/div"));
 
                         if (loginButton != null)
                         {
@@ -384,8 +388,7 @@ namespace BotCore
 
                             Thread.Sleep(1000);
 
-                            var usernameBox = driver.FindElementByXPath(
-                                "/html/body/div[3]/div/div/div/div/div/div[1]/div/div/div[3]/form/div/div[1]/div/div[2]/input");
+                            var usernameBox = driver.FindElement(By.XPath("/html/body/div[3]/div/div/div/div/div/div[1]/div/div/div[3]/form/div/div[1]/div/div[2]/input"));
 
                             if (usernameBox != null)
                             {
@@ -395,8 +398,7 @@ namespace BotCore
 
                                 usernameBox.SendKeys(itm.LoginInfo.Username);
 
-                                var passwordBox = driver.FindElementByXPath(
-                                    "/html/body/div[3]/div/div/div/div/div/div[1]/div/div/div[3]/form/div/div[2]/div/div[1]/div[2]/div[1]/input");
+                                var passwordBox = driver.FindElement(By.XPath("/html/body/div[3]/div/div/div/div/div/div[1]/div/div/div[3]/form/div/div[2]/div/div[1]/div[2]/div[1]/input"));
 
                                 if (passwordBox != null)
                                 {
@@ -408,8 +410,9 @@ namespace BotCore
 
                                     Thread.Sleep(1000);
 
-                                    var login = driver.FindElementByXPath(
-                                        "/html/body/div[3]/div/div/div/div/div/div[1]/div/div/div[3]/form/div/div[3]/button/div/div");
+                                    var login = driver.FindElement(By.XPath(
+                                        "/html/body/div[3]/div/div/div/div/div/div[1]/div/div/div[3]/form/div/div[3]/button/div/div"));
+
 
                                     Thread.Sleep(1000);
 
@@ -420,7 +423,7 @@ namespace BotCore
                     }
                     catch (Exception ex)
                     {
-                        LogMessage?.Invoke($"Login failed: {ex}");
+                        LogMessage?.Invoke($"Login failed: {ex.Message}");
                     }
 
                     while (true)
@@ -450,7 +453,7 @@ namespace BotCore
                     {
                         try
                         {
-                            if (_firstPage) 
+                            if (_firstPage)
                             {
                                 firstPage = true;
                                 _firstPage = false;
@@ -458,8 +461,7 @@ namespace BotCore
 
                             if (firstPage)
                             {
-                                var liveViewers = driver.FindElementByXPath(
-                                    "/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[1]/div[1]/div[2]/div/div[1]/div/div/div/div[2]/div[2]/div[2]/div/div/div[1]/div[1]/div/p/span");
+                                var liveViewers = driver.FindElement(By.XPath("/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[1]/div[1]/div[2]/div/div[1]/div/div/div/div[2]/div[2]/div[2]/div/div/div[1]/div[1]/div/p/span"));
 
                                 if (liveViewers != null)
                                 {
@@ -481,8 +483,7 @@ namespace BotCore
                             {
                                 try
                                 {
-                                    var mature = driver.FindElementByXPath(
-                                        "/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div/div[5]/div/div[3]/button/div/div");
+                                    var mature = driver.FindElement(By.XPath("/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div/div[5]/div/div[3]/button/div/div"));
 
                                     mature?.Click();
                                     matureClicked = true;
@@ -505,7 +506,7 @@ namespace BotCore
                             {
                                 try
                                 {
-                                    var cache = driver.FindElementByXPath("/html/body/div[1]/div/div[2]/div[1]/div/div/div[3]/button/div/div/div");
+                                    var cache = driver.FindElement(By.XPath("/html/body/div[1]/div/div[2]/div[1]/div/div/div[3]/button/div/div/div"));
 
                                     if (cache != null)
                                     {
@@ -529,7 +530,7 @@ namespace BotCore
 
                         try
                         {
-                            var connectionError = driver.FindElementByXPath("//*[@id=\"root\"]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div[5]/div/div[3]/button/div/div[2]");
+                            var connectionError = driver.FindElement(By.XPath("//*[@id=\"root\"]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div[5]/div/div[3]/button/div/div[2]"));
 
                             if (connectionError != null)
                             {
