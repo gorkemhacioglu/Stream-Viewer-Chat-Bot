@@ -19,7 +19,7 @@ namespace TwitchBotUI
     {
         public bool Start = false;
 
-        private static string _productVersion = "2.3";
+        private static string _productVersion = "2.4";
 
         private static string _proxyListDirectory = "";
 
@@ -167,6 +167,7 @@ namespace TwitchBotUI
             numRefreshMinutes.Value = Convert.ToInt32(_configuration.AppSettings.Settings["refreshInterval"].Value);
             _withLoggedIn = Convert.ToBoolean(_configuration.AppSettings.Settings["withLoggedIn"].Value);
             txtLoginInfos.Text = _configuration.AppSettings.Settings["loginInfos"].Value;
+            checkLowCpuRam.Checked = Convert.ToBoolean(_configuration.AppSettings.Settings["uselowcpuram"].Value);
 
             ShowLoggedInPart(_withLoggedIn);
         }
@@ -263,6 +264,8 @@ namespace TwitchBotUI
             _configuration.AppSettings.Settings["refreshInterval"].Value = numRefreshMinutes.Value.ToString();
             _configuration.AppSettings.Settings["withLoggedIn"].Value = _withLoggedIn.ToString();
             _configuration.AppSettings.Settings["loginInfos"].Value = txtLoginInfos.Text;
+            _configuration.AppSettings.Settings["uselowcpuram"].Value = checkLowCpuRam.Checked.ToString();
+            
             _configuration.Save(ConfigurationSaveMode.Modified);
 
             LogInfo("Configuration saved.");
@@ -300,7 +303,7 @@ namespace TwitchBotUI
                 quality = lstQuality.SelectedValue.ToString();
             }
 
-            Core.Start(_proxyListDirectory, txtStreamUrl.Text, _headless, browserLimit, Convert.ToInt32(numRefreshMinutes.Value), quality, _lstLoginInfo);
+            Core.Start(_proxyListDirectory, txtStreamUrl.Text, _headless, browserLimit, Convert.ToInt32(numRefreshMinutes.Value), quality, _lstLoginInfo, checkLowCpuRam.Checked);
         }
 
 
@@ -366,8 +369,6 @@ namespace TwitchBotUI
 
         private void ErrorOccured(string message)
         {
-            Core.Stop();
-
             LogError(message);
 
             Core.AllBrowsersTerminated -= AllBrowsersTerminated;
@@ -541,6 +542,16 @@ namespace TwitchBotUI
         {
             _withLoggedIn = !_withLoggedIn;
 
+            if (_withLoggedIn)
+            {
+                checkLowCpuRam.Checked = false;
+                checkLowCpuRam.Enabled = false;
+            }
+            else if(!checkHeadless.Checked)
+            {
+                checkLowCpuRam.Enabled = true;
+            }
+
             ShowLoggedInPart(_withLoggedIn);
         }
 
@@ -559,7 +570,18 @@ namespace TwitchBotUI
         private void checkHeadless_CheckedChanged(object sender, EventArgs e)
         {
             if (checkHeadless.Checked)
+            {
                 MessageBox.Show(GetFromResource("MainScreen_checkHeadless_CheckedChanged_Enable_IP_authorization_to_use_your_proxies_in_headless_mode"), GetFromResource("MainScreen_checkHeadless_CheckedChanged_Warning"), MessageBoxButtons.OK);
+
+                checkLowCpuRam.Checked = false;
+
+                checkLowCpuRam.Enabled = false;
+            }
+            else if(!_withLoggedIn)
+            {
+                checkLowCpuRam.Enabled = true;
+            }
+
         }
     }
 }

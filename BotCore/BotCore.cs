@@ -35,6 +35,8 @@ namespace BotCore
 
         private bool _firstPage = true;
 
+        private bool _useLowCpuRam = false;
+
         private static readonly ConcurrentQueue<ChromeDriverService> DriverServices = new ConcurrentQueue<ChromeDriverService>();
 
         private StreamReader _file;
@@ -63,12 +65,13 @@ namespace BotCore
             DateParseHandling = DateParseHandling.DateTime,
         };
 
-        public void Start(string proxyListDirectory, string stream, bool headless, int browserLimit, int refreshInterval, string preferredQuality, ConcurrentQueue<LoginDto> loginInfos)
+        public void Start(string proxyListDirectory, string stream, bool headless, int browserLimit, int refreshInterval, string preferredQuality, ConcurrentQueue<LoginDto> loginInfos, bool useLowCpuRam)
         {
             _error = false;
             BrowserLimit = browserLimit;
             CanRun = true;
             _firstPage = true;
+            _useLowCpuRam = useLowCpuRam;
             Headless = headless;
             PreferredQuality = preferredQuality;
             _refreshInterval = refreshInterval;
@@ -169,25 +172,25 @@ namespace BotCore
                 if (item.Expiry != null)
                     myCookie.Add(new MyCookie()
                     {
-                        domain = item.Domain,
-                        expiry = item.Expiry.Value.Ticks,
-                        httpOnly = item.IsHttpOnly,
-                        name = item.Name,
-                        path = item.Path,
-                        value = item.Value,
-                        secure = item.Secure
+                        Domain = item.Domain,
+                        Expiry = item.Expiry.Value.Ticks,
+                        HttpOnly = item.IsHttpOnly,
+                        Name = item.Name,
+                        Path = item.Path,
+                        Value = item.Value,
+                        Secure = item.Secure
                     });
                 else
                 {
                     myCookie.Add(new MyCookie()
                     {
-                        domain = item.Domain,
-                        expiry = DateTime.MaxValue.Ticks,
-                        httpOnly = item.IsHttpOnly,
-                        name = item.Name,
-                        path = item.Path,
-                        value = item.Value,
-                        secure = item.Secure
+                        Domain = item.Domain,
+                        Expiry = DateTime.MaxValue.Ticks,
+                        HttpOnly = item.IsHttpOnly,
+                        Name = item.Name,
+                        Path = item.Path,
+                        Value = item.Value,
+                        Secure = item.Secure
                     });
                 }
             }
@@ -324,6 +327,11 @@ namespace BotCore
 
                 var chromeOptions = new ChromeOptions { Proxy = proxy, AcceptInsecureCertificates = true };
 
+                if (_useLowCpuRam)
+                {
+                    chromeOptions.AddExtension(AppDomain.CurrentDomain.BaseDirectory + "\\Extensions\\TwitchAlternative.crx");
+                }
+
                 if (Headless)
                     chromeOptions.AddArgument("headless");
                 else
@@ -374,7 +382,7 @@ namespace BotCore
                     {
                         foreach (var cookie in allCookies)
                         {
-                            driver.Manage().Cookies.AddCookie(new Cookie(cookie.name, cookie.value, cookie.domain, cookie.path, new DateTime(ticks: cookie.expiry)));
+                            driver.Manage().Cookies.AddCookie(new Cookie(cookie.Name, cookie.Value, cookie.Domain, cookie.Path, new DateTime(ticks: cookie.Expiry)));
                         }
                     }
 
@@ -557,8 +565,6 @@ namespace BotCore
                     //ignored
                 }
 
-                DecreaseViewer?.Invoke();
-
                 try
                 {
                     driver.Quit();
@@ -578,13 +584,13 @@ namespace BotCore
 
         private class MyCookie
         {
-            public bool secure { get; set; }
-            public bool httpOnly { get; set; }
-            public string name { get; set; }
-            public string value { get; set; }
-            public string domain { get; set; }
-            public string path { get; set; }
-            public long expiry { get; set; }
+            public bool Secure { get; set; }
+            public bool HttpOnly { get; set; }
+            public string Name { get; set; }
+            public string Value { get; set; }
+            public string Domain { get; set; }
+            public string Path { get; set; }
+            public long Expiry { get; set; }
         }
     }
 }

@@ -62,6 +62,8 @@
             this.picBotViewer = new System.Windows.Forms.PictureBox();
             this.lblLiveViewer = new System.Windows.Forms.Label();
             this.tipLiveViewer = new System.Windows.Forms.PictureBox();
+            this.lnlResourceSaving = new System.Windows.Forms.Label();
+            this.checkLowCpuRam = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.startStopButton)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picVulture)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numRefreshMinutes)).BeginInit();
@@ -78,16 +80,16 @@
             // 
             this.startStopButton.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("startStopButton.BackgroundImage")));
             this.startStopButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.startStopButton.Location = new System.Drawing.Point(395, 225);
+            this.startStopButton.Location = new System.Drawing.Point(404, 233);
             this.startStopButton.Name = "startStopButton";
-            this.startStopButton.Size = new System.Drawing.Size(80, 40);
+            this.startStopButton.Size = new System.Drawing.Size(71, 32);
             this.startStopButton.TabIndex = 0;
             this.startStopButton.TabStop = false;
             this.startStopButton.Click += new System.EventHandler(this.startStopButton_Click);
             // 
             // txtStreamUrl
             // 
-            this.txtStreamUrl.Location = new System.Drawing.Point(83, 237);
+            this.txtStreamUrl.Location = new System.Drawing.Point(83, 257);
             this.txtStreamUrl.Name = "txtStreamUrl";
             this.txtStreamUrl.Size = new System.Drawing.Size(306, 23);
             this.txtStreamUrl.TabIndex = 1;
@@ -95,7 +97,7 @@
             // lblStreamUrl
             // 
             this.lblStreamUrl.AutoSize = true;
-            this.lblStreamUrl.Location = new System.Drawing.Point(12, 240);
+            this.lblStreamUrl.Location = new System.Drawing.Point(12, 260);
             this.lblStreamUrl.Name = "lblStreamUrl";
             this.lblStreamUrl.Size = new System.Drawing.Size(65, 15);
             this.lblStreamUrl.TabIndex = 2;
@@ -116,7 +118,7 @@
             // checkHeadless
             // 
             this.checkHeadless.AutoSize = true;
-            this.checkHeadless.Location = new System.Drawing.Point(100, 181);
+            this.checkHeadless.Location = new System.Drawing.Point(143, 181);
             this.checkHeadless.Name = "checkHeadless";
             this.checkHeadless.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.checkHeadless.Size = new System.Drawing.Size(15, 14);
@@ -130,14 +132,14 @@
             // 
             // txtProxyList
             // 
-            this.txtProxyList.Location = new System.Drawing.Point(123, 204);
+            this.txtProxyList.Location = new System.Drawing.Point(123, 228);
             this.txtProxyList.Name = "txtProxyList";
             this.txtProxyList.Size = new System.Drawing.Size(266, 23);
             this.txtProxyList.TabIndex = 7;
             // 
             // browseProxyList
             // 
-            this.browseProxyList.Location = new System.Drawing.Point(83, 204);
+            this.browseProxyList.Location = new System.Drawing.Point(81, 228);
             this.browseProxyList.Name = "browseProxyList";
             this.browseProxyList.Size = new System.Drawing.Size(34, 23);
             this.browseProxyList.TabIndex = 8;
@@ -157,7 +159,7 @@
             // lblBrowserLimit
             // 
             this.lblBrowserLimit.AutoSize = true;
-            this.lblBrowserLimit.Location = new System.Drawing.Point(12, 151);
+            this.lblBrowserLimit.Location = new System.Drawing.Point(12, 155);
             this.lblBrowserLimit.Name = "lblBrowserLimit";
             this.lblBrowserLimit.Size = new System.Drawing.Size(85, 15);
             this.lblBrowserLimit.TabIndex = 11;
@@ -177,7 +179,7 @@
             // 
             this.picVulture.BackgroundImage = global::TwitchBotUI.Properties.Resources.icon_onwhite1;
             this.picVulture.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.picVulture.Location = new System.Drawing.Point(8, 266);
+            this.picVulture.Location = new System.Drawing.Point(7, 289);
             this.picVulture.Name = "picVulture";
             this.picVulture.Size = new System.Drawing.Size(468, 60);
             this.picVulture.TabIndex = 13;
@@ -240,7 +242,7 @@
             // 
             this.lblProxyList.AutoSize = true;
             this.lblProxyList.LinkBehavior = System.Windows.Forms.LinkBehavior.AlwaysUnderline;
-            this.lblProxyList.Location = new System.Drawing.Point(12, 208);
+            this.lblProxyList.Location = new System.Drawing.Point(12, 233);
             this.lblProxyList.Name = "lblProxyList";
             this.lblProxyList.Size = new System.Drawing.Size(61, 15);
             this.lblProxyList.TabIndex = 17;
@@ -269,7 +271,7 @@
             // lblQuality
             // 
             this.lblQuality.AutoSize = true;
-            this.lblQuality.Location = new System.Drawing.Point(188, 177);
+            this.lblQuality.Location = new System.Drawing.Point(187, 184);
             this.lblQuality.Name = "lblQuality";
             this.lblQuality.Size = new System.Drawing.Size(72, 15);
             this.lblQuality.TabIndex = 19;
@@ -278,7 +280,7 @@
             // lstQuality
             // 
             this.lstQuality.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.lstQuality.Location = new System.Drawing.Point(265, 174);
+            this.lstQuality.Location = new System.Drawing.Point(265, 180);
             this.lstQuality.Name = "lstQuality";
             this.lstQuality.Size = new System.Drawing.Size(64, 23);
             this.lstQuality.TabIndex = 20;
@@ -288,7 +290,7 @@
             // 
             this.tipQuality.BackgroundImage = global::TwitchBotUI.Properties.Resources.info;
             this.tipQuality.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.tipQuality.Location = new System.Drawing.Point(335, 167);
+            this.tipQuality.Location = new System.Drawing.Point(335, 178);
             this.tipQuality.Name = "tipQuality";
             this.tipQuality.Size = new System.Drawing.Size(16, 16);
             this.tipQuality.TabIndex = 16;
@@ -331,9 +333,9 @@
             this.lblHeadless.AutoSize = true;
             this.lblHeadless.Location = new System.Drawing.Point(12, 180);
             this.lblHeadless.Name = "lblHeadless";
-            this.lblHeadless.Size = new System.Drawing.Size(84, 15);
+            this.lblHeadless.Size = new System.Drawing.Size(126, 15);
             this.lblHeadless.TabIndex = 24;
-            this.lblHeadless.Text = "Headless         :";
+            this.lblHeadless.Text = "Headless                       :";
             // 
             // picLiveViewer
             // 
@@ -386,11 +388,33 @@
             this.tipLiveViewer.TabStop = false;
             this.tipLiveViewer.MouseHover += new System.EventHandler(this.tipLiveViewer_MouseHover);
             // 
+            // lnlResourceSaving
+            // 
+            this.lnlResourceSaving.AutoSize = true;
+            this.lnlResourceSaving.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lnlResourceSaving.Location = new System.Drawing.Point(12, 204);
+            this.lnlResourceSaving.Name = "lnlResourceSaving";
+            this.lnlResourceSaving.Size = new System.Drawing.Size(125, 15);
+            this.lnlResourceSaving.TabIndex = 30;
+            this.lnlResourceSaving.Text = "Use Low CPU&&RAM   :";
+            // 
+            // checkLowCpuRam
+            // 
+            this.checkLowCpuRam.AutoSize = true;
+            this.checkLowCpuRam.Location = new System.Drawing.Point(143, 204);
+            this.checkLowCpuRam.Name = "checkLowCpuRam";
+            this.checkLowCpuRam.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.checkLowCpuRam.Size = new System.Drawing.Size(15, 14);
+            this.checkLowCpuRam.TabIndex = 31;
+            this.checkLowCpuRam.UseVisualStyleBackColor = true;
+            // 
             // MainScreen
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(813, 331);
+            this.ClientSize = new System.Drawing.Size(813, 361);
+            this.Controls.Add(this.checkLowCpuRam);
+            this.Controls.Add(this.lnlResourceSaving);
             this.Controls.Add(this.tipLiveViewer);
             this.Controls.Add(this.lblLiveViewer);
             this.Controls.Add(this.picBotViewer);
@@ -422,7 +446,7 @@
             this.Controls.Add(this.startStopButton);
             this.Controls.Add(this.logScreen);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MaximumSize = new System.Drawing.Size(836, 390);
+            this.MaximumSize = new System.Drawing.Size(836, 400);
             this.Name = "MainScreen";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "My Twitch Viewer Bot";
@@ -478,6 +502,8 @@
         private System.Windows.Forms.PictureBox picBotViewer;
         private System.Windows.Forms.Label lblLiveViewer;
         private System.Windows.Forms.PictureBox tipLiveViewer;
+        private System.Windows.Forms.Label lnlResourceSaving;
+        private System.Windows.Forms.CheckBox checkLowCpuRam;
     }
 }
 
