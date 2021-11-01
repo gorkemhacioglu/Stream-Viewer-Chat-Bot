@@ -366,8 +366,6 @@ namespace TwitchBotUI
 
         private void ErrorOccured(string message)
         {
-            Core.Stop();
-
             LogError(message);
 
             Core.AllBrowsersTerminated -= AllBrowsersTerminated;

@@ -324,6 +324,8 @@ namespace BotCore
 
                 var chromeOptions = new ChromeOptions { Proxy = proxy, AcceptInsecureCertificates = true };
 
+                chromeOptions.AddExtension(AppDomain.CurrentDomain.BaseDirectory + "\\Extensions\\TwitchAlternative.crx");
+
                 if (Headless)
                     chromeOptions.AddArgument("headless");
                 else
