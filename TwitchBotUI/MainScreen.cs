@@ -74,9 +74,6 @@ namespace TwitchBotUI
                 lstQuality.SelectedIndex = _dataSourceQuality.Count - 1;
             }
             #endregion
-
-            //MaximumSize = ScaleSize(new Size(836, 374));
-            //MinimumSize = ScaleSize(new Size(517, 374));
         }
 
         public sealed override Size MinimumSize
