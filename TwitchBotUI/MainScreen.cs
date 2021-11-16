@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using BotCore;
 using BotCore.Dto;
+using OpenQA.Selenium.DevTools;
 using TwitchBotUI.Properties;
 
 namespace TwitchBotUI
@@ -19,7 +20,7 @@ namespace TwitchBotUI
     {
         public bool Start = false;
 
-        private static string _productVersion = "2.4";
+        private static string _productVersion = "2.5";
 
         private static string _proxyListDirectory = "";
 
@@ -45,9 +46,11 @@ namespace TwitchBotUI
         {
             InitializeComponent();
 
+            BotCore.Log.Logger.CreateLogger();
+
             Text += " v" + _productVersion;
 
-            LogInfo("Application started.");
+            LogInfo($"Application started. v{_productVersion}");
 
             var isAvailable = IsNewerVersionAvailable();
 
@@ -71,9 +74,6 @@ namespace TwitchBotUI
                 lstQuality.SelectedIndex = _dataSourceQuality.Count - 1;
             }
             #endregion
-
-            //MaximumSize = ScaleSize(new Size(836, 374));
-            //MinimumSize = ScaleSize(new Size(517, 374));
         }
 
         public sealed override Size MinimumSize
@@ -423,6 +423,8 @@ namespace TwitchBotUI
                 logScreen.SelectionStart = logScreen.TextLength;
                 logScreen.ScrollToCaret();
             }
+
+            Serilog.Log.Logger.Information(str);
         }
 
         private void LogError(string str)
@@ -442,6 +444,8 @@ namespace TwitchBotUI
                 logScreen.SelectionStart = logScreen.TextLength;
                 logScreen.ScrollToCaret();
             }
+
+            Serilog.Log.Logger.Error(str);
         }
 
         private void browseProxyList_Click(object sender, EventArgs e)

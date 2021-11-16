@@ -31,8 +31,6 @@ namespace BotCore
 
         public bool CanRun = true;
 
-        private bool _error;
-
         private bool _firstPage = true;
 
         private bool _useLowCpuRam = false;
@@ -67,7 +65,6 @@ namespace BotCore
 
         public void Start(string proxyListDirectory, string stream, bool headless, int browserLimit, int refreshInterval, string preferredQuality, ConcurrentQueue<LoginDto> loginInfos, bool useLowCpuRam)
         {
-            _error = false;
             BrowserLimit = browserLimit;
             CanRun = true;
             _firstPage = true;
@@ -146,7 +143,6 @@ namespace BotCore
                     InitializationError?.Invoke(e is IndexOutOfRangeException
                         ? "Please select a valid proxy file."
                         : $"Uppss! {e.Message}");
-                    _error = true;
                 }
 
                 if (!CanRun)
@@ -154,12 +150,7 @@ namespace BotCore
 
             } while (browserLimit > 0);
 
-            if (!_error)
-                DidItsJob?.Invoke();
-            else
-            {
-                InitializationError?.Invoke("Uppss! Something went wrong");
-            }
+            DidItsJob?.Invoke();
         }
 
         private void StoreCookie(Tuple<string, List<Cookie>> cookie)
@@ -329,7 +320,8 @@ namespace BotCore
 
                 if (_useLowCpuRam)
                 {
-                    chromeOptions.AddExtension(AppDomain.CurrentDomain.BaseDirectory + "\\Extensions\\TwitchAlternative.crx");
+                    chromeOptions.AddExtension(AppDomain.CurrentDomain.BaseDirectory +
+                                               "\\Extensions\\TwitchAlternative.crx");
                 }
 
                 if (Headless)
@@ -337,10 +329,12 @@ namespace BotCore
                 else
                     chromeOptions.AddExtension(ZipDirectory + itm.Count + ".zip");
 
-                string[] resolutions = { "960,720", "1080,720", "1280,800", "1280,720", "960,600", "1024,768", "800,600" };
+                string[] resolutions =
+                    { "960,720", "1080,720", "1280,800", "1280,720", "960,600", "1024,768", "800,600" };
 
                 chromeOptions.AddArgument("window-size=" + resolutions[r.Next(0, resolutions.Length - 1)]);
-                chromeOptions.AddArgument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36");
+                chromeOptions.AddArgument(
+                    "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36");
                 chromeOptions.AddArgument("mute-audio");
 
                 chromeOptions.AddExcludedArgument("enable-automation");
@@ -349,7 +343,8 @@ namespace BotCore
 
                 chromeOptions.PageLoadStrategy = PageLoadStrategy.Default;
 
-                var driver = new ChromeDriver(driverService, chromeOptions) { Url = StreamUrl };//"https://www.twitch.tv/"+ Guid.NewGuid() };
+                var driver = new ChromeDriver(driverService, chromeOptions)
+                    { Url = StreamUrl }; //"https://www.twitch.tv/"+ Guid.NewGuid() };
 
                 if (!Headless)
                 {
@@ -382,13 +377,15 @@ namespace BotCore
                     {
                         foreach (var cookie in allCookies)
                         {
-                            driver.Manage().Cookies.AddCookie(new Cookie(cookie.Name, cookie.Value, cookie.Domain, cookie.Path, new DateTime(ticks: cookie.Expiry)));
+                            driver.Manage().Cookies.AddCookie(new Cookie(cookie.Name, cookie.Value, cookie.Domain,
+                                cookie.Path, new DateTime(ticks: cookie.Expiry)));
                         }
                     }
 
                     try
                     {
-                        var loginButton = driver.FindElement(By.XPath("/html/body/div[1]/div/div[2]/nav/div/div[3]/div[3]/div/div[1]/div[1]/button/div/div"));
+                        var loginButton = driver.FindElement(By.XPath(
+                            "/html/body/div[1]/div/div[2]/nav/div/div[3]/div[3]/div/div[1]/div[1]/button/div/div"));
 
                         if (loginButton != null)
                         {
@@ -396,7 +393,8 @@ namespace BotCore
 
                             Thread.Sleep(1000);
 
-                            var usernameBox = driver.FindElement(By.XPath("/html/body/div[3]/div/div/div/div/div/div[1]/div/div/div[3]/form/div/div[1]/div/div[2]/input"));
+                            var usernameBox = driver.FindElement(By.XPath(
+                                "/html/body/div[3]/div/div/div/div/div/div[1]/div/div/div[3]/form/div/div[1]/div/div[2]/input"));
 
                             if (usernameBox != null)
                             {
@@ -406,7 +404,8 @@ namespace BotCore
 
                                 usernameBox.SendKeys(itm.LoginInfo.Username);
 
-                                var passwordBox = driver.FindElement(By.XPath("/html/body/div[3]/div/div/div/div/div/div[1]/div/div/div[3]/form/div/div[2]/div/div[1]/div[2]/div[1]/input"));
+                                var passwordBox = driver.FindElement(By.XPath(
+                                    "/html/body/div[3]/div/div/div/div/div/div[1]/div/div/div[3]/form/div/div[2]/div/div[1]/div[2]/div[1]/input"));
 
                                 if (passwordBox != null)
                                 {
@@ -442,7 +441,8 @@ namespace BotCore
 
                         if (!string.IsNullOrEmpty(cookie?.Value))
                         {
-                            StoreCookie(new Tuple<string, List<Cookie>>(itm.LoginInfo.Username, new List<Cookie>(driver.Manage().Cookies.AllCookies)));
+                            StoreCookie(new Tuple<string, List<Cookie>>(itm.LoginInfo.Username,
+                                new List<Cookie>(driver.Manage().Cookies.AllCookies)));
 
                             break;
                         }
@@ -469,7 +469,8 @@ namespace BotCore
 
                             if (firstPage)
                             {
-                                var liveViewers = driver.FindElement(By.XPath("/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[1]/div[1]/div[2]/div/div[1]/div/div/div/div[2]/div[2]/div[2]/div/div/div[1]/div[1]/div/p/span"));
+                                var liveViewers = driver.FindElement(By.XPath(
+                                    "/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[1]/div[1]/div[2]/div/div[1]/div/div/div/div[2]/div[2]/div[2]/div/div/div[1]/div[1]/div/p/span"));
 
                                 if (liveViewers != null)
                                 {
@@ -491,7 +492,8 @@ namespace BotCore
                             {
                                 try
                                 {
-                                    var mature = driver.FindElement(By.XPath("/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div/div[5]/div/div[3]/button/div/div"));
+                                    var mature = driver.FindElement(By.XPath(
+                                        "/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div/div[5]/div/div[3]/button/div/div"));
 
                                     mature?.Click();
                                     matureClicked = true;
@@ -514,7 +516,8 @@ namespace BotCore
                             {
                                 try
                                 {
-                                    var cache = driver.FindElement(By.XPath("/html/body/div[1]/div/div[2]/div[1]/div/div/div[3]/button/div/div/div"));
+                                    var cache = driver.FindElement(By.XPath(
+                                        "/html/body/div[1]/div/div[2]/div[1]/div/div/div[3]/button/div/div/div"));
 
                                     if (cache != null)
                                     {
@@ -538,7 +541,8 @@ namespace BotCore
 
                         try
                         {
-                            var connectionError = driver.FindElement(By.XPath("//*[@id=\"root\"]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div[5]/div/div[3]/button/div/div[2]"));
+                            var connectionError = driver.FindElement(By.XPath(
+                                "//*[@id=\"root\"]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div[5]/div/div[3]/button/div/div[2]"));
 
                             if (connectionError != null)
                             {
@@ -574,11 +578,17 @@ namespace BotCore
                     //ignored
                 }
             }
+            catch (InvalidOperationException ex)
+            {
+                if (ex.Message.Contains("only supports Chrome version"))
+                {
+                    CanRun = false;
+                    InitializationError?.Invoke($"Please update your Google Chrome!");
+                }
+            }
             catch (Exception ex)
             {
                 InitializationError?.Invoke($"Uppss! Something went wrong => {ex}");
-
-                _error = true;
             }
         }
 

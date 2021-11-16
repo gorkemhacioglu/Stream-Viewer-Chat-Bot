@@ -3,7 +3,7 @@
 
 Give us a star, if you liked it!
 
-![alt text](https://mytwitchbot.com/images/ui2_4.png)
+![alt text](https://mytwitchbot.com/images/ui2_5.png)
 
 **[Download for Windows x64](http://mytwitchbot.com/Download/win-x64.zip)**
 
