@@ -31,8 +31,6 @@ namespace BotCore
 
         public bool CanRun = true;
 
-        private bool _error;
-
         private bool _firstPage = true;
 
         private bool _useLowCpuRam = false;
@@ -67,7 +65,6 @@ namespace BotCore
 
         public void Start(string proxyListDirectory, string stream, bool headless, int browserLimit, int refreshInterval, string preferredQuality, ConcurrentQueue<LoginDto> loginInfos, bool useLowCpuRam)
         {
-            _error = false;
             BrowserLimit = browserLimit;
             CanRun = true;
             _firstPage = true;
@@ -146,7 +143,6 @@ namespace BotCore
                     InitializationError?.Invoke(e is IndexOutOfRangeException
                         ? "Please select a valid proxy file."
                         : $"Uppss! {e.Message}");
-                    _error = true;
                 }
 
                 if (!CanRun)
@@ -154,12 +150,7 @@ namespace BotCore
 
             } while (browserLimit > 0);
 
-            if (!_error)
-                DidItsJob?.Invoke();
-            else
-            {
-                InitializationError?.Invoke("Uppss! Something went wrong");
-            }
+            DidItsJob?.Invoke();
         }
 
         private void StoreCookie(Tuple<string, List<Cookie>> cookie)
@@ -577,8 +568,6 @@ namespace BotCore
             catch (Exception ex)
             {
                 InitializationError?.Invoke($"Uppss! Something went wrong => {ex}");
-
-                _error = true;
             }
         }
 
