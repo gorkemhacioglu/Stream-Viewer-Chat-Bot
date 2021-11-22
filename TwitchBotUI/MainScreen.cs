@@ -20,7 +20,7 @@ namespace TwitchBotUI
     {
         public bool Start = false;
 
-        private static string _productVersion = "2.5";
+        private static string _productVersion = "2.5.1";
 
         private static string _proxyListDirectory = "";
 
@@ -50,7 +50,7 @@ namespace TwitchBotUI
 
             Text += " v" + _productVersion;
 
-            LogInfo($"Application started. v{_productVersion}");
+            LogInfo(new Exception($"Application started. v{_productVersion}"));
 
             var isAvailable = IsNewerVersionAvailable();
 
@@ -160,7 +160,7 @@ namespace TwitchBotUI
 
         private void LoadFromAppSettings()
         {
-            LogInfo("Reading configuration.");
+            LogInfo(new Exception("Reading configuration."));
             _proxyListDirectory = txtProxyList.Text = _configuration.AppSettings.Settings["proxyListDirectory"].Value;
             txtStreamUrl.Text = _configuration.AppSettings.Settings["streamUrl"].Value;
             _headless = checkHeadless.Checked = Convert.ToBoolean(_configuration.AppSettings.Settings["headless"].Value);
@@ -181,7 +181,7 @@ namespace TwitchBotUI
         {
             if (string.IsNullOrEmpty(txtProxyList.Text) || string.IsNullOrEmpty(txtStreamUrl.Text))
             {
-                LogInfo("Please choose a proxy directory and enter your stream URL.");
+                LogInfo(new Exception("Please choose a proxy directory and enter your stream URL."));
                 return;
             }
 
@@ -195,7 +195,7 @@ namespace TwitchBotUI
 
                     if (parts.Length != 2)
                     {
-                        LogInfo("Please correct the format of your login credentials");
+                        LogInfo(new Exception("Please correct the format of your login credentials"));
 
                         return;
                     }
@@ -209,7 +209,7 @@ namespace TwitchBotUI
             if (Start)
             {
                 startStopButton.BackgroundImage = Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "\\Images\\button_stop.png");
-                LogInfo("Initializing bot.");
+                LogInfo(new Exception("Initializing bot."));
                 Core.CanRun = true;
                 TaskFactory factory = new TaskFactory(_token);
                 _tokenSource = new CancellationTokenSource();
@@ -225,7 +225,7 @@ namespace TwitchBotUI
             {
                 startStopButton.BackgroundImage = Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "\\Images\\button_stopping.png");
                 startStopButton.Enabled = false;
-                LogInfo("Terminating bot, please wait.");
+                LogInfo(new Exception("Terminating bot, please wait."));
 
                 _tokenSource.Cancel();
                 Core.CanRun = false;
@@ -236,7 +236,7 @@ namespace TwitchBotUI
                 }
                 catch (Exception)
                 {
-                    LogInfo("Termination error. (Ignored)");
+                    LogInfo(new Exception("Termination error. (Ignored)"));
                 }
 
                 Core.InitializationError -= ErrorOccured;
@@ -256,7 +256,7 @@ namespace TwitchBotUI
 
         private void RunIt(object obj)
         {
-            LogInfo("Saving the configuration.");
+            LogInfo(new Exception("Saving the configuration."));
 
             _configuration.AppSettings.Settings["streamUrl"].Value = txtStreamUrl.Text;
             _configuration.AppSettings.Settings["headless"].Value = checkHeadless.Checked.ToString();
@@ -265,11 +265,11 @@ namespace TwitchBotUI
             _configuration.AppSettings.Settings["withLoggedIn"].Value = _withLoggedIn.ToString();
             _configuration.AppSettings.Settings["loginInfos"].Value = txtLoginInfos.Text;
             _configuration.AppSettings.Settings["uselowcpuram"].Value = checkLowCpuRam.Checked.ToString();
-            
+
             _configuration.Save(ConfigurationSaveMode.Modified);
 
-            LogInfo("Configuration saved.");
-            LogInfo("Bot is starting.");
+            LogInfo(new Exception("Configuration saved."));
+            LogInfo(new Exception("Bot is starting."));
 
             Int32.TryParse(txtBrowserLimit.Text, out var browserLimit);
 
@@ -367,26 +367,14 @@ namespace TwitchBotUI
             }
         }
 
-        private void ErrorOccured(string message)
+        private void ErrorOccured(Exception exception)
         {
-            LogError(message);
-
-            Core.AllBrowsersTerminated -= AllBrowsersTerminated;
-
-            Core.InitializationError -= ErrorOccured;
-
-            Core.LogMessage -= LogMessage;
-
-            Core.DidItsJob -= DidItsJob;
-
-            Core.IncreaseViewer -= IncreaseViewer;
-
-            Core.DecreaseViewer -= DecreaseViewer;
+            LogError(exception);
         }
 
-        private void LogMessage(string message)
+        private void LogMessage(Exception exception)
         {
-            LogInfo(message);
+            LogInfo(exception);
         }
 
         private void AllBrowsersTerminated()
@@ -396,56 +384,70 @@ namespace TwitchBotUI
             SetBotViewer("0");
             SetLiveViewer("0");
 
-            LogInfo("Bot terminated.");
+            LogInfo(new Exception("Bot terminated."));
 
             Core.AllBrowsersTerminated -= AllBrowsersTerminated;
         }
 
         private void DidItsJob()
         {
-            LogInfo("Bot did it's job.");
+            LogInfo(new Exception("Bot did it's job, wait for viewers."));
         }
 
-        private void LogInfo(string str)
+        private void LogInfo(Exception exception)
         {
             if (logScreen.InvokeRequired)
             {
                 logScreen.BeginInvoke(new Action(() =>
                 {
-                    logScreen.Text += DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss | ") + str + "\r\n";
+                    logScreen.Text += DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss | ") + exception.Message + "\r\n";
                     logScreen.SelectionStart = logScreen.TextLength;
                     logScreen.ScrollToCaret();
                 }));
             }
             else
             {
-                logScreen.Text += DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss | ") + str + "\r\n";
+                logScreen.Text += DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss | ") + exception.Message + "\r\n";
                 logScreen.SelectionStart = logScreen.TextLength;
                 logScreen.ScrollToCaret();
             }
 
-            Serilog.Log.Logger.Information(str);
+            try
+            {
+                Serilog.Log.Logger.Information(exception.ToString());
+            }
+            catch (Exception)
+            {
+                //ignored
+            }
         }
 
-        private void LogError(string str)
+        private void LogError(Exception exception)
         {
             if (logScreen.InvokeRequired)
             {
                 logScreen.BeginInvoke(new Action(() =>
                 {
-                    logScreen.Text += DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss | ") + str + "\r\n";
+                    logScreen.Text += DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss | ") + exception.Message + "\r\n";
                     logScreen.SelectionStart = logScreen.TextLength;
                     logScreen.ScrollToCaret();
                 }));
             }
             else
             {
-                logScreen.Text += DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss | ") + str + "\r\n";
+                logScreen.Text += DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss | ") + exception.Message + "\r\n";
                 logScreen.SelectionStart = logScreen.TextLength;
                 logScreen.ScrollToCaret();
             }
 
-            Serilog.Log.Logger.Error(str);
+            try
+            {
+                Serilog.Log.Logger.Error(exception.ToString());
+            }
+            catch (Exception)
+            {
+                //ignored
+            }
         }
 
         private void browseProxyList_Click(object sender, EventArgs e)
@@ -551,7 +553,7 @@ namespace TwitchBotUI
                 checkLowCpuRam.Checked = false;
                 checkLowCpuRam.Enabled = false;
             }
-            else if(!checkHeadless.Checked)
+            else if (!checkHeadless.Checked)
             {
                 checkLowCpuRam.Enabled = true;
             }
@@ -581,7 +583,7 @@ namespace TwitchBotUI
 
                 checkLowCpuRam.Enabled = false;
             }
-            else if(!_withLoggedIn)
+            else if (!_withLoggedIn)
             {
                 checkLowCpuRam.Enabled = true;
             }

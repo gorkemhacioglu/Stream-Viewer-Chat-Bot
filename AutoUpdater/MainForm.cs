@@ -64,8 +64,14 @@ namespace AutoUpdater
         {
             SetLabel("Starting updated application.");
 
-
-            Process.Start(@appFile);
+            if(File.Exists(appFile))
+                Process.Start(@appFile);
+            else if(File.Exists(appFile.Replace("TwitchBotUI.exe", "StreamViewerBot.exe")))
+                Process.Start(@appFile.Replace("TwitchBotUI.exe","StreamViewerBot.exe"));
+            else
+            {
+                MessageBox.Show("Please restart the application manually.");
+            }
 
             Thread.Sleep(1000);
             Environment.Exit(0);
@@ -80,7 +86,7 @@ namespace AutoUpdater
                     var targetDirectory = "";
                     _zipPath = targetDirectory = Path.Combine(directory.FullName, "win-x64.zip");
 
-                    SetLabel("Downloading");
+                    SetLabel("Downloading...");
                     client.DownloadProgressChanged += Client_DownloadProgressChanged;
                     client.DownloadFileCompleted += Client_DownloadFileCompleted;
 
