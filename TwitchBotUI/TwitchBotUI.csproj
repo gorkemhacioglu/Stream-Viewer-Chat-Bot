@@ -55,7 +55,7 @@
   <ItemGroup>
     <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="96.0.4664.4500" />
     <PackageReference Include="Serilog" Version="2.10.0" />
-    <PackageReference Include="Serilog.Sinks.NewRelic.Logs" Version="1.1.0" />
+    <PackageReference Include="Serilog.Sinks.NewRelic.Logs" Version="1.2.0" />
     <PackageReference Include="System.Diagnostics.Process" Version="4.3.0" />
   </ItemGroup>
 

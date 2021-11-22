@@ -159,7 +159,7 @@
             // lblBrowserLimit
             // 
             this.lblBrowserLimit.AutoSize = true;
-            this.lblBrowserLimit.Location = new System.Drawing.Point(12, 155);
+            this.lblBrowserLimit.Location = new System.Drawing.Point(12, 152);
             this.lblBrowserLimit.Name = "lblBrowserLimit";
             this.lblBrowserLimit.Size = new System.Drawing.Size(85, 15);
             this.lblBrowserLimit.TabIndex = 11;

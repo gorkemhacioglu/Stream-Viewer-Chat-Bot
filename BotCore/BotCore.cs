@@ -41,9 +41,9 @@ namespace BotCore
 
         public Action AllBrowsersTerminated;
 
-        public Action<string> InitializationError;
+        public Action<Exception> InitializationError;
 
-        public Action<string> LogMessage;
+        public Action<Exception> LogMessage;
 
         public Action DidItsJob;
 
@@ -117,7 +117,7 @@ namespace BotCore
 
                         Thread thr = new Thread(Request) { Priority = ThreadPriority.Normal };
                         Random r = new Random();
-                        int rInt = r.Next(3000, 6000);
+                        int rInt = r.Next(5000, 8000);
 
                         while (BrowserLimit > 0 && DriverServices.Count >= BrowserLimit)
                         {
@@ -141,8 +141,8 @@ namespace BotCore
                 catch (Exception e)
                 {
                     InitializationError?.Invoke(e is IndexOutOfRangeException
-                        ? "Please select a valid proxy file."
-                        : $"Uppss! {e.Message}");
+                        ? new Exception("Please select a valid proxy file.")
+                        : e);
                 }
 
                 if (!CanRun)
@@ -344,9 +344,9 @@ namespace BotCore
                 chromeOptions.PageLoadStrategy = PageLoadStrategy.Default;
 
                 var driver = new ChromeDriver(driverService, chromeOptions)
-                    { Url = StreamUrl }; //"https://www.twitch.tv/"+ Guid.NewGuid() };
+                { Url = StreamUrl }; //"https://www.twitch.tv/"+ Guid.NewGuid() };
 
-                if (!Headless)
+                if (!Headless && !_useLowCpuRam)
                 {
                     IJavaScriptExecutor js = driver;
                     js.ExecuteScript("window.localStorage.setItem('video-quality', '" + itm.PreferredQuality + "');");
@@ -430,7 +430,7 @@ namespace BotCore
                     }
                     catch (Exception ex)
                     {
-                        LogMessage?.Invoke($"Login failed: {ex.Message}");
+                        LogMessage?.Invoke(new Exception($"Login failed: {ex.Message}"));
                     }
 
                     while (true)
@@ -583,12 +583,12 @@ namespace BotCore
                 if (ex.Message.Contains("only supports Chrome version"))
                 {
                     CanRun = false;
-                    InitializationError?.Invoke($"Please update your Google Chrome!");
+                    InitializationError?.Invoke(new Exception($"Please update your Google Chrome!"));
                 }
             }
             catch (Exception ex)
             {
-                InitializationError?.Invoke($"Uppss! Something went wrong => {ex}");
+                InitializationError?.Invoke(ex);
             }
         }
 

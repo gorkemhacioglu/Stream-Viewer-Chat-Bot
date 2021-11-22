@@ -1750,4 +1750,10 @@
         AAAgAACAAAAAgBEAAOAbAAD+PwAA/n8AAA==
 </value>
   </data>
+  <data name="MainForm_ReRunApp_Please_manually_restart_the_application_" xml:space="preserve">
+	  <value>Please manually restart the application.</value>
+  </data>
+  <data name="MainForm_ReRunApp_Please_restart_the_application_manually_" xml:space="preserve">
+	  <value>Please restart the application manually.</value>
+  </data>
 </root>
