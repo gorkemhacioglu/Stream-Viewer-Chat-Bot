@@ -12,11 +12,15 @@
     <None Remove="Images\button_start.png" />
     <None Remove="Images\button_stop.png" />
     <None Remove="Images\button_stopping.png" />
+    <None Remove="Images\facebook.png" />
     <None Remove="Images\favicon.ico" />
     <None Remove="Images\icon_onwhite.png" />
     <None Remove="Images\info.png" />
+    <None Remove="Images\twitter.png" />
     <None Remove="Images\viewers.png" />
+    <None Remove="Images\webshare.png" />
     <None Remove="Images\withLoggedInUsers.png" />
+    <None Remove="Images\youtube.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -35,6 +39,9 @@
     <EmbeddedResource Include="Images\button_stopping.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="Images\facebook.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Images\favicon.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -44,10 +51,19 @@
     <EmbeddedResource Include="Images\info.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="Images\twitter.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Images\viewers.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="Images\webshare.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Images\withLoggedInUsers.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\youtube.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>

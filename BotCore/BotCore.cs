@@ -57,6 +57,8 @@ namespace BotCore
 
         private readonly string _loginCookiesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "loginCookies.json");
 
+        private new List<Process> _initialChromeProcesses = new List<Process>();
+
         readonly JsonSerializerSettings _isoDateFormatSettings = new JsonSerializerSettings
         {
             DateFormatHandling = DateFormatHandling.MicrosoftDateFormat,
@@ -91,6 +93,8 @@ namespace BotCore
             }
 
             ZipDirectory = AppDomain.CurrentDomain.BaseDirectory + "\\zipSource\\background";
+
+            _initialChromeProcesses = Process.GetProcessesByName("chrome").ToList();
 
             do
             {
@@ -229,32 +233,24 @@ namespace BotCore
 
         private void KillAllProcesses()
         {
-            string strCmd = "/C taskkill /IM " + "chrome.exe" + " /F";
-            Process.Start("CMD.exe", strCmd);
+            var allChromeProcesses = Process.GetProcessesByName("chrome");
 
-            //foreach (var driverService in DriverServices)
-            //{
-            //    while (true)
-            //    {
-            //        try
-            //        {
-            //            if (!driverService.IsRunning)
-            //                break;
+            foreach (var process in allChromeProcesses)
+            {
+                if (!(_initialChromeProcesses.Any(x=> x.Id == process.Id)))
+                {
+                    ProcessStartInfo startInfo = new ProcessStartInfo();
+                    startInfo.CreateNoWindow = true;
+                    startInfo.FileName = "CMD.exe";
+                    string strCmd = $"/C taskkill /F /PID {process.Id}";
+                    startInfo.Arguments = strCmd;
+                    Process processTemp = new Process();
+                    processTemp.StartInfo = startInfo;
+                    processTemp.Start();
+                }
+            }
 
-            //            strCmdText = "/C taskkill /F /PID " + Process.GetProcessById(driverService.ProcessId);
-            //            Process.Start("CMD.exe", strCmdText);
-
-            //            break;
-            //        }
-            //        catch (Exception ex)
-            //        {
-            //            //ignored
-            //        }
-            //    }
-            //}
-
-            strCmd = "/C taskkill /IM " + "chromedriver.exe" + " /F";
-            Process.Start("CMD.exe", strCmd);
+            _initialChromeProcesses.Clear();
         }
 
         public void Stop()

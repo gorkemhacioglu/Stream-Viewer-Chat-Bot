@@ -20,7 +20,7 @@ namespace TwitchBotUI
     {
         public bool Start = false;
 
-        private static string _productVersion = "2.5.1";
+        private static string _productVersion = "2.5.2";
 
         private static string _proxyListDirectory = "";
 
@@ -414,7 +414,7 @@ namespace TwitchBotUI
 
             try
             {
-                Serilog.Log.Logger.Information(exception.ToString());
+                Serilog.Log.Logger.Information(exception.Message.ToString());
             }
             catch (Exception)
             {
@@ -587,7 +587,40 @@ namespace TwitchBotUI
             {
                 checkLowCpuRam.Enabled = true;
             }
+        }
 
+        private void picWebshare_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string strCmdLine = "/C explorer \"https://www.webshare.io/?referral_code=ceuygyx4sir2";
+                var browserProcess = Process.Start("CMD.exe", strCmdLine);
+                browserProcess?.Close();
+            }
+            catch (Exception)
+            {
+                //ignored
+            }
+        }
+
+        private void picWebshare_MouseEnter(object sender, EventArgs e)
+        {
+            picWebshare.BackColor = Color.LightGray;
+        }
+
+        private void picWebshare_MouseLeave(object sender, EventArgs e)
+        {
+            picWebshare.BackColor = Color.Transparent;
+        }
+
+        private void picVulture_MouseEnter(object sender, EventArgs e)
+        {
+            picVulture.BackColor = Color.LightGray;
+        }
+
+        private void picVulture_MouseLeave(object sender, EventArgs e)
+        {
+            picVulture.BackColor = Color.Transparent;
         }
     }
 }
