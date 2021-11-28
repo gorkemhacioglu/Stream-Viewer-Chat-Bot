@@ -193,9 +193,9 @@
             // 
             this.picVulture.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("picVulture.BackgroundImage")));
             this.picVulture.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.picVulture.Location = new System.Drawing.Point(252, 330);
+            this.picVulture.Location = new System.Drawing.Point(252, 337);
             this.picVulture.Name = "picVulture";
-            this.picVulture.Size = new System.Drawing.Size(119, 52);
+            this.picVulture.Size = new System.Drawing.Size(119, 39);
             this.picVulture.TabIndex = 13;
             this.picVulture.TabStop = false;
             this.picVulture.Click += new System.EventHandler(this.pictureBox2_Click);
@@ -428,7 +428,7 @@
             // 
             this.lblNeedCloudServer.AutoSize = true;
             this.lblNeedCloudServer.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point);
-            this.lblNeedCloudServer.Location = new System.Drawing.Point(252, 309);
+            this.lblNeedCloudServer.Location = new System.Drawing.Point(251, 319);
             this.lblNeedCloudServer.Name = "lblNeedCloudServer";
             this.lblNeedCloudServer.Size = new System.Drawing.Size(105, 15);
             this.lblNeedCloudServer.TabIndex = 0;
@@ -438,9 +438,9 @@
             // 
             this.picWebshare.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("picWebshare.BackgroundImage")));
             this.picWebshare.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.picWebshare.Location = new System.Drawing.Point(117, 330);
+            this.picWebshare.Location = new System.Drawing.Point(117, 337);
             this.picWebshare.Name = "picWebshare";
-            this.picWebshare.Size = new System.Drawing.Size(119, 52);
+            this.picWebshare.Size = new System.Drawing.Size(119, 39);
             this.picWebshare.TabIndex = 32;
             this.picWebshare.TabStop = false;
             this.picWebshare.Click += new System.EventHandler(this.picWebshare_Click);
@@ -451,7 +451,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point);
-            this.label1.Location = new System.Drawing.Point(117, 309);
+            this.label1.Location = new System.Drawing.Point(117, 319);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(119, 15);
             this.label1.TabIndex = 33;
@@ -461,7 +461,7 @@
             // 
             this.picYoutube.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("picYoutube.BackgroundImage")));
             this.picYoutube.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.picYoutube.Location = new System.Drawing.Point(66, 305);
+            this.picYoutube.Location = new System.Drawing.Point(66, 310);
             this.picYoutube.Name = "picYoutube";
             this.picYoutube.Size = new System.Drawing.Size(40, 28);
             this.picYoutube.TabIndex = 34;
@@ -491,7 +491,7 @@
             // 
             this.lblSoon.AutoSize = true;
             this.lblSoon.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lblSoon.Location = new System.Drawing.Point(17, 309);
+            this.lblSoon.Location = new System.Drawing.Point(17, 314);
             this.lblSoon.Name = "lblSoon";
             this.lblSoon.Size = new System.Drawing.Size(49, 19);
             this.lblSoon.TabIndex = 37;

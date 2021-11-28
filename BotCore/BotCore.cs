@@ -33,7 +33,7 @@ namespace BotCore
 
         private bool _firstPage = true;
 
-        private bool _useLowCpuRam = false;
+        private bool _useLowCpuRam;
 
         private static readonly ConcurrentQueue<ChromeDriverService> DriverServices = new ConcurrentQueue<ChromeDriverService>();
 
@@ -55,7 +55,8 @@ namespace BotCore
 
         private readonly object _lockObject = new object();
 
-        private readonly string _loginCookiesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "loginCookies.json");
+        private readonly string _loginCookiesPath =
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "loginCookies.json");
 
         private new List<Process> _initialChromeProcesses = new List<Process>();
 
@@ -111,7 +112,7 @@ namespace BotCore
                         if (string.IsNullOrEmpty(line))
                             continue;
 
-                        var array = line.ToString().Split(':');
+                        var array = line.Split(':');
 
                         string text = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "\\zipDirectory\\backgroundTemplate.js");
                         text = text.Replace("{ip}", array[0]).Replace("{port}", array[1]).Replace("{username}", array[2]).Replace("{password}", array[3]);
@@ -239,9 +240,11 @@ namespace BotCore
             {
                 if (!(_initialChromeProcesses.Any(x=> x.Id == process.Id)))
                 {
-                    ProcessStartInfo startInfo = new ProcessStartInfo();
-                    startInfo.CreateNoWindow = true;
-                    startInfo.FileName = "CMD.exe";
+                    ProcessStartInfo startInfo = new ProcessStartInfo
+                    {
+                        CreateNoWindow = true,
+                        FileName = "CMD.exe"
+                    };
                     string strCmd = $"/C taskkill /F /PID {process.Id}";
                     startInfo.Arguments = strCmd;
                     Process processTemp = new Process();

@@ -11,14 +11,13 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using BotCore;
 using BotCore.Dto;
-using OpenQA.Selenium.DevTools;
 using TwitchBotUI.Properties;
 
 namespace TwitchBotUI
 {
     public partial class MainScreen : Form
     {
-        public bool Start = false;
+        public bool Start;
 
         private static string _productVersion = "2.5.2";
 
@@ -98,15 +97,19 @@ namespace TwitchBotUI
                 webRequest.Timeout = 5000;
                 using var response = webRequest.GetResponse();
                 using var content = response.GetResponseStream();
-                using var reader = new StreamReader(content);
-                var latestVersion = reader.ReadToEnd();
+                if (content != null)
+                {
+                    using var reader = new StreamReader(content);
+                    var latestVersion = reader.ReadToEnd();
 
-                return latestVersion != _productVersion;
+                    return latestVersion != _productVersion;
+                }
             }
             catch (Exception)
             {
                 return false;
             }
+            return false;
         }
 
         private void UpdateBot()
@@ -115,7 +118,9 @@ namespace TwitchBotUI
 
             if (dialogResult == DialogResult.Yes)
             {
-                var args = "https://mytwitchbot.com/Download/win-x64.zip" + "*" + AppDomain.CurrentDomain.BaseDirectory.Replace(' ', '?') + "*" + Path.Combine(AppDomain.CurrentDomain.BaseDirectory.Replace(' ', '?'), "TwitchBotUI.exe");
+                var args = "https://mytwitchbot.com/Download/win-x64.zip" + "*" +
+                           AppDomain.CurrentDomain.BaseDirectory.Replace(' ', '?') + "*" +
+                           Path.Combine(AppDomain.CurrentDomain.BaseDirectory.Replace(' ', '?'), "TwitchBotUI.exe");
                 try
                 {
                     Directory.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AutoUpdaterOld"), true);
@@ -143,14 +148,6 @@ namespace TwitchBotUI
                     MessageBox.Show(GetFromResource("MainScreen_UpdateBot_Sorry__updater_failed_"));
                 }
             }
-        }
-
-        private Size ScaleSize(Size size)
-        {
-            Screen myScreen = Screen.FromControl(this);
-            Rectangle area = myScreen.WorkingArea;
-
-            return new Size { Height = area.Height * size.Height / 1080, Width = area.Width * size.Width / 1920 };
         }
 
         private string GetFromResource(string key)
@@ -211,7 +208,6 @@ namespace TwitchBotUI
                 startStopButton.BackgroundImage = Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "\\Images\\button_stop.png");
                 LogInfo(new Exception("Initializing bot."));
                 Core.CanRun = true;
-                TaskFactory factory = new TaskFactory(_token);
                 _tokenSource = new CancellationTokenSource();
 
                 Task.Run(() =>
@@ -239,7 +235,7 @@ namespace TwitchBotUI
                     LogInfo(new Exception("Termination error. (Ignored)"));
                 }
 
-                Core.InitializationError -= ErrorOccured;
+                Core.InitializationError -= ErrorOccurred;
 
                 Core.LogMessage -= LogMessage;
 
@@ -277,7 +273,7 @@ namespace TwitchBotUI
 
             Core.AllBrowsersTerminated += AllBrowsersTerminated;
 
-            Core.InitializationError += ErrorOccured;
+            Core.InitializationError += ErrorOccurred;
 
             Core.LogMessage += LogMessage;
 
@@ -367,7 +363,7 @@ namespace TwitchBotUI
             }
         }
 
-        private void ErrorOccured(Exception exception)
+        private void ErrorOccurred(Exception exception)
         {
             LogError(exception);
         }
