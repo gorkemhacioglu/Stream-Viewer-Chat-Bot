@@ -1,9 +1,11 @@
-# Twitch Viewer Bot
-## **[Wiki for more information](https://github.com/gorkemhacioglu/TwitchViewerBot/wiki)**
+# Stream Viewer Bot
+## **[Wiki for more information](https://github.com/gorkemhacioglu/Stream-Viewer-Bot/wiki)**
 
 Give us a star, if you liked it!
 
-![alt text](https://mytwitchbot.com/images/ui2_5_2.png)
+*Please run StreamViewerBot.exe after update*
+
+![alt text](https://mytwitchbot.com/images/ui2_6.png)
 
 **[Download for Windows x64](http://mytwitchbot.com/Download/win-x64.zip)**
 
