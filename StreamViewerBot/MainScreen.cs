@@ -11,16 +11,15 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using BotCore;
 using BotCore.Dto;
-using OpenQA.Selenium.DevTools;
-using TwitchBotUI.Properties;
+using StreamViewerBot.Properties;
 
-namespace TwitchBotUI
+namespace StreamViewerBot
 {
     public partial class MainScreen : Form
     {
-        public bool Start = false;
+        public bool Start;
 
-        private static string _productVersion = "2.5.2";
+        private static string _productVersion = "2.6";
 
         private static string _proxyListDirectory = "";
 
@@ -30,11 +29,11 @@ namespace TwitchBotUI
 
         CancellationTokenSource _tokenSource = new CancellationTokenSource();
 
-        readonly CancellationToken _token = new CancellationToken();
-
         readonly Configuration _configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
         readonly Dictionary<string, string> _dataSourceQuality = new Dictionary<string, string>();
+
+        readonly Dictionary<string, StreamService.Service> _serviceTypes = new Dictionary<string, StreamService.Service>();
 
         private readonly ConcurrentQueue<LoginDto> _lstLoginInfo = new ConcurrentQueue<LoginDto>();
 
@@ -59,9 +58,9 @@ namespace TwitchBotUI
 
             #region StreamQuality
 
-            FillQualityItems();
+            FillComboBoxes();
 
-            void FillQualityItems()
+            void FillComboBoxes()
             {
                 _dataSourceQuality.Add("Source", string.Empty);
                 _dataSourceQuality.Add("480p", "{\"default\":\"480p30\"}");
@@ -72,6 +71,14 @@ namespace TwitchBotUI
                 lstQuality.DisplayMember = "Key";
                 lstQuality.DataSource = new BindingSource(_dataSourceQuality, null);
                 lstQuality.SelectedIndex = _dataSourceQuality.Count - 1;
+
+                _serviceTypes.Add("Twitch", StreamService.Service.Twitch);
+                _serviceTypes.Add("YouTube", StreamService.Service.Youtube);
+
+                lstserviceType.ValueMember = "Value";
+                lstserviceType.DisplayMember = "Key";
+                lstserviceType.DataSource = new BindingSource(_serviceTypes, null);
+                lstserviceType.SelectedIndex = 0;
             }
             #endregion
         }
@@ -98,15 +105,19 @@ namespace TwitchBotUI
                 webRequest.Timeout = 5000;
                 using var response = webRequest.GetResponse();
                 using var content = response.GetResponseStream();
-                using var reader = new StreamReader(content);
-                var latestVersion = reader.ReadToEnd();
+                if (content != null)
+                {
+                    using var reader = new StreamReader(content);
+                    var latestVersion = reader.ReadToEnd();
 
-                return latestVersion != _productVersion;
+                    return latestVersion != _productVersion;
+                }
             }
             catch (Exception)
             {
                 return false;
             }
+            return false;
         }
 
         private void UpdateBot()
@@ -115,7 +126,9 @@ namespace TwitchBotUI
 
             if (dialogResult == DialogResult.Yes)
             {
-                var args = "https://mytwitchbot.com/Download/win-x64.zip" + "*" + AppDomain.CurrentDomain.BaseDirectory.Replace(' ', '?') + "*" + Path.Combine(AppDomain.CurrentDomain.BaseDirectory.Replace(' ', '?'), "TwitchBotUI.exe");
+                var args = "https://mytwitchbot.com/Download/win-x64.zip" + "*" +
+                           AppDomain.CurrentDomain.BaseDirectory.Replace(' ', '?') + "*" +
+                           Path.Combine(AppDomain.CurrentDomain.BaseDirectory.Replace(' ', '?'), "StreamViewerBot.exe");
                 try
                 {
                     Directory.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AutoUpdaterOld"), true);
@@ -143,14 +156,6 @@ namespace TwitchBotUI
                     MessageBox.Show(GetFromResource("MainScreen_UpdateBot_Sorry__updater_failed_"));
                 }
             }
-        }
-
-        private Size ScaleSize(Size size)
-        {
-            Screen myScreen = Screen.FromControl(this);
-            Rectangle area = myScreen.WorkingArea;
-
-            return new Size { Height = area.Height * size.Height / 1080, Width = area.Width * size.Width / 1920 };
         }
 
         private string GetFromResource(string key)
@@ -211,7 +216,6 @@ namespace TwitchBotUI
                 startStopButton.BackgroundImage = Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "\\Images\\button_stop.png");
                 LogInfo(new Exception("Initializing bot."));
                 Core.CanRun = true;
-                TaskFactory factory = new TaskFactory(_token);
                 _tokenSource = new CancellationTokenSource();
 
                 Task.Run(() =>
@@ -239,7 +243,7 @@ namespace TwitchBotUI
                     LogInfo(new Exception("Termination error. (Ignored)"));
                 }
 
-                Core.InitializationError -= ErrorOccured;
+                Core.InitializationError -= ErrorOccurred;
 
                 Core.LogMessage -= LogMessage;
 
@@ -277,7 +281,7 @@ namespace TwitchBotUI
 
             Core.AllBrowsersTerminated += AllBrowsersTerminated;
 
-            Core.InitializationError += ErrorOccured;
+            Core.InitializationError += ErrorOccurred;
 
             Core.LogMessage += LogMessage;
 
@@ -303,7 +307,21 @@ namespace TwitchBotUI
                 quality = lstQuality.SelectedValue.ToString();
             }
 
-            Core.Start(_proxyListDirectory, txtStreamUrl.Text, _headless, browserLimit, Convert.ToInt32(numRefreshMinutes.Value), quality, _lstLoginInfo, checkLowCpuRam.Checked);
+            var serviceType = StreamService.Service.Twitch;
+
+            if (lstserviceType.InvokeRequired)
+            {
+                lstQuality.BeginInvoke(new Action(() =>
+                {
+                    serviceType = (StreamService.Service)lstserviceType.SelectedValue;
+                }));
+            }
+            else
+            {
+                serviceType = (StreamService.Service)lstserviceType.SelectedValue;
+            }
+
+            Core.Start(_proxyListDirectory, txtStreamUrl.Text, serviceType, _headless, browserLimit, Convert.ToInt32(numRefreshMinutes.Value), quality, _lstLoginInfo, checkLowCpuRam.Checked);
         }
 
 
@@ -367,7 +385,7 @@ namespace TwitchBotUI
             }
         }
 
-        private void ErrorOccured(Exception exception)
+        private void ErrorOccurred(Exception exception)
         {
             LogError(exception);
         }

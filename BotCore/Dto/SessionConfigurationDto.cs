@@ -13,5 +13,7 @@ namespace BotCore.Dto
         public string PreferredQuality { get; set; }
 
         public LoginDto LoginInfo { get; set; }
+
+        public StreamService.Service Service { get; set; }
     }
 }

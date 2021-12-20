@@ -67,7 +67,7 @@ namespace AutoUpdater
             if(File.Exists(appFile))
                 Process.Start(@appFile);
             else if(File.Exists(appFile.Replace("TwitchBotUI.exe", "StreamViewerBot.exe")))
-                Process.Start(@appFile.Replace("TwitchBotUI.exe","StreamViewerBot.exe"));
+                Process.Start(@appFile.Replace("TwitchBotUI.exe", "StreamViewerBot.exe"));
             else
             {
                 MessageBox.Show("Please restart the application manually.");

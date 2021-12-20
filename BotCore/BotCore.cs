@@ -33,7 +33,7 @@ namespace BotCore
 
         private bool _firstPage = true;
 
-        private bool _useLowCpuRam = false;
+        private bool _useLowCpuRam;
 
         private static readonly ConcurrentQueue<ChromeDriverService> DriverServices = new ConcurrentQueue<ChromeDriverService>();
 
@@ -55,9 +55,10 @@ namespace BotCore
 
         private readonly object _lockObject = new object();
 
-        private readonly string _loginCookiesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "loginCookies.json");
+        private readonly string _loginCookiesPath =
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "loginCookies.json");
 
-        private new List<Process> _initialChromeProcesses = new List<Process>();
+        private List<Process> _initialChromeProcesses = new List<Process>();
 
         readonly JsonSerializerSettings _isoDateFormatSettings = new JsonSerializerSettings
         {
@@ -65,7 +66,7 @@ namespace BotCore
             DateParseHandling = DateParseHandling.DateTime,
         };
 
-        public void Start(string proxyListDirectory, string stream, bool headless, int browserLimit, int refreshInterval, string preferredQuality, ConcurrentQueue<LoginDto> loginInfos, bool useLowCpuRam)
+        public void Start(string proxyListDirectory, string stream, StreamService.Service service, bool headless, int browserLimit, int refreshInterval, string preferredQuality, ConcurrentQueue<LoginDto> loginInfos, bool useLowCpuRam)
         {
             BrowserLimit = browserLimit;
             CanRun = true;
@@ -111,7 +112,7 @@ namespace BotCore
                         if (string.IsNullOrEmpty(line))
                             continue;
 
-                        var array = line.ToString().Split(':');
+                        var array = line.Split(':');
 
                         string text = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "\\zipDirectory\\backgroundTemplate.js");
                         text = text.Replace("{ip}", array[0]).Replace("{port}", array[1]).Replace("{username}", array[2]).Replace("{password}", array[3]);
@@ -133,7 +134,7 @@ namespace BotCore
 
                         loginInfos.TryDequeue(out var loginInfo);
 
-                        thr.Start(new SessionConfigurationDto { Url = line, Count = i, PreferredQuality = preferredQuality, LoginInfo = loginInfo });
+                        thr.Start(new SessionConfigurationDto { Url = line, Count = i, PreferredQuality = preferredQuality, LoginInfo = loginInfo, Service = service });
 
                         i++;
 
@@ -237,11 +238,13 @@ namespace BotCore
 
             foreach (var process in allChromeProcesses)
             {
-                if (!(_initialChromeProcesses.Any(x=> x.Id == process.Id)))
+                if (!(_initialChromeProcesses.Any(x => x.Id == process.Id)))
                 {
-                    ProcessStartInfo startInfo = new ProcessStartInfo();
-                    startInfo.CreateNoWindow = true;
-                    startInfo.FileName = "CMD.exe";
+                    ProcessStartInfo startInfo = new ProcessStartInfo
+                    {
+                        CreateNoWindow = true,
+                        FileName = "CMD.exe"
+                    };
                     string strCmd = $"/C taskkill /F /PID {process.Id}";
                     startInfo.Arguments = strCmd;
                     Process processTemp = new Process();
@@ -251,6 +254,20 @@ namespace BotCore
             }
 
             _initialChromeProcesses.Clear();
+
+            var allChromeDriverProcesses = Process.GetProcessesByName("chromedriver");
+
+            foreach (var chromeDriverService in allChromeDriverProcesses)
+            {
+                try
+                {
+                    chromeDriverService.Kill();
+                }
+                catch (Exception)
+                {
+                    //ignored
+                }
+            }
         }
 
         public void Stop()
@@ -342,13 +359,6 @@ namespace BotCore
                 var driver = new ChromeDriver(driverService, chromeOptions)
                 { Url = StreamUrl }; //"https://www.twitch.tv/"+ Guid.NewGuid() };
 
-                if (!Headless && !_useLowCpuRam)
-                {
-                    IJavaScriptExecutor js = driver;
-                    js.ExecuteScript("window.localStorage.setItem('video-quality', '" + itm.PreferredQuality + "');");
-                    driver.Navigate().Refresh();
-                }
-
                 if (BrowserLimit > 0)
                 {
                     Thread.Sleep(1000);
@@ -358,100 +368,307 @@ namespace BotCore
 
                 DriverServices.Enqueue(driverService);
 
-                bool matureClicked = false;
-                int matureCheckCount = 0;
-                bool cacheClicked = false;
-                int cacheCheckCount = 0;
+                IncreaseViewer?.Invoke();
 
-                if (itm.LoginInfo != null)
+                bool firstPage = false;
+
+                var startDate = DateTime.Now;
+
+                if (itm.Service == StreamService.Service.Twitch)
                 {
-                    Thread.Sleep(1000);
-
-                    var allCookies = GetCookie(itm.LoginInfo.Username);
-
-                    if (allCookies != null)
+                    if (!Headless && !_useLowCpuRam)
                     {
-                        foreach (var cookie in allCookies)
+                        IJavaScriptExecutor js = driver;
+                        js.ExecuteScript("window.localStorage.setItem('video-quality', '" + itm.PreferredQuality + "');");
+                        driver.Navigate().Refresh();
+                    }
+
+                    bool matureClicked = false;
+                    int matureCheckCount = 0;
+                    bool cacheClicked = false;
+                    int cacheCheckCount = 0;
+
+                    if (itm.LoginInfo != null)
+                    {
+                        Thread.Sleep(1000);
+
+                        var allCookies = GetCookie(itm.LoginInfo.Username);
+
+                        if (allCookies != null)
                         {
-                            driver.Manage().Cookies.AddCookie(new Cookie(cookie.Name, cookie.Value, cookie.Domain,
-                                cookie.Path, new DateTime(ticks: cookie.Expiry)));
+                            foreach (var cookie in allCookies)
+                            {
+                                driver.Manage().Cookies.AddCookie(new Cookie(cookie.Name, cookie.Value, cookie.Domain,
+                                    cookie.Path, new DateTime(ticks: cookie.Expiry)));
+                            }
+                        }
+
+                        try
+                        {
+                            var loginButton = driver.FindElement(By.XPath(
+                                "/html/body/div[1]/div/div[2]/nav/div/div[3]/div[3]/div/div[1]/div[1]/button/div/div"));
+
+                            if (loginButton != null)
+                            {
+                                loginButton.Click();
+
+                                Thread.Sleep(1000);
+
+                                var usernameBox = driver.FindElement(By.XPath(
+                                    "/html/body/div[3]/div/div/div/div/div/div[1]/div/div/div[3]/form/div/div[1]/div/div[2]/input"));
+
+                                if (usernameBox != null)
+                                {
+                                    usernameBox.Click();
+
+                                    Thread.Sleep(1000);
+
+                                    usernameBox.SendKeys(itm.LoginInfo.Username);
+
+                                    var passwordBox = driver.FindElement(By.XPath(
+                                        "/html/body/div[3]/div/div/div/div/div/div[1]/div/div/div[3]/form/div/div[2]/div/div[1]/div[2]/div[1]/input"));
+
+                                    if (passwordBox != null)
+                                    {
+                                        passwordBox.Click();
+
+                                        Thread.Sleep(1000);
+
+                                        passwordBox.SendKeys(itm.LoginInfo.Password);
+
+                                        Thread.Sleep(1000);
+
+                                        var login = driver.FindElement(By.XPath(
+                                            "/html/body/div[3]/div/div/div/div/div/div[1]/div/div/div[3]/form/div/div[3]/button/div/div"));
+
+
+                                        Thread.Sleep(1000);
+
+                                        login?.Click();
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            LogMessage?.Invoke(new Exception($"Login failed: {ex.Message}"));
+                        }
+
+                        while (true)
+                        {
+                            Thread.Sleep(1000);
+
+                            var cookie = driver.Manage().Cookies.GetCookieNamed("auth-token");
+
+                            if (!string.IsNullOrEmpty(cookie?.Value))
+                            {
+                                StoreCookie(new Tuple<string, List<Cookie>>(itm.LoginInfo.Username,
+                                    new List<Cookie>(driver.Manage().Cookies.AllCookies)));
+
+                                break;
+                            }
                         }
                     }
 
                     try
                     {
-                        var loginButton = driver.FindElement(By.XPath(
-                            "/html/body/div[1]/div/div[2]/nav/div/div[3]/div[3]/div/div[1]/div[1]/button/div/div"));
-
-                        if (loginButton != null)
+                        while (true)
                         {
-                            loginButton.Click();
+                            try
+                            {
+                                if (_firstPage)
+                                {
+                                    firstPage = true;
+                                    _firstPage = false;
+                                }
+
+                                if (firstPage)
+                                {
+                                    var liveViewers = driver.FindElement(By.XPath(
+                                        "/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[1]/div[1]/div[2]/div/div[1]/div/div/div/div[2]/div[2]/div[2]/div/div/div[1]/div[1]/div/p/span"));
+
+                                    if (liveViewers != null)
+                                    {
+                                        LiveViewer.Invoke(liveViewers.Text);
+                                        Thread.Sleep(5000);
+                                    }
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                LiveViewer.Invoke("N/A");
+                            }
 
                             Thread.Sleep(1000);
 
-                            var usernameBox = driver.FindElement(By.XPath(
-                                "/html/body/div[3]/div/div/div/div/div/div[1]/div/div/div[3]/form/div/div[1]/div/div[2]/input"));
-
-                            if (usernameBox != null)
+                            try
                             {
-                                usernameBox.Click();
-
-                                Thread.Sleep(1000);
-
-                                usernameBox.SendKeys(itm.LoginInfo.Username);
-
-                                var passwordBox = driver.FindElement(By.XPath(
-                                    "/html/body/div[3]/div/div/div/div/div/div[1]/div/div/div[3]/form/div/div[2]/div/div[1]/div[2]/div[1]/input"));
-
-                                if (passwordBox != null)
+                                if (!matureClicked && matureCheckCount < 5)
                                 {
-                                    passwordBox.Click();
+                                    try
+                                    {
+                                        var mature = driver.FindElement(By.XPath(
+                                            "/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div/div[5]/div/div[3]/button/div/div"));
 
-                                    Thread.Sleep(1000);
-
-                                    passwordBox.SendKeys(itm.LoginInfo.Password);
-
-                                    Thread.Sleep(1000);
-
-                                    var login = driver.FindElement(By.XPath(
-                                        "/html/body/div[3]/div/div/div/div/div/div[1]/div/div/div[3]/form/div/div[3]/button/div/div"));
-
-
-                                    Thread.Sleep(1000);
-
-                                    login?.Click();
+                                        mature?.Click();
+                                        matureClicked = true;
+                                        matureCheckCount++;
+                                    }
+                                    catch
+                                    {
+                                        //ignored because there is no mature button
+                                    }
                                 }
+                            }
+                            catch (Exception)
+                            {
+                                // ignored
+                            }
+
+                            try
+                            {
+                                if (!cacheClicked && cacheCheckCount < 5)
+                                {
+                                    try
+                                    {
+                                        var cache = driver.FindElement(By.XPath(
+                                            "/html/body/div[1]/div/div[2]/div[1]/div/div/div[3]/button/div/div/div"));
+
+                                        if (cache != null)
+                                        {
+                                            cache.Click();
+                                            cacheClicked = true;
+                                        }
+
+                                        cacheCheckCount++;
+                                    }
+                                    catch (Exception)
+                                    {
+                                        //ignored because there is no cache button
+                                    }
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                // ignored
+                            }
+
+
+                            try
+                            {
+                                var connectionError = driver.FindElement(By.XPath(
+                                    "//*[@id=\"root\"]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div[5]/div/div[3]/button/div/div[2]"));
+
+                                if (connectionError != null)
+                                {
+                                    Actions actions = new Actions(driver);
+
+                                    actions.Click(connectionError).Perform();
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                //ignored
+                            }
+
+                            if (_refreshInterval != 0 && DateTime.Now - startDate > TimeSpan.FromMinutes(_refreshInterval))
+                            {
+                                driver.Navigate().Refresh();
+
+                                startDate = DateTime.Now;
                             }
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        LogMessage?.Invoke(new Exception($"Login failed: {ex.Message}"));
-                    }
-
-                    while (true)
-                    {
-                        Thread.Sleep(1000);
-
-                        var cookie = driver.Manage().Cookies.GetCookieNamed("auth-token");
-
-                        if (!string.IsNullOrEmpty(cookie?.Value))
-                        {
-                            StoreCookie(new Tuple<string, List<Cookie>>(itm.LoginInfo.Username,
-                                new List<Cookie>(driver.Manage().Cookies.AllCookies)));
-
-                            break;
-                        }
+                        //ignored
                     }
                 }
-
-                var startDate = DateTime.Now;
-
-                IncreaseViewer?.Invoke();
-
-                try
+                else if (itm.Service == StreamService.Service.Youtube)
                 {
-                    bool firstPage = false;
+                    Thread.Sleep(3000);
+
+                    try
+                    {
+                        var play = driver.FindElement(By.XPath(
+                            "/html/body/ytd-app/div/ytd-page-manager/ytd-watch-flexy/div[5]/div[1]/div/div[1]/div/div/div/ytd-player/div/div/div[5]/button"));
+
+                        play?.Click();
+                    }
+                    catch (Exception)
+                    {
+                        //ignored
+                    }
+
+
+                    #region Quality
+                    //Thread.Sleep(5500);
+
+                    //var skip = driver.FindElements(By.ClassName("ytp-ad-skip-button-container"));
+                    //skip.FirstOrDefault()?.Click();
+
+                    //Thread.Sleep(1000);
+
+                    //var settings = driver.FindElements(By.ClassName("ytp-settings-button"));
+                    //settings.FirstOrDefault()?.Click();
+
+                    //Thread.Sleep(2000);
+
+                    //var qualityButton = driver.FindElement(By.XPath(
+                    //    "/html/body/ytd-app/div/ytd-page-manager/ytd-watch-flexy/div[5]/div[1]/div/div[1]/div/div/div/ytd-player/div/div/div[27]/div/div/div[3]/div[3]"));
+
+                    //if (qualityButton != null)
+                    //{
+                    //    qualityButton.Click();
+                    //}
+
+                    //Thread.Sleep(1000);
+
+                    //var lowestQuality = driver.FindElement(By.XPath(
+                    //    "/html/body/ytd-app/div/ytd-page-manager/ytd-watch-flexy/div[5]/div[1]/div/div[1]/div/div/div/ytd-player/div/div/div[27]/div/div/div[3]/div[3]"));
+
+                    //lowestQuality?.Click();
+                    #endregion
+
+                    //if (itm.LoginInfo != null)
+                    //{
+                    //    #region Login
+
+                    //    var signIn = driver.FindElement(By.XPath(
+                    //        "/html/body/ytd-app/div/div/ytd-masthead/div[3]/div[3]/div[2]/ytd-button-renderer/a/tp-yt-paper-button"));
+
+                    //    signIn?.Click();
+
+                    //    Thread.Sleep(3000);
+
+                    //    var usernameBox = driver.FindElement(By.XPath(
+                    //        "/html/body/div[1]/div[1]/div[2]/div/div[2]/div/div/div[2]/div/div[1]/div/form/span/section/div/div/div[1]/div/div[1]/div/div[1]/input"));
+
+                    //    usernameBox.SendKeys(itm.LoginInfo.Username);
+
+                    //    Thread.Sleep(1000);
+
+                    //    var next = driver.FindElement(By.XPath(
+                    //        "/html/body/div[1]/div[1]/div[2]/div/div[2]/div/div/div[2]/div/div[2]/div/div[1]/div/div/button/span"));
+
+                    //    next?.Click();
+
+                    //    Thread.Sleep(3000);
+
+                    //    var passwordBox = driver.FindElement(By.XPath(
+                    //        "/html/body/div[1]/div[1]/div[2]/div/div[2]/div/div/div[2]/div/div[1]/div/form/span/section/div/div/div[1]/div[1]/div/div/div/div/div[1]/div/div[1]/input"));
+
+                    //    passwordBox.SendKeys(itm.LoginInfo.Password);
+
+                    //    Thread.Sleep(1000);
+
+                    //    next = driver.FindElement(By.XPath(
+                    //        "/html/body/div[1]/div[1]/div[2]/div/div[2]/div/div/div[2]/div/div[2]/div/div[1]/div/div/button/span"));
+
+                    //    next?.Click();
+
+                    //    #endregion
+                    //}
 
                     while (true)
                     {
@@ -466,11 +683,11 @@ namespace BotCore
                             if (firstPage)
                             {
                                 var liveViewers = driver.FindElement(By.XPath(
-                                    "/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[1]/div[1]/div[2]/div/div[1]/div/div/div/div[2]/div[2]/div[2]/div/div/div[1]/div[1]/div/p/span"));
+                                    "/html/body/ytd-app/div/ytd-page-manager/ytd-watch-flexy/div[5]/div[1]/div/div[6]/div[2]/ytd-video-primary-info-renderer/div/div/div[1]/div[1]/ytd-video-view-count-renderer/span[1]"));
 
                                 if (liveViewers != null)
                                 {
-                                    LiveViewer.Invoke(liveViewers.Text);
+                                    LiveViewer.Invoke(liveViewers.Text.Split(' ')[0]);
                                     Thread.Sleep(5000);
                                 }
                             }
@@ -480,77 +697,6 @@ namespace BotCore
                             LiveViewer.Invoke("N/A");
                         }
 
-                        Thread.Sleep(1000);
-
-                        try
-                        {
-                            if (!matureClicked && matureCheckCount < 5)
-                            {
-                                try
-                                {
-                                    var mature = driver.FindElement(By.XPath(
-                                        "/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div/div[5]/div/div[3]/button/div/div"));
-
-                                    mature?.Click();
-                                    matureClicked = true;
-                                    matureCheckCount++;
-                                }
-                                catch
-                                {
-                                    //ignored because there is no mature button
-                                }
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            // ignored
-                        }
-
-                        try
-                        {
-                            if (!cacheClicked && cacheCheckCount < 5)
-                            {
-                                try
-                                {
-                                    var cache = driver.FindElement(By.XPath(
-                                        "/html/body/div[1]/div/div[2]/div[1]/div/div/div[3]/button/div/div/div"));
-
-                                    if (cache != null)
-                                    {
-                                        cache.Click();
-                                        cacheClicked = true;
-                                    }
-
-                                    cacheCheckCount++;
-                                }
-                                catch (Exception)
-                                {
-                                    //ignored because there is no cache button
-                                }
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            // ignored
-                        }
-
-
-                        try
-                        {
-                            var connectionError = driver.FindElement(By.XPath(
-                                "//*[@id=\"root\"]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div[5]/div/div[3]/button/div/div[2]"));
-
-                            if (connectionError != null)
-                            {
-                                Actions actions = new Actions(driver);
-
-                                actions.Click(connectionError).Perform();
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            //ignored
-                        }
 
                         if (_refreshInterval != 0 && DateTime.Now - startDate > TimeSpan.FromMinutes(_refreshInterval))
                         {
@@ -559,10 +705,6 @@ namespace BotCore
                             startDate = DateTime.Now;
                         }
                     }
-                }
-                catch (Exception)
-                {
-                    //ignored
                 }
 
                 try
