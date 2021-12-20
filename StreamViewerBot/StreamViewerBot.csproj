@@ -17,6 +17,7 @@
     <None Remove="Images\favicon.ico" />
     <None Remove="Images\icon_onwhite.png" />
     <None Remove="Images\info.png" />
+    <None Remove="Images\twitch.png" />
     <None Remove="Images\twitter.png" />
     <None Remove="Images\viewers.png" />
     <None Remove="Images\webshare.png" />
@@ -53,6 +54,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Images\info.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\twitch.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Images\twitter.png">

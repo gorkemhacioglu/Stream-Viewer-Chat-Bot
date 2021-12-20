@@ -11,15 +11,15 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using BotCore;
 using BotCore.Dto;
-using TwitchBotUI.Properties;
+using StreamViewerBot.Properties;
 
-namespace TwitchBotUI
+namespace StreamViewerBot
 {
     public partial class MainScreen : Form
     {
         public bool Start;
 
-        private static string _productVersion = "2.5.2";
+        private static string _productVersion = "2.6";
 
         private static string _proxyListDirectory = "";
 
@@ -29,11 +29,11 @@ namespace TwitchBotUI
 
         CancellationTokenSource _tokenSource = new CancellationTokenSource();
 
-        readonly CancellationToken _token = new CancellationToken();
-
         readonly Configuration _configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
         readonly Dictionary<string, string> _dataSourceQuality = new Dictionary<string, string>();
+
+        readonly Dictionary<string, StreamService.Service> _serviceTypes = new Dictionary<string, StreamService.Service>();
 
         private readonly ConcurrentQueue<LoginDto> _lstLoginInfo = new ConcurrentQueue<LoginDto>();
 
@@ -58,9 +58,9 @@ namespace TwitchBotUI
 
             #region StreamQuality
 
-            FillQualityItems();
+            FillComboBoxes();
 
-            void FillQualityItems()
+            void FillComboBoxes()
             {
                 _dataSourceQuality.Add("Source", string.Empty);
                 _dataSourceQuality.Add("480p", "{\"default\":\"480p30\"}");
@@ -71,6 +71,14 @@ namespace TwitchBotUI
                 lstQuality.DisplayMember = "Key";
                 lstQuality.DataSource = new BindingSource(_dataSourceQuality, null);
                 lstQuality.SelectedIndex = _dataSourceQuality.Count - 1;
+
+                _serviceTypes.Add("Twitch", StreamService.Service.Twitch);
+                _serviceTypes.Add("YouTube", StreamService.Service.Youtube);
+
+                lstserviceType.ValueMember = "Value";
+                lstserviceType.DisplayMember = "Key";
+                lstserviceType.DataSource = new BindingSource(_serviceTypes, null);
+                lstserviceType.SelectedIndex = 0;
             }
             #endregion
         }
@@ -120,7 +128,7 @@ namespace TwitchBotUI
             {
                 var args = "https://mytwitchbot.com/Download/win-x64.zip" + "*" +
                            AppDomain.CurrentDomain.BaseDirectory.Replace(' ', '?') + "*" +
-                           Path.Combine(AppDomain.CurrentDomain.BaseDirectory.Replace(' ', '?'), "TwitchBotUI.exe");
+                           Path.Combine(AppDomain.CurrentDomain.BaseDirectory.Replace(' ', '?'), "StreamViewerBot.exe");
                 try
                 {
                     Directory.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AutoUpdaterOld"), true);
@@ -299,7 +307,21 @@ namespace TwitchBotUI
                 quality = lstQuality.SelectedValue.ToString();
             }
 
-            Core.Start(_proxyListDirectory, txtStreamUrl.Text, _headless, browserLimit, Convert.ToInt32(numRefreshMinutes.Value), quality, _lstLoginInfo, checkLowCpuRam.Checked);
+            var serviceType = StreamService.Service.Twitch;
+
+            if (lstserviceType.InvokeRequired)
+            {
+                lstQuality.BeginInvoke(new Action(() =>
+                {
+                    serviceType = (StreamService.Service)lstserviceType.SelectedValue;
+                }));
+            }
+            else
+            {
+                serviceType = (StreamService.Service)lstserviceType.SelectedValue;
+            }
+
+            Core.Start(_proxyListDirectory, txtStreamUrl.Text, serviceType, _headless, browserLimit, Convert.ToInt32(numRefreshMinutes.Value), quality, _lstLoginInfo, checkLowCpuRam.Checked);
         }
 
 
