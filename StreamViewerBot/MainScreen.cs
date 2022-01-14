@@ -19,7 +19,7 @@ namespace StreamViewerBot
     {
         public bool Start;
 
-        private static string _productVersion = "2.6";
+        private static string _productVersion = "2.6.1";
 
         private static string _proxyListDirectory = "";
 
