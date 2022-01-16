@@ -3,9 +3,11 @@
 
 Give us a star, if you liked it!
 
+Supports: Twitch | Youtube | Facebook Live | Twitter | DLive | Nimo Tv
+
 *Please run StreamViewerBot.exe after update*
 
-![alt text](https://mytwitchbot.com/images/ui2_6.png)
+![alt text](https://mytwitchbot.com/images/ui2_7.png)
 
 **[Download for Windows x64](http://mytwitchbot.com/Download/win-x64.zip)**
 
