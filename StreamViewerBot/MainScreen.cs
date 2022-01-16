@@ -23,7 +23,7 @@ namespace StreamViewerBot
 
         private static string _proxyListDirectory = "";
 
-        private static bool _headless = false;
+        private static bool _headless;
 
         private bool _withLoggedIn = false;
 
@@ -74,6 +74,10 @@ namespace StreamViewerBot
 
                 _serviceTypes.Add("Twitch", StreamService.Service.Twitch);
                 _serviceTypes.Add("YouTube", StreamService.Service.Youtube);
+                _serviceTypes.Add("DLive", StreamService.Service.DLive);
+                _serviceTypes.Add("Nimo Tv", StreamService.Service.NimoTv);
+                _serviceTypes.Add("Twitter",StreamService.Service.Twitter);
+                _serviceTypes.Add("Facebook", StreamService.Service.Facebook);
 
                 lstserviceType.ValueMember = "Value";
                 lstserviceType.DisplayMember = "Key";
@@ -639,6 +643,19 @@ namespace StreamViewerBot
         private void picVulture_MouseLeave(object sender, EventArgs e)
         {
             picVulture.BackColor = Color.Transparent;
+        }
+
+        private void lstserviceType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ComboBox comboBox = (ComboBox)sender;
+
+            switch (comboBox.SelectedValue)
+            {
+                case StreamService.Service.Facebook:
+                    MessageBox.Show(
+                        GetFromResource("MainScreen_LoginRequiredForFacebook"));
+                    break;
+            }
         }
     }
 }

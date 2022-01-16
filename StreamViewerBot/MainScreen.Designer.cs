@@ -67,9 +67,6 @@
             this.lblNeedCloudServer = new System.Windows.Forms.Label();
             this.picWebshare = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.picFacebook = new System.Windows.Forms.PictureBox();
-            this.picTwitter = new System.Windows.Forms.PictureBox();
-            this.lblSoon = new System.Windows.Forms.Label();
             this.picBinance = new System.Windows.Forms.PictureBox();
             this.lblSupport = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -85,8 +82,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.picBotViewer)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tipLiveViewer)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picWebshare)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picFacebook)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picTwitter)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picBinance)).BeginInit();
             this.SuspendLayout();
             // 
@@ -193,7 +188,7 @@
             // 
             this.picVulture.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("picVulture.BackgroundImage")));
             this.picVulture.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.picVulture.Location = new System.Drawing.Point(252, 337);
+            this.picVulture.Location = new System.Drawing.Point(217, 337);
             this.picVulture.Name = "picVulture";
             this.picVulture.Size = new System.Drawing.Size(119, 39);
             this.picVulture.TabIndex = 13;
@@ -428,7 +423,7 @@
             // 
             this.lblNeedCloudServer.AutoSize = true;
             this.lblNeedCloudServer.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point);
-            this.lblNeedCloudServer.Location = new System.Drawing.Point(251, 319);
+            this.lblNeedCloudServer.Location = new System.Drawing.Point(224, 319);
             this.lblNeedCloudServer.Name = "lblNeedCloudServer";
             this.lblNeedCloudServer.Size = new System.Drawing.Size(105, 15);
             this.lblNeedCloudServer.TabIndex = 0;
@@ -438,7 +433,7 @@
             // 
             this.picWebshare.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("picWebshare.BackgroundImage")));
             this.picWebshare.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.picWebshare.Location = new System.Drawing.Point(117, 337);
+            this.picWebshare.Location = new System.Drawing.Point(51, 337);
             this.picWebshare.Name = "picWebshare";
             this.picWebshare.Size = new System.Drawing.Size(119, 39);
             this.picWebshare.TabIndex = 32;
@@ -451,41 +446,11 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point);
-            this.label1.Location = new System.Drawing.Point(117, 319);
+            this.label1.Location = new System.Drawing.Point(52, 319);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(119, 15);
             this.label1.TabIndex = 33;
             this.label1.Text = "Need private proxies?";
-            // 
-            // picFacebook
-            // 
-            this.picFacebook.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("picFacebook.BackgroundImage")));
-            this.picFacebook.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.picFacebook.Location = new System.Drawing.Point(66, 341);
-            this.picFacebook.Name = "picFacebook";
-            this.picFacebook.Size = new System.Drawing.Size(40, 28);
-            this.picFacebook.TabIndex = 35;
-            this.picFacebook.TabStop = false;
-            // 
-            // picTwitter
-            // 
-            this.picTwitter.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("picTwitter.BackgroundImage")));
-            this.picTwitter.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.picTwitter.Location = new System.Drawing.Point(17, 341);
-            this.picTwitter.Name = "picTwitter";
-            this.picTwitter.Size = new System.Drawing.Size(40, 28);
-            this.picTwitter.TabIndex = 36;
-            this.picTwitter.TabStop = false;
-            // 
-            // lblSoon
-            // 
-            this.lblSoon.AutoSize = true;
-            this.lblSoon.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lblSoon.Location = new System.Drawing.Point(17, 314);
-            this.lblSoon.Name = "lblSoon";
-            this.lblSoon.Size = new System.Drawing.Size(49, 19);
-            this.lblSoon.TabIndex = 37;
-            this.lblSoon.Text = "Soon...";
             // 
             // picBinance
             // 
@@ -524,6 +489,7 @@
             this.lstserviceType.Size = new System.Drawing.Size(79, 23);
             this.lstserviceType.TabIndex = 41;
             this.lstserviceType.Tag = "";
+            this.lstserviceType.SelectedIndexChanged += new System.EventHandler(this.lstserviceType_SelectedIndexChanged);
             // 
             // MainScreen
             // 
@@ -534,9 +500,6 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.lblSupport);
             this.Controls.Add(this.picBinance);
-            this.Controls.Add(this.lblSoon);
-            this.Controls.Add(this.picTwitter);
-            this.Controls.Add(this.picFacebook);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.picWebshare);
             this.Controls.Add(this.lblNeedCloudServer);
@@ -591,8 +554,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.picBotViewer)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.tipLiveViewer)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picWebshare)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picFacebook)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picTwitter)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picBinance)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -638,9 +599,6 @@
         private System.Windows.Forms.Label lblNeedCloudServer;
         private System.Windows.Forms.PictureBox picWebshare;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.PictureBox picFacebook;
-        private System.Windows.Forms.PictureBox picTwitter;
-        private System.Windows.Forms.Label lblSoon;
         private System.Windows.Forms.PictureBox picBinance;
         private System.Windows.Forms.Label lblSupport;
         private System.Windows.Forms.Label label2;
