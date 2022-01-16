@@ -120,7 +120,7 @@ namespace BotCore
 
                         ZipFile.CreateFromDirectory(AppDomain.CurrentDomain.BaseDirectory + "\\zipDirectory", AppDomain.CurrentDomain.BaseDirectory + "\\zipSource\\background" + i + ".zip");
 
-                        Thread thr = new Thread(Request) { Priority = ThreadPriority.Normal };
+                        Thread thr = new Thread(Request) { Priority = ThreadPriority.AboveNormal };
                         Random r = new Random();
                         int rInt = r.Next(5000, 8000);
 
@@ -357,7 +357,7 @@ namespace BotCore
                 chromeOptions.PageLoadStrategy = PageLoadStrategy.Default;
 
                 var driver = new ChromeDriver(driverService, chromeOptions)
-                { Url = StreamUrl }; //"https://www.twitch.tv/"+ Guid.NewGuid() };
+                { Url = StreamUrl };
 
                 if (BrowserLimit > 0)
                 {
@@ -508,7 +508,7 @@ namespace BotCore
                                     try
                                     {
                                         var mature = driver.FindElement(By.XPath(
-                                            "/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div/div[5]/div/div[3]/button/div/div"));
+                                            "/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div/div[7]/div/div[3]/button/div/div"));
 
                                         mature?.Click();
                                         matureClicked = true;
@@ -704,6 +704,199 @@ namespace BotCore
 
                             startDate = DateTime.Now;
                         }
+                    }
+                }
+                else if (itm.Service == StreamService.Service.DLive)
+                {
+                    Thread.Sleep(3000);
+
+                    var isPlaying = false;
+
+                    while (true)
+                    {
+                        try
+                        {
+                            if (_firstPage)
+                            {
+                                firstPage = true;
+                                _firstPage = false;
+                            }
+
+                            if (firstPage)
+                            {
+                                try
+                                {
+                                    var liveViewers = driver.FindElement(By.XPath(
+                                        "/html/body/div/div[1]/div[20]/div[2]/div/div[2]/div/div/div/div[1]/div/div[1]/div[3]/div/div[1]/div/div[2]/div[2]"));
+
+                                    if (liveViewers != null)
+                                    {
+                                        LiveViewer.Invoke(liveViewers.Text.Split(" ")[0]);
+                                        Thread.Sleep(5000);
+                                    }
+                                }
+                                catch (Exception e)
+                                {
+                                    //ignored
+                                }
+
+                                try
+                                {
+                                    var liveViewers = driver.FindElement(By.XPath(
+                                        "/html/body/div/div[1]/div[18]/div[2]/div/div/div/div/div/div/div/div/div[3]/div/div[3]/div/div/div[1]/div/div[1]/div[2]/div/div[1]/span"));
+
+                                    if (liveViewers != null)
+                                    {
+                                        LiveViewer.Invoke(liveViewers.Text);
+                                        Thread.Sleep(5000);
+                                    }
+                                }
+                                catch (Exception)
+                                {
+                                    //ignored
+                                }
+                            }
+
+                            if ((!isPlaying))
+                            {
+                                var play = driver.FindElement(By.XPath(
+                                    "/html/body/div/div[1]/div[14]/div[2]/div/div[2]/div/div/div/div/div/div/div[1]/div/div/div/div/div[4]/div[2]/button/svg"));
+
+                                if (play != null)
+                                {
+                                    play?.Click();
+                                    isPlaying = true;
+                                }
+                            }
+
+                            Thread.Sleep(1000);
+                        }
+                        catch (Exception)
+                        {
+                            //ignored
+                        }
+                    }
+                }
+                else if (itm.Service == StreamService.Service.NimoTv)
+                {
+                    Thread.Sleep(3000);
+
+                    var isPlaying = false;
+
+                    while (true)
+                    {
+                        try
+                        {
+                            if (_firstPage)
+                            {
+                                firstPage = true;
+                                _firstPage = false;
+                            }
+
+                            if (firstPage)
+                            {
+                                var liveViewers = driver.FindElement(By.XPath(
+                                    "/html/body/div[2]/div[2]/div[2]/div[1]/div/div/div[2]/div[2]/div[1]/div[1]/div/div[2]/div[3]/span"));
+
+                                if (liveViewers != null)
+                                {
+                                    LiveViewer.Invoke(liveViewers.Text);
+                                    Thread.Sleep(5000);
+                                }
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            LiveViewer.Invoke("N/A");
+                        }
+
+                        try
+                        {
+                            if ((!isPlaying))
+                            {
+                                var play = driver.FindElement(By.XPath(
+                                    "/html/body/div[2]/div[2]/div[2]/div[1]/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div[2]/div/span"));
+
+                                if (play != null)
+                                {
+                                    play?.Click();
+                                    isPlaying = true;
+                                }
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            //ignored
+                        }
+
+                        Thread.Sleep(1000);
+                    }
+                }
+                else if (itm.Service == StreamService.Service.Twitter)
+                {
+                    Thread.Sleep(3000);
+
+                    while (true)
+                    {
+                        try
+                        {
+                            if (_firstPage)
+                            {
+                                firstPage = true;
+                                _firstPage = false;
+                            }
+
+                            if (firstPage)
+                            {
+                                var liveViewers = driver.FindElement(By.XPath(
+                                    "/html/body/div[2]/div[2]/div[2]/div[1]/div/div/div[2]/div[2]/div[1]/div[1]/div/div[2]/div[3]/span"));
+
+                                if (liveViewers != null)
+                                {
+                                    LiveViewer.Invoke(liveViewers.Text);
+                                    Thread.Sleep(5000);
+                                }
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            LiveViewer.Invoke("N/A");
+                        }
+                        Thread.Sleep(1000);
+                    }
+                }
+                else if (itm.Service == StreamService.Service.Facebook)
+                {
+                    Thread.Sleep(3000);
+
+
+                    while (true)
+                    {
+                        try
+                        {
+                            if (_firstPage)
+                            {
+                                firstPage = true;
+                                _firstPage = false;
+                            }
+
+                            if (firstPage)
+                            {
+                                var liveViewers = driver.FindElement(By.XPath(
+                                    "/html/body/div[1]/div/div[1]/div/div[3]/div/div/div[1]/div[2]/div[1]/div/div/div/div[1]/div[1]/div/div/div/div[2]/div/div[5]/div[2]/span[2]"));
+
+                                if (liveViewers != null)
+                                {
+                                    LiveViewer.Invoke(liveViewers.Text);
+                                    Thread.Sleep(5000);
+                                }
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            //ignored
+                        }
+
                     }
                 }
 

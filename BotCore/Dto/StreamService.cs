@@ -12,7 +12,11 @@ namespace BotCore.Dto
         public enum Service
         {
             Twitch,
-            Youtube
+            Youtube,
+            DLive,
+            NimoTv,
+            Twitter,
+            Facebook
         }
     }
 }
