@@ -331,6 +331,13 @@ namespace BotCore
 
                 var chromeOptions = new ChromeOptions { Proxy = proxy, AcceptInsecureCertificates = true };
 
+                var localChrome = AppDomain.CurrentDomain.BaseDirectory + "\\Extensions\\LocalChrome\\chrome.exe";
+                if (File.Exists(localChrome))
+                {
+                    chromeOptions.BinaryLocation = localChrome;
+                }
+
+
                 if (_useLowCpuRam)
                 {
                     chromeOptions.AddExtension(AppDomain.CurrentDomain.BaseDirectory +
