@@ -10,7 +10,8 @@ Supports: **Twitch | Youtube | Facebook Live | Twitter | DLive | Nimo Tv**
 **[Download for Windows x64](http://mytwitchbot.com/Download/win-x64.zip)**
 
 You must have **private** proxies. You can buy it from [**HERE**](https://www.webshare.io/?referral_code=ceuygyx4sir2)
- at an affordable price.
+ at an affordable price. ***Please don't forget to change your proxy types to private. Free proxies that system will give you will not work, because these are not private proxies.***
+
 Create a .txt file with your proxies and it must be in this format;
 
 IPADRESS:PORT:USERNAME:PASSWORD<br />
