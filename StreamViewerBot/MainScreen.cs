@@ -103,7 +103,7 @@ namespace StreamViewerBot
         {
             try
             {
-                var webRequest = WebRequest.Create(@"https://mytwitchbot.com/Download/latestVersion.txt");
+                var webRequest = WebRequest.Create(@"https://streamviewerbot.com/Download/latestVersion.txt");
                 webRequest.Headers.Add("Accept: text/html, application/xhtml+xml, */*");
                 webRequest.Headers.Add("User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
                 webRequest.Timeout = 5000;
@@ -130,7 +130,7 @@ namespace StreamViewerBot
 
             if (dialogResult == DialogResult.Yes)
             {
-                var args = "https://mytwitchbot.com/Download/win-x64.zip" + "*" +
+                var args = "https://streamviewerbot.com/Download/win-x64.zip" + "*" +
                            AppDomain.CurrentDomain.BaseDirectory.Replace(' ', '?') + "*" +
                            Path.Combine(AppDomain.CurrentDomain.BaseDirectory.Replace(' ', '?'), "StreamViewerBot.exe");
                 try
