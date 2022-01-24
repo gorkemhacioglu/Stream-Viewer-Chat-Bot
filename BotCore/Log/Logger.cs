@@ -8,7 +8,7 @@ namespace BotCore.Log
     public class Logger
     {
 
-        public static void CreateLogger()
+        public static void CreateLogger(string appId)
         {
             Serilog.Log.Logger = new LoggerConfiguration()
                 .WriteTo.NewRelicLogs(
@@ -16,6 +16,7 @@ namespace BotCore.Log
                     applicationName: "ViewerBot",
                     insertKey: "NRII-3nbcrMjHHs0RrT0GhRNqpd16YVMFHdcI")
                 .MinimumLevel.Verbose()
+                .Enrich.WithProperty("appId",appId)
                 .CreateLogger();
         }
     }

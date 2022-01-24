@@ -19,11 +19,13 @@ namespace StreamViewerBot
     {
         public bool Start;
 
-        private static string _productVersion = "2.7.1";
+        private static string _productVersion = "2.7.2";
 
         private static string _proxyListDirectory = "";
 
         private static bool _headless;
+
+        private string _appId = "";
 
         private bool _withLoggedIn = false;
 
@@ -45,7 +47,15 @@ namespace StreamViewerBot
         {
             InitializeComponent();
 
-            BotCore.Log.Logger.CreateLogger();
+            _appId = _configuration.AppSettings.Settings["appId"].Value;
+
+            if (string.IsNullOrEmpty(_appId))
+            {
+                _configuration.AppSettings.Settings["appId"].Value = Guid.NewGuid().ToString();
+                _configuration.Save(ConfigurationSaveMode.Modified);
+            }
+
+            BotCore.Log.Logger.CreateLogger(_appId);
 
             Text += " v" + _productVersion;
 
@@ -436,6 +446,7 @@ namespace StreamViewerBot
 
             try
             {
+                
                 Serilog.Log.Logger.Information(exception.Message.ToString());
             }
             catch (Exception)

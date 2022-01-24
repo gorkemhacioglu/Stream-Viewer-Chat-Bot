@@ -742,7 +742,7 @@ namespace BotCore
                                         Thread.Sleep(5000);
                                     }
                                 }
-                                catch (Exception e)
+                                catch (Exception)
                                 {
                                     //ignored
                                 }
