@@ -19,7 +19,7 @@ namespace StreamViewerBot.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -121,7 +121,7 @@ namespace StreamViewerBot.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Enable IP authorization to use your proxies in headless mode.
+        ///   Looks up a localized string similar to Enable IP authorization to use your proxies in headless mode, otherwise your viewers will not appear..
         /// </summary>
         internal static string MainScreen_checkHeadless_CheckedChanged_Enable_IP_authorization_to_use_your_proxies_in_headless_mode {
             get {
@@ -172,6 +172,16 @@ namespace StreamViewerBot.Properties {
         internal static string MainScreen_UpdateBot_Sorry__updater_failed_ {
             get {
                 return ResourceManager.GetString("MainScreen_UpdateBot_Sorry__updater_failed_", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap validating {
+            get {
+                object obj = ResourceManager.GetObject("validating", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         

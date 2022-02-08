@@ -11,7 +11,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using BotCore;
 using BotCore.Dto;
+using Newtonsoft.Json;
 using StreamViewerBot.Properties;
+using StreamViewerBot.UI;
 
 namespace StreamViewerBot
 {
@@ -19,7 +21,7 @@ namespace StreamViewerBot
     {
         public bool Start;
 
-        private static string _productVersion = "2.7.2";
+        private static string _productVersion = "2.7.3";
 
         private static string _proxyListDirectory = "";
 
@@ -42,6 +44,9 @@ namespace StreamViewerBot
         private Size _loginSize = new Size();
 
         public Core Core = new Core();
+
+        private ValidatingForm _validatingForm = new ValidatingForm();
+
 
         public MainScreen()
         {
@@ -86,7 +91,7 @@ namespace StreamViewerBot
                 _serviceTypes.Add("YouTube", StreamService.Service.Youtube);
                 _serviceTypes.Add("DLive", StreamService.Service.DLive);
                 _serviceTypes.Add("Nimo Tv", StreamService.Service.NimoTv);
-                _serviceTypes.Add("Twitter",StreamService.Service.Twitter);
+                _serviceTypes.Add("Twitter", StreamService.Service.Twitter);
                 _serviceTypes.Add("Facebook", StreamService.Service.Facebook);
 
                 lstserviceType.ValueMember = "Value";
@@ -133,6 +138,119 @@ namespace StreamViewerBot
             }
             return false;
         }
+
+        private void CheckProxiesArePrivateOrNot()
+        {
+            try
+            {
+                var error = false;
+
+                var nonPrivateProxies = new List<string>();
+
+                var _file = new StreamReader(_proxyListDirectory);
+
+                string line;
+
+                while ((line = _file.ReadLine()) != null)
+                {
+                    try
+                    {
+                        var webRequest = WebRequest.Create(@"https://ipgeolocation.abstractapi.com/v1/?api_key=29f41b2e9e914f14af81ca80a66d6980");
+                        webRequest.Headers.Add("Accept: text/html, application/xhtml+xml, */*");
+                        webRequest.Headers.Add("User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
+
+                        var lineArr = line.Split(':');
+
+                        if (lineArr.Length != 4)
+                        {
+                            MessageBox.Show(new Form() { TopMost = true }, "Proxy format must be in this format;\r\nIPADDRESS:PORT:USERNAME:PASSWORD\r\nFix and try again.");
+                            error = true;
+                            break;
+                        }
+
+                        IWebProxy proxy = new WebProxy(lineArr[0], Convert.ToInt32(lineArr[1]));
+                        string proxyUsername = lineArr[2];
+                        string proxyPassword = lineArr[3];
+                        proxy.Credentials = new NetworkCredential(proxyUsername, proxyPassword);
+                        webRequest.Proxy = proxy;
+
+                        webRequest.Timeout = 2000;
+                        using var response = webRequest.GetResponse();
+                        using var content = response.GetResponseStream();
+                        if (content != null)
+                        {
+                            using var reader = new StreamReader(content);
+                            var json = reader.ReadToEnd();
+                            var data = JsonConvert.DeserializeObject<ProxyResponseDto.Root>(json);
+                            if (GetIPAddress() == data.ip_address)
+                            {
+                                nonPrivateProxies.Add(line);
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        nonPrivateProxies.Add(line);
+                    }
+
+                }
+
+                if (_validatingForm.InvokeRequired)
+                {
+                    _validatingForm.BeginInvoke(new Action(() =>
+                    {
+                        _validatingForm.Close();
+
+                    }));
+                }
+                else
+                {
+                    _validatingForm.Close();
+                }
+
+                _file.Dispose();
+
+                if (nonPrivateProxies.Count > 0)
+                {
+                    var proxyDisplayer = new ProxyDisplayer(nonPrivateProxies);
+                    proxyDisplayer.Show();
+                    error = true;
+                }
+
+                if(!error)
+                    MessageBox.Show("Proxies are working OK!");
+
+                string GetIPAddress()
+                {
+                    String address = "";
+                    WebRequest request = WebRequest.Create("http://checkip.dyndns.org/");
+                    using (WebResponse response = request.GetResponse())
+                    using (StreamReader stream = new StreamReader(response.GetResponseStream()))
+                    {
+                        address = stream.ReadToEnd();
+                    }
+
+                    int first = address.IndexOf("Address: ") + 9;
+                    int last = address.LastIndexOf("</body>");
+                    address = address.Substring(first, last - first);
+
+                    return address;
+                }
+            }
+            catch (Exception exception)
+            {
+                try
+                {
+                    Serilog.Log.Logger.Error(exception.ToString());
+                }
+                catch (Exception)
+                {
+                    //ignored
+                }
+            }
+        }
+
+
 
         private void UpdateBot()
         {
@@ -428,35 +546,15 @@ namespace StreamViewerBot
 
         private void LogInfo(Exception exception)
         {
-            if (logScreen.InvokeRequired)
-            {
-                logScreen.BeginInvoke(new Action(() =>
-                {
-                    logScreen.Text += DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss | ") + exception.Message + "\r\n";
-                    logScreen.SelectionStart = logScreen.TextLength;
-                    logScreen.ScrollToCaret();
-                }));
-            }
-            else
-            {
-                logScreen.Text += DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss | ") + exception.Message + "\r\n";
-                logScreen.SelectionStart = logScreen.TextLength;
-                logScreen.ScrollToCaret();
-            }
-
             try
             {
-                
                 Serilog.Log.Logger.Information(exception.Message.ToString());
             }
             catch (Exception)
             {
                 //ignored
             }
-        }
 
-        private void LogError(Exception exception)
-        {
             if (logScreen.InvokeRequired)
             {
                 logScreen.BeginInvoke(new Action(() =>
@@ -472,7 +570,10 @@ namespace StreamViewerBot
                 logScreen.SelectionStart = logScreen.TextLength;
                 logScreen.ScrollToCaret();
             }
+        }
 
+        private void LogError(Exception exception)
+        {
             try
             {
                 Serilog.Log.Logger.Error(exception.ToString());
@@ -480,6 +581,22 @@ namespace StreamViewerBot
             catch (Exception)
             {
                 //ignored
+            }
+
+            if (logScreen.InvokeRequired)
+            {
+                logScreen.BeginInvoke(new Action(() =>
+                {
+                    logScreen.Text += DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss | ") + exception.Message + "\r\n";
+                    logScreen.SelectionStart = logScreen.TextLength;
+                    logScreen.ScrollToCaret();
+                }));
+            }
+            else
+            {
+                logScreen.Text += DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss | ") + exception.Message + "\r\n";
+                logScreen.SelectionStart = logScreen.TextLength;
+                logScreen.ScrollToCaret();
             }
         }
 
@@ -494,6 +611,11 @@ namespace StreamViewerBot
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
                 _proxyListDirectory = txtProxyList.Text = fileDialog.FileName;
+                _validatingForm = new ValidatingForm();
+                _validatingForm.Show();
+                _validatingForm.Location = new Point(this.Location.X + this.Width / 2 - _validatingForm.Width / 2, this.Location.Y + this.Height / 2 - _validatingForm.Height / 2);
+
+                var t = Task.Run(() => CheckProxiesArePrivateOrNot());
             }
         }
 

@@ -19,6 +19,7 @@
     <None Remove="Images\info.png" />
     <None Remove="Images\twitch.png" />
     <None Remove="Images\twitter.png" />
+    <None Remove="Images\validating.gif" />
     <None Remove="Images\viewers.png" />
     <None Remove="Images\webshare.png" />
     <None Remove="Images\withLoggedInUsers.png" />
@@ -60,6 +61,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Images\twitter.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\validating.gif">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Images\viewers.png">
