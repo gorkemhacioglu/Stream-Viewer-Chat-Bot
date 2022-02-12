@@ -209,6 +209,11 @@
             this.numRefreshMinutes.Size = new System.Drawing.Size(64, 23);
             this.numRefreshMinutes.TabIndex = 14;
             this.numRefreshMinutes.Tag = "Refresh Browsers (Min.)";
+            this.numRefreshMinutes.Value = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
             // 
             // lblRefreshMin
             // 
@@ -489,13 +494,14 @@
             this.lstserviceType.Size = new System.Drawing.Size(79, 23);
             this.lstserviceType.TabIndex = 41;
             this.lstserviceType.Tag = "";
-            this.lstserviceType.SelectedIndexChanged += new System.EventHandler(this.lstserviceType_SelectedIndexChanged);
+            this.lstserviceType.SelectedIndexChanged += new System.EventHandler(this.lstServiceType_SelectedIndexChanged);
             // 
             // MainScreen
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(813, 396);
+            this.Controls.Add(this.checkHeadless);
             this.Controls.Add(this.lstserviceType);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.lblSupport);
@@ -530,7 +536,6 @@
             this.Controls.Add(this.lblBrowserLimit);
             this.Controls.Add(this.browseProxyList);
             this.Controls.Add(this.txtProxyList);
-            this.Controls.Add(this.checkHeadless);
             this.Controls.Add(this.lblStreamUrl);
             this.Controls.Add(this.txtStreamUrl);
             this.Controls.Add(this.startStopButton);

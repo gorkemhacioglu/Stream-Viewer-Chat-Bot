@@ -11,37 +11,45 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using BotCore;
 using BotCore.Dto;
+using BotCore.Log;
+using Serilog;
 using StreamViewerBot.Properties;
+using StreamViewerBot.UI;
 
 namespace StreamViewerBot
 {
     public partial class MainScreen : Form
     {
-        public bool Start;
-
-        private static string _productVersion = "2.7.2";
+        private static readonly string _productVersion = "2.7.3";
 
         private static string _proxyListDirectory = "";
 
         private static bool _headless;
 
-        private string _appId = "";
+        private readonly Configuration _configuration =
+            ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
-        private bool _withLoggedIn = false;
+        private readonly Core _core = new Core();
 
-        CancellationTokenSource _tokenSource = new CancellationTokenSource();
-
-        readonly Configuration _configuration = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-
-        readonly Dictionary<string, string> _dataSourceQuality = new Dictionary<string, string>();
-
-        readonly Dictionary<string, StreamService.Service> _serviceTypes = new Dictionary<string, StreamService.Service>();
+        private readonly Dictionary<string, string> _dataSourceQuality = new Dictionary<string, string>();
 
         private readonly ConcurrentQueue<LoginDto> _lstLoginInfo = new ConcurrentQueue<LoginDto>();
 
-        private Size _loginSize = new Size();
+        private readonly Dictionary<string, StreamService.Service> _serviceTypes =
+            new Dictionary<string, StreamService.Service>();
 
-        public Core Core = new Core();
+        private readonly string _appId = "";
+
+        private Size _loginSize;
+
+        private List<string> _nonPrivateProxies = new List<string>();
+        private bool _start;
+
+        private CancellationTokenSource _tokenSource = new CancellationTokenSource();
+
+        private ValidatingForm _validatingForm = new ValidatingForm();
+
+        private bool _withLoggedIn;
 
         public MainScreen()
         {
@@ -55,7 +63,7 @@ namespace StreamViewerBot
                 _configuration.Save(ConfigurationSaveMode.Modified);
             }
 
-            BotCore.Log.Logger.CreateLogger(_appId);
+            Logger.CreateLogger(_appId);
 
             Text += " v" + _productVersion;
 
@@ -86,7 +94,7 @@ namespace StreamViewerBot
                 _serviceTypes.Add("YouTube", StreamService.Service.Youtube);
                 _serviceTypes.Add("DLive", StreamService.Service.DLive);
                 _serviceTypes.Add("Nimo Tv", StreamService.Service.NimoTv);
-                _serviceTypes.Add("Twitter",StreamService.Service.Twitter);
+                _serviceTypes.Add("Twitter", StreamService.Service.Twitter);
                 _serviceTypes.Add("Facebook", StreamService.Service.Facebook);
 
                 lstserviceType.ValueMember = "Value";
@@ -94,6 +102,7 @@ namespace StreamViewerBot
                 lstserviceType.DataSource = new BindingSource(_serviceTypes, null);
                 lstserviceType.SelectedIndex = 0;
             }
+
             #endregion
         }
 
@@ -115,7 +124,8 @@ namespace StreamViewerBot
             {
                 var webRequest = WebRequest.Create(@"https://streamviewerbot.com/Download/latestVersion.txt");
                 webRequest.Headers.Add("Accept: text/html, application/xhtml+xml, */*");
-                webRequest.Headers.Add("User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
+                webRequest.Headers.Add(
+                    "User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
                 webRequest.Timeout = 5000;
                 using var response = webRequest.GetResponse();
                 using var content = response.GetResponseStream();
@@ -131,12 +141,157 @@ namespace StreamViewerBot
             {
                 return false;
             }
+
             return false;
+        }
+
+        private void CheckProxiesArePrivateOrNot()
+        {
+            var error = false;
+            _nonPrivateProxies = new List<string>();
+
+            try
+            {
+                var proxies = File.ReadAllLines(_proxyListDirectory);
+
+                if (_validatingForm.ProgressBar.InvokeRequired)
+                    lstQuality.BeginInvoke(new Action(() => { _validatingForm.ProgressBar.Maximum = proxies.Length; }));
+                else
+                    _validatingForm.ProgressBar.Maximum = proxies.Length;
+
+                foreach (var line in proxies)
+                {
+                    if (_validatingForm.ProgressBar.InvokeRequired)
+                        lstQuality.BeginInvoke(new Action(() => { _validatingForm.ProgressBar.Value++; }));
+                    else
+                        _validatingForm.ProgressBar.Value++;
+
+                    try
+                    {
+                        var webRequest =
+                            WebRequest.Create(
+                                @"https://ipgeolocation.abstractapi.com/v1/?api_key=29f41b2e9e914f14af81ca80a66d6980");
+                        webRequest.Headers.Add("Accept: text/html, application/xhtml+xml, */*");
+                        webRequest.Headers.Add(
+                            "User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
+
+                        var lineArr = line.Split(':');
+
+                        if (lineArr.Length != 4)
+                        {
+                            MessageBox.Show(new Form {TopMost = true},
+                                "Proxy format must be in this format;\r\nIPADDRESS:PORT:USERNAME:PASSWORD\r\nFix and try again.");
+                            error = true;
+                            break;
+                        }
+
+                        IWebProxy proxy = new WebProxy(lineArr[0], Convert.ToInt32(lineArr[1]));
+                        var proxyUsername = lineArr[2];
+                        var proxyPassword = lineArr[3];
+                        proxy.Credentials = new NetworkCredential(proxyUsername, proxyPassword);
+                        webRequest.Proxy = proxy;
+
+                        webRequest.Timeout = 10000;
+                        using var response = webRequest.GetResponse();
+                        using var content = response.GetResponseStream();
+                        if (content != null)
+                        {
+                            using var reader = new StreamReader(content);
+                            var json = reader.ReadToEnd();
+                            var address = GetIPAddress();
+
+                            var txtIpAddress = "\"ip_address\":\"";
+                            var indexOfIpAddress = json.IndexOf(txtIpAddress);
+
+                            var txtComma = "\",\"";
+                            var indexOfComma = json.IndexOf(txtComma);
+
+                            if (indexOfIpAddress < 0 || indexOfComma < 0)
+                            {
+                                _nonPrivateProxies.Add(line);
+                                continue;
+                            }
+
+                            var requestAddress = json.Substring(indexOfIpAddress + txtIpAddress.Length,
+                                indexOfComma - indexOfIpAddress - txtIpAddress.Length);
+
+                            if (address == requestAddress) _nonPrivateProxies.Add(line);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        _nonPrivateProxies.Add(line);
+                    }
+                }
+
+                if (_validatingForm.InvokeRequired)
+                    _validatingForm.BeginInvoke(new Action(() => { _validatingForm.Close(); }));
+                else
+                    _validatingForm.Close();
+
+                if (_nonPrivateProxies.Count > 0)
+                {
+                    var uiThread = new Thread(() => { Application.Run(new ProxyDisplayer(_nonPrivateProxies)); });
+                    uiThread.SetApartmentState(ApartmentState.STA);
+                    uiThread.Start();
+                    error = true;
+                }
+
+                if (!error) LogToScreen("Proxies are working OK!");
+
+                string GetIPAddress()
+                {
+                    var address = "";
+                    var request = WebRequest.Create("http://checkip.dyndns.org/");
+                    using (var response = request.GetResponse())
+                    using (var stream = new StreamReader(response.GetResponseStream()!))
+                    {
+                        address = stream.ReadToEnd();
+                    }
+
+                    var first = address.IndexOf("Address: ", StringComparison.Ordinal) + 9;
+                    var last = address.LastIndexOf("</body>", StringComparison.Ordinal);
+                    address = address.Substring(first, last - first);
+
+                    return address;
+                }
+            }
+            catch (Exception exception)
+            {
+                try
+                {
+                    Log.Logger.Error(exception.ToString());
+                }
+                catch (Exception)
+                {
+                    //ignored
+                }
+            }
+        }
+
+        private void LogToScreen(string log)
+        {
+            if (logScreen.InvokeRequired)
+            {
+                logScreen.BeginInvoke(new Action(() =>
+                {
+                    logScreen.Text += DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss | ") + log + Environment.NewLine;
+                    logScreen.SelectionStart = logScreen.TextLength;
+                    logScreen.ScrollToCaret();
+                }));
+            }
+            else
+            {
+                logScreen.Text += DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss | ") + log + Environment.NewLine;
+                logScreen.SelectionStart = logScreen.TextLength;
+                logScreen.ScrollToCaret();
+            }
         }
 
         private void UpdateBot()
         {
-            DialogResult dialogResult = MessageBox.Show(GetFromResource("MainScreen_UpdateBot_Do_you_want_to_update_"), GetFromResource("MainScreen_UpdateBot_Newer_version_is_available_"), MessageBoxButtons.YesNo);
+            var dialogResult = MessageBox.Show(GetFromResource("MainScreen_UpdateBot_Do_you_want_to_update_"),
+                GetFromResource("MainScreen_UpdateBot_Newer_version_is_available_"), MessageBoxButtons.YesNo);
 
             if (dialogResult == DialogResult.Yes)
             {
@@ -151,6 +306,7 @@ namespace StreamViewerBot
                 {
                     //ignored
                 }
+
                 try
                 {
                     var tempUpdaterPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AutoUpdaterTemp");
@@ -158,9 +314,10 @@ namespace StreamViewerBot
                     Directory.CreateDirectory(tempUpdaterPath);
                     foreach (var file in Directory.GetFiles(updaterPath))
                     {
-                        string destFile = Path.Combine(tempUpdaterPath, Path.GetFileName(file));
+                        var destFile = Path.Combine(tempUpdaterPath, Path.GetFileName(file));
                         File.Move(file, destFile, true);
                     }
+
                     var filename = Path.Combine(tempUpdaterPath, "AutoUpdater.exe");
                     Process.Start(filename, args);
                     Environment.Exit(0);
@@ -182,7 +339,8 @@ namespace StreamViewerBot
             LogInfo(new Exception("Reading configuration."));
             _proxyListDirectory = txtProxyList.Text = _configuration.AppSettings.Settings["proxyListDirectory"].Value;
             txtStreamUrl.Text = _configuration.AppSettings.Settings["streamUrl"].Value;
-            _headless = checkHeadless.Checked = Convert.ToBoolean(_configuration.AppSettings.Settings["headless"].Value);
+            _headless = checkHeadless.Checked =
+                Convert.ToBoolean(_configuration.AppSettings.Settings["headless"].Value);
             numRefreshMinutes.Value = Convert.ToInt32(_configuration.AppSettings.Settings["refreshInterval"].Value);
             _withLoggedIn = Convert.ToBoolean(_configuration.AppSettings.Settings["withLoggedIn"].Value);
             txtLoginInfos.Text = _configuration.AppSettings.Settings["loginInfos"].Value;
@@ -193,7 +351,9 @@ namespace StreamViewerBot
 
         private void ShowLoggedInPart(bool visibility)
         {
-            ClientSize = visibility ? _loginSize : new Size(_loginSize.Width - txtLoginInfos.Width - (tipLiveViewer.Width / 2), _loginSize.Height);
+            ClientSize = visibility
+                ? _loginSize
+                : new Size(_loginSize.Width - txtLoginInfos.Width - tipLiveViewer.Width / 2, _loginSize.Height);
         }
 
         private void startStopButton_Click(object sender, EventArgs e)
@@ -207,7 +367,6 @@ namespace StreamViewerBot
             _lstLoginInfo.Clear();
 
             if (_withLoggedIn)
-            {
                 foreach (var line in txtLoginInfos.Text.Split("\r\n"))
                 {
                     var parts = line.Split(' ');
@@ -219,55 +378,54 @@ namespace StreamViewerBot
                         return;
                     }
 
-                    _lstLoginInfo.Enqueue(new LoginDto() { Username = parts[0], Password = parts[1] });
+                    _lstLoginInfo.Enqueue(new LoginDto {Username = parts[0], Password = parts[1]});
                 }
-            }
 
-            Start = !Start;
+            _start = !_start;
 
-            if (Start)
+            if (_start)
             {
-                startStopButton.BackgroundImage = Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "\\Images\\button_stop.png");
+                startStopButton.BackgroundImage =
+                    Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "\\Images\\button_stop.png");
                 LogInfo(new Exception("Initializing bot."));
-                Core.CanRun = true;
+                _core.CanRun = true;
                 _tokenSource = new CancellationTokenSource();
 
-                Task.Run(() =>
-                {
-                    RunIt(null);
-                }, _tokenSource.Token);
+                Task.Run(() => { RunIt(null); }, _tokenSource.Token);
 
                 ConfigurationManager.RefreshSection("appSettings");
             }
             else
             {
-                startStopButton.BackgroundImage = Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "\\Images\\button_stopping.png");
+                startStopButton.BackgroundImage =
+                    Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "\\Images\\button_stopping.png");
                 startStopButton.Enabled = false;
                 LogInfo(new Exception("Terminating bot, please wait."));
 
                 _tokenSource.Cancel();
-                Core.CanRun = false;
+                _core.CanRun = false;
 
                 try
                 {
-                    Core.Stop();
+                    _core.Stop();
                 }
                 catch (Exception)
                 {
                     LogInfo(new Exception("Termination error. (Ignored)"));
                 }
 
-                Core.InitializationError -= ErrorOccurred;
+                _core.InitializationError -= ErrorOccurred;
 
-                Core.LogMessage -= LogMessage;
+                _core.LogMessage -= LogMessage;
 
-                Core.DidItsJob -= DidItsJob;
+                _core.DidItsJob -= DidItsJob;
 
-                Core.IncreaseViewer -= IncreaseViewer;
+                _core.IncreaseViewer -= IncreaseViewer;
 
-                Core.DecreaseViewer -= DecreaseViewer;
+                _core.DecreaseViewer -= DecreaseViewer;
 
-                startStopButton.BackgroundImage = Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "\\Images\\button_start.png");
+                startStopButton.BackgroundImage =
+                    Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "\\Images\\button_start.png");
                 startStopButton.Enabled = true;
             }
         }
@@ -286,117 +444,84 @@ namespace StreamViewerBot
 
             _configuration.Save(ConfigurationSaveMode.Modified);
 
-            LogInfo(new Exception("Configuration saved."));
             LogInfo(new Exception("Bot is starting."));
 
-            Int32.TryParse(txtBrowserLimit.Text, out var browserLimit);
+            int.TryParse(txtBrowserLimit.Text, out var browserLimit);
 
             _headless = checkHeadless.Checked;
 
-            Core.AllBrowsersTerminated += AllBrowsersTerminated;
+            _core.AllBrowsersTerminated += AllBrowsersTerminated;
 
-            Core.InitializationError += ErrorOccurred;
+            _core.InitializationError += ErrorOccurred;
 
-            Core.LogMessage += LogMessage;
+            _core.LogMessage += LogMessage;
 
-            Core.DidItsJob += DidItsJob;
+            _core.DidItsJob += DidItsJob;
 
-            Core.IncreaseViewer += IncreaseViewer;
+            _core.IncreaseViewer += IncreaseViewer;
 
-            Core.DecreaseViewer += DecreaseViewer;
+            _core.DecreaseViewer += DecreaseViewer;
 
-            Core.LiveViewer += SetLiveViewer;
+            _core.LiveViewer += SetLiveViewer;
 
             var quality = string.Empty;
 
             if (lstQuality.InvokeRequired)
-            {
-                lstQuality.BeginInvoke(new Action(() =>
-                {
-                    quality = lstQuality.SelectedValue.ToString();
-                }));
-            }
+                lstQuality.BeginInvoke(new Action(() => { quality = lstQuality.SelectedValue.ToString(); }));
             else
-            {
                 quality = lstQuality.SelectedValue.ToString();
-            }
 
             var serviceType = StreamService.Service.Twitch;
 
             if (lstserviceType.InvokeRequired)
-            {
                 lstQuality.BeginInvoke(new Action(() =>
                 {
-                    serviceType = (StreamService.Service)lstserviceType.SelectedValue;
+                    serviceType = (StreamService.Service) lstserviceType.SelectedValue;
                 }));
-            }
             else
-            {
-                serviceType = (StreamService.Service)lstserviceType.SelectedValue;
-            }
+                serviceType = (StreamService.Service) lstserviceType.SelectedValue;
 
-            Core.Start(_proxyListDirectory, txtStreamUrl.Text, serviceType, _headless, browserLimit, Convert.ToInt32(numRefreshMinutes.Value), quality, _lstLoginInfo, checkLowCpuRam.Checked);
+            _core.Start(_proxyListDirectory, txtStreamUrl.Text, serviceType, _headless, browserLimit,
+                Convert.ToInt32(numRefreshMinutes.Value), quality, _lstLoginInfo, checkLowCpuRam.Checked);
         }
 
 
         private void SetBotViewer(string count)
         {
             if (lblViewer.InvokeRequired)
-            {
-                lblViewer.BeginInvoke(new Action(() =>
-                {
-                    lblViewer.Text = count;
-                }));
-            }
+                lblViewer.BeginInvoke(new Action(() => { lblViewer.Text = count; }));
             else
-            {
                 lblViewer.Text = count;
-            }
         }
 
         private void SetLiveViewer(string count)
         {
             if (lblLiveViewer.InvokeRequired)
-            {
-                lblLiveViewer.BeginInvoke(new Action(() =>
-                {
-                    lblLiveViewer.Text = count;
-                }));
-            }
+                lblLiveViewer.BeginInvoke(new Action(() => { lblLiveViewer.Text = count; }));
             else
-            {
                 lblLiveViewer.Text = count;
-            }
         }
 
         private void DecreaseViewer()
         {
             if (lblViewer.InvokeRequired)
-            {
                 lblViewer.BeginInvoke(new Action(() =>
                 {
                     lblViewer.Text = (Convert.ToInt32(lblViewer.Text) - 1).ToString();
                 }));
-            }
             else
-            {
                 lblViewer.Text = (Convert.ToInt32(lblViewer.Text) - 1).ToString();
-            }
         }
 
         private void IncreaseViewer()
         {
             if (lblViewer.InvokeRequired)
-            {
                 lblViewer.BeginInvoke(new Action(() =>
                 {
                     lblViewer.Text = (Convert.ToInt32(lblViewer.Text) + 1).ToString();
                 }));
-            }
             else
-            {
                 lblViewer.Text = (Convert.ToInt32(lblViewer.Text) + 1).ToString();
-            }
         }
 
         private void ErrorOccurred(Exception exception)
@@ -411,14 +536,15 @@ namespace StreamViewerBot
 
         private void AllBrowsersTerminated()
         {
-            startStopButton.BackgroundImage = Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "\\Images\\button_stop.png");
+            startStopButton.BackgroundImage =
+                Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "\\Images\\button_stop.png");
 
             SetBotViewer("0");
             SetLiveViewer("0");
 
             LogInfo(new Exception("Bot terminated."));
 
-            Core.AllBrowsersTerminated -= AllBrowsersTerminated;
+            _core.AllBrowsersTerminated -= AllBrowsersTerminated;
         }
 
         private void DidItsJob()
@@ -428,64 +554,67 @@ namespace StreamViewerBot
 
         private void LogInfo(Exception exception)
         {
+            try
+            {
+                Log.Logger.Information(exception.Message);
+            }
+            catch (Exception)
+            {
+                //ignored
+            }
+
             if (logScreen.InvokeRequired)
             {
                 logScreen.BeginInvoke(new Action(() =>
                 {
-                    logScreen.Text += DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss | ") + exception.Message + "\r\n";
+                    logScreen.Text += DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss | ") + exception.Message +
+                                      Environment.NewLine;
                     logScreen.SelectionStart = logScreen.TextLength;
                     logScreen.ScrollToCaret();
                 }));
             }
             else
             {
-                logScreen.Text += DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss | ") + exception.Message + "\r\n";
+                logScreen.Text += DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss | ") + exception.Message +
+                                  Environment.NewLine;
                 logScreen.SelectionStart = logScreen.TextLength;
                 logScreen.ScrollToCaret();
-            }
-
-            try
-            {
-                
-                Serilog.Log.Logger.Information(exception.Message.ToString());
-            }
-            catch (Exception)
-            {
-                //ignored
             }
         }
 
         private void LogError(Exception exception)
         {
+            try
+            {
+                Log.Logger.Error(exception.ToString());
+            }
+            catch (Exception)
+            {
+                //ignored
+            }
+
             if (logScreen.InvokeRequired)
             {
                 logScreen.BeginInvoke(new Action(() =>
                 {
-                    logScreen.Text += DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss | ") + exception.Message + "\r\n";
+                    logScreen.Text += DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss | ") + exception.Message +
+                                      Environment.NewLine;
                     logScreen.SelectionStart = logScreen.TextLength;
                     logScreen.ScrollToCaret();
                 }));
             }
             else
             {
-                logScreen.Text += DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss | ") + exception.Message + "\r\n";
+                logScreen.Text += DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss | ") + exception.Message +
+                                  Environment.NewLine;
                 logScreen.SelectionStart = logScreen.TextLength;
                 logScreen.ScrollToCaret();
-            }
-
-            try
-            {
-                Serilog.Log.Logger.Error(exception.ToString());
-            }
-            catch (Exception)
-            {
-                //ignored
             }
         }
 
         private void browseProxyList_Click(object sender, EventArgs e)
         {
-            OpenFileDialog fileDialog = new OpenFileDialog();
+            var fileDialog = new OpenFileDialog();
 
             fileDialog.Filter = "txt files (*.txt)|*.txt";
             fileDialog.FilterIndex = 1;
@@ -494,6 +623,12 @@ namespace StreamViewerBot
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
                 _proxyListDirectory = txtProxyList.Text = fileDialog.FileName;
+                _validatingForm = new ValidatingForm();
+                _validatingForm.Show();
+                _validatingForm.Location = new Point(Location.X + Width / 2 - _validatingForm.Width / 2,
+                    Location.Y + Height / 2 - _validatingForm.Height / 2);
+
+                _ = Task.Run(CheckProxiesArePrivateOrNot);
             }
         }
 
@@ -506,7 +641,7 @@ namespace StreamViewerBot
         {
             try
             {
-                string strCmdLine = "/C explorer \"https://www.vultr.com/?ref=8827163\"";
+                var strCmdLine = "/C explorer \"https://www.vultr.com/?ref=8827163\"";
                 var browserProcess = Process.Start("CMD.exe", strCmdLine);
                 browserProcess?.Close();
             }
@@ -518,14 +653,15 @@ namespace StreamViewerBot
 
         private void picLimitInfo_MouseHover(object sender, EventArgs e)
         {
-            toolTip.SetToolTip(tipLimitInfo, "Feature disabled temporarily.");//"Rotates proxies with limited quantity of browser. Old ones dies, new ones born. 0 means, no limit.");
+            toolTip.SetToolTip(tipLimitInfo,
+                "Feature disabled temporarily."); //"Rotates proxies with limited quantity of browser. Old ones dies, new ones born. 0 means, no limit.");
         }
 
         private void lblProxyList_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             try
             {
-                string strCmdLine = "/C explorer \"https://github.com/gorkemhacioglu/TwitchViewerBot/wiki/Configuration";
+                var strCmdLine = "/C explorer \"https://github.com/gorkemhacioglu/TwitchViewerBot/wiki/Configuration";
                 var browserProcess = Process.Start("CMD.exe", strCmdLine);
                 browserProcess?.Close();
             }
@@ -546,11 +682,13 @@ namespace StreamViewerBot
 
             if (value == "0" || value == string.Empty)
             {
-                lblRefreshMin.Enabled = lblRefreshMin2.Enabled = lblRefreshMin3.Enabled = numRefreshMinutes.Enabled = tipRefreshBrowser.Enabled = true;
+                lblRefreshMin.Enabled = lblRefreshMin2.Enabled =
+                    lblRefreshMin3.Enabled = numRefreshMinutes.Enabled = tipRefreshBrowser.Enabled = true;
             }
             else
             {
-                lblRefreshMin.Enabled = lblRefreshMin2.Enabled = lblRefreshMin3.Enabled = numRefreshMinutes.Enabled = tipRefreshBrowser.Enabled = false;
+                lblRefreshMin.Enabled = lblRefreshMin2.Enabled = lblRefreshMin3.Enabled =
+                    numRefreshMinutes.Enabled = tipRefreshBrowser.Enabled = false;
                 numRefreshMinutes.Value = 0;
                 _withLoggedIn = false;
                 ShowLoggedInPart(false);
@@ -560,16 +698,12 @@ namespace StreamViewerBot
         private void lstQuality_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (lstQuality.InvokeRequired)
-            {
                 lstQuality.BeginInvoke(new Action(() =>
                 {
-                    Core.PreferredQuality = lstQuality.SelectedValue.ToString();
+                    _core.PreferredQuality = lstQuality.SelectedValue.ToString();
                 }));
-            }
             else
-            {
-                Core.PreferredQuality = lstQuality.SelectedValue.ToString();
-            }
+                _core.PreferredQuality = lstQuality.SelectedValue.ToString();
         }
 
         private void streamQuality_MouseHover(object sender, EventArgs e)
@@ -610,7 +744,10 @@ namespace StreamViewerBot
         {
             if (checkHeadless.Checked)
             {
-                MessageBox.Show(GetFromResource("MainScreen_checkHeadless_CheckedChanged_Enable_IP_authorization_to_use_your_proxies_in_headless_mode"), GetFromResource("MainScreen_checkHeadless_CheckedChanged_Warning"), MessageBoxButtons.OK);
+                MessageBox.Show(
+                    GetFromResource(
+                        "MainScreen_checkHeadless_CheckedChanged_Enable_IP_authorization_to_use_your_proxies_in_headless_mode"),
+                    GetFromResource("MainScreen_checkHeadless_CheckedChanged_Warning"), MessageBoxButtons.OK);
 
                 checkLowCpuRam.Checked = false;
 
@@ -626,7 +763,7 @@ namespace StreamViewerBot
         {
             try
             {
-                string strCmdLine = "/C explorer \"https://www.webshare.io/?referral_code=ceuygyx4sir2";
+                var strCmdLine = "/C explorer \"https://www.webshare.io/?referral_code=ceuygyx4sir2";
                 var browserProcess = Process.Start("CMD.exe", strCmdLine);
                 browserProcess?.Close();
             }
@@ -656,15 +793,15 @@ namespace StreamViewerBot
             picVulture.BackColor = Color.Transparent;
         }
 
-        private void lstserviceType_SelectedIndexChanged(object sender, EventArgs e)
+        private void lstServiceType_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ComboBox comboBox = (ComboBox)sender;
+            var comboBox = (ComboBox) sender;
 
             switch (comboBox.SelectedValue)
             {
                 case StreamService.Service.Facebook:
                     MessageBox.Show(
-                        GetFromResource("MainScreen_LoginRequiredForFacebook"));
+                        GetFromResource("MainScreen_LoginRequiredForFacebook"), "Information");
                     break;
             }
         }

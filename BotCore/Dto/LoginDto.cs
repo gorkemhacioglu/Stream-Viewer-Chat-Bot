@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BotCore.Dto
+﻿namespace BotCore.Dto
 {
     public class LoginDto
     {

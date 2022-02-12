@@ -24,7 +24,7 @@ namespace AutoUpdater
         {
             InitializeComponent();
 
-            Shown += new EventHandler(Start);
+            Shown += Start;
         }
 
         private void Start(object sender, EventArgs e)
@@ -48,30 +48,24 @@ namespace AutoUpdater
 
                 var directoryInfo = PrepareTempFolder();
 
-                if (directoryInfo != null)
-                {
-                    DownloadFiles(_targetUrl, directoryInfo);
-                }
+                if (directoryInfo != null) DownloadFiles(_targetUrl, directoryInfo);
             }
             catch (Exception)
             {
                 SetLabel("Failed to update due to argument corruption.");
             }
-            
         }
 
         private void ReRunApp(string appFile)
         {
             SetLabel("Starting updated application.");
 
-            if(File.Exists(appFile))
-                Process.Start(@appFile);
-            else if(File.Exists(appFile.Replace("TwitchBotUI.exe", "StreamViewerBot.exe")))
-                Process.Start(@appFile.Replace("TwitchBotUI.exe", "StreamViewerBot.exe"));
+            if (File.Exists(appFile))
+                Process.Start(appFile);
+            else if (File.Exists(appFile.Replace("TwitchBotUI.exe", "StreamViewerBot.exe")))
+                Process.Start(appFile.Replace("TwitchBotUI.exe", "StreamViewerBot.exe"));
             else
-            {
                 MessageBox.Show("Please restart the application manually.");
-            }
 
             Thread.Sleep(1000);
             Environment.Exit(0);
@@ -91,7 +85,8 @@ namespace AutoUpdater
                     client.DownloadFileCompleted += Client_DownloadFileCompleted;
 
                     client.Headers.Add("Accept: text/html, application/xhtml+xml, */*");
-                    client.Headers.Add("User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
+                    client.Headers.Add(
+                        "User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
                     client.DownloadFileAsync(new Uri(targetUrl), targetDirectory);
                 }
             }
@@ -110,10 +105,7 @@ namespace AutoUpdater
 
                 var isExtracted = Extract(_zipPath);
 
-                if (isExtracted)
-                {
-                    ReRunApp(_updatedAppFile);
-                }
+                if (isExtracted) ReRunApp(_updatedAppFile);
             }
         }
 
@@ -124,12 +116,10 @@ namespace AutoUpdater
 
         private DirectoryInfo PrepareTempFolder()
         {
-            var directory = Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tempFolder"));
+            var directory =
+                Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tempFolder"));
 
-            foreach (var files in directory.GetFiles())
-            {
-                files.Delete();
-            }
+            foreach (var files in directory.GetFiles()) files.Delete();
 
             return directory;
         }

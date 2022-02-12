@@ -1,7 +1,4 @@
-﻿using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Interactions;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,6 +9,9 @@ using System.Text;
 using System.Threading;
 using BotCore.Dto;
 using Newtonsoft.Json;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Interactions;
 
 namespace BotCore
 {
@@ -25,48 +25,51 @@ namespace BotCore
 
         public static int BrowserLimit;
 
-        public string PreferredQuality;
+        private static readonly ConcurrentQueue<ChromeDriverService> DriverServices =
+            new ConcurrentQueue<ChromeDriverService>();
 
-        private int _refreshInterval;
-
-        public bool CanRun = true;
-
-        private bool _firstPage = true;
-
-        private bool _useLowCpuRam;
-
-        private static readonly ConcurrentQueue<ChromeDriverService> DriverServices = new ConcurrentQueue<ChromeDriverService>();
-
-        private StreamReader _file;
-
-        public Action AllBrowsersTerminated;
-
-        public Action<Exception> InitializationError;
-
-        public Action<Exception> LogMessage;
-
-        public Action DidItsJob;
-
-        public Action IncreaseViewer;
-
-        public Action DecreaseViewer;
-
-        public Action<string> LiveViewer;
+        private readonly JsonSerializerSettings _isoDateFormatSettings = new JsonSerializerSettings
+        {
+            DateFormatHandling = DateFormatHandling.MicrosoftDateFormat,
+            DateParseHandling = DateParseHandling.DateTime
+        };
 
         private readonly object _lockObject = new object();
 
         private readonly string _loginCookiesPath =
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "loginCookies.json");
 
+        private StreamReader _file;
+
+        private bool _firstPage = true;
+
         private List<Process> _initialChromeProcesses = new List<Process>();
 
-        readonly JsonSerializerSettings _isoDateFormatSettings = new JsonSerializerSettings
-        {
-            DateFormatHandling = DateFormatHandling.MicrosoftDateFormat,
-            DateParseHandling = DateParseHandling.DateTime,
-        };
+        private int _refreshInterval;
 
-        public void Start(string proxyListDirectory, string stream, StreamService.Service service, bool headless, int browserLimit, int refreshInterval, string preferredQuality, ConcurrentQueue<LoginDto> loginInfos, bool useLowCpuRam)
+        private bool _useLowCpuRam;
+
+        public Action AllBrowsersTerminated;
+
+        public bool CanRun = true;
+
+        public Action DecreaseViewer;
+
+        public Action DidItsJob;
+
+        public Action IncreaseViewer;
+
+        public Action<Exception> InitializationError;
+
+        public Action<string> LiveViewer;
+
+        public Action<Exception> LogMessage;
+
+        public string PreferredQuality;
+
+        public void Start(string proxyListDirectory, string stream, StreamService.Service service, bool headless,
+            int browserLimit, int refreshInterval, string preferredQuality, ConcurrentQueue<LoginDto> loginInfos,
+            bool useLowCpuRam)
         {
             BrowserLimit = browserLimit;
             CanRun = true;
@@ -75,21 +78,15 @@ namespace BotCore
             Headless = headless;
             PreferredQuality = preferredQuality;
             _refreshInterval = refreshInterval;
-            int i = 0;
+            var i = 0;
             StreamUrl = stream;
-            DirectoryInfo di = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory + "\\zipSource\\");
-            foreach (FileInfo res in di.GetFiles())
-            {
-                res.Delete();
-            }
-            foreach (DirectoryInfo dir in di.GetDirectories())
-            {
-                dir.Delete(true);
-            }
+            var di = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory + "\\zipSource\\");
+            foreach (var res in di.GetFiles()) res.Delete();
+            foreach (var dir in di.GetDirectories()) dir.Delete(true);
 
             if (BrowserLimit > 0)
             {
-                Thread thr = new Thread(LoopWithLimit);
+                var thr = new Thread(LoopWithLimit);
                 thr.Start();
             }
 
@@ -114,27 +111,32 @@ namespace BotCore
 
                         var array = line.Split(':');
 
-                        string text = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "\\zipDirectory\\backgroundTemplate.js");
-                        text = text.Replace("{ip}", array[0]).Replace("{port}", array[1]).Replace("{username}", array[2]).Replace("{password}", array[3]);
-                        File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "\\zipDirectory\\background.js", text);
+                        var text = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory +
+                                                    "\\zipDirectory\\backgroundTemplate.js");
+                        text = text.Replace("{ip}", array[0]).Replace("{port}", array[1])
+                            .Replace("{username}", array[2]).Replace("{password}", array[3]);
+                        File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "\\zipDirectory\\background.js",
+                            text);
 
-                        ZipFile.CreateFromDirectory(AppDomain.CurrentDomain.BaseDirectory + "\\zipDirectory", AppDomain.CurrentDomain.BaseDirectory + "\\zipSource\\background" + i + ".zip");
+                        ZipFile.CreateFromDirectory(AppDomain.CurrentDomain.BaseDirectory + "\\zipDirectory",
+                            AppDomain.CurrentDomain.BaseDirectory + "\\zipSource\\background" + i + ".zip");
 
-                        Thread thr = new Thread(Request) { Priority = ThreadPriority.AboveNormal };
-                        Random r = new Random();
-                        int rInt = r.Next(5000, 8000);
+                        var thr = new Thread(Request) {Priority = ThreadPriority.AboveNormal};
+                        var r = new Random();
+                        var rInt = r.Next(5000, 8000);
 
-                        while (BrowserLimit > 0 && DriverServices.Count >= BrowserLimit)
-                        {
-                            Thread.Sleep(1000);
-                        }
+                        while (BrowserLimit > 0 && DriverServices.Count >= BrowserLimit) Thread.Sleep(1000);
 
                         if (!CanRun)
                             continue;
 
                         loginInfos.TryDequeue(out var loginInfo);
 
-                        thr.Start(new SessionConfigurationDto { Url = line, Count = i, PreferredQuality = preferredQuality, LoginInfo = loginInfo, Service = service });
+                        thr.Start(new SessionConfigurationDto
+                        {
+                            Url = line, Count = i, PreferredQuality = preferredQuality, LoginInfo = loginInfo,
+                            Service = service
+                        });
 
                         i++;
 
@@ -152,7 +154,6 @@ namespace BotCore
 
                 if (!CanRun)
                     break;
-
             } while (browserLimit > 0);
 
             DidItsJob?.Invoke();
@@ -160,13 +161,11 @@ namespace BotCore
 
         private void StoreCookie(Tuple<string, List<Cookie>> cookie)
         {
-
             var myCookie = new List<MyCookie>();
 
             foreach (var item in cookie.Item2)
-            {
                 if (item.Expiry != null)
-                    myCookie.Add(new MyCookie()
+                    myCookie.Add(new MyCookie
                     {
                         Domain = item.Domain,
                         Expiry = item.Expiry.Value.Ticks,
@@ -177,8 +176,7 @@ namespace BotCore
                         Secure = item.Secure
                     });
                 else
-                {
-                    myCookie.Add(new MyCookie()
+                    myCookie.Add(new MyCookie
                     {
                         Domain = item.Domain,
                         Expiry = DateTime.MaxValue.Ticks,
@@ -188,31 +186,27 @@ namespace BotCore
                         Value = item.Value,
                         Secure = item.Secure
                     });
-                }
-            }
             lock (_lockObject)
             {
                 if (!File.Exists(_loginCookiesPath))
                 {
-                    var item = new Dictionary<string, List<MyCookie>> { { cookie.Item1, myCookie } };
-                    File.WriteAllText(_loginCookiesPath, Newtonsoft.Json.JsonConvert.SerializeObject(item), Encoding.UTF8);
+                    var item = new Dictionary<string, List<MyCookie>> {{cookie.Item1, myCookie}};
+                    File.WriteAllText(_loginCookiesPath, JsonConvert.SerializeObject(item), Encoding.UTF8);
                     return;
                 }
 
-                string readCookiesJson = File.ReadAllText(_loginCookiesPath);
-                var readCookies = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, List<MyCookie>>>(readCookiesJson);
+                var readCookiesJson = File.ReadAllText(_loginCookiesPath);
+                var readCookies = JsonConvert.DeserializeObject<Dictionary<string, List<MyCookie>>>(readCookiesJson);
 
                 readCookies.TryGetValue(cookie.Item1, out var value);
 
                 if (value?.Count > 0)
-                {
                     readCookies[cookie.Item1] = myCookie;
-                }
                 else
                     readCookies.Add(cookie.Item1, myCookie);
 
 
-                File.WriteAllText(_loginCookiesPath, Newtonsoft.Json.JsonConvert.SerializeObject(readCookies), Encoding.UTF8);
+                File.WriteAllText(_loginCookiesPath, JsonConvert.SerializeObject(readCookies), Encoding.UTF8);
             }
         }
 
@@ -220,13 +214,10 @@ namespace BotCore
         {
             lock (_lockObject)
             {
-                if (!File.Exists(_loginCookiesPath))
-                {
-                    return new List<MyCookie>();
-                }
+                if (!File.Exists(_loginCookiesPath)) return new List<MyCookie>();
 
-                string readCookiesJson = File.ReadAllText(_loginCookiesPath);
-                var readCookies = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, List<MyCookie>>>(readCookiesJson);
+                var readCookiesJson = File.ReadAllText(_loginCookiesPath);
+                var readCookies = JsonConvert.DeserializeObject<Dictionary<string, List<MyCookie>>>(readCookiesJson);
 
                 return readCookies.FirstOrDefault(x => x.Key == username).Value;
             }
@@ -237,28 +228,25 @@ namespace BotCore
             var allChromeProcesses = Process.GetProcessesByName("chrome");
 
             foreach (var process in allChromeProcesses)
-            {
-                if (!(_initialChromeProcesses.Any(x => x.Id == process.Id)))
+                if (!_initialChromeProcesses.Any(x => x.Id == process.Id))
                 {
-                    ProcessStartInfo startInfo = new ProcessStartInfo
+                    var startInfo = new ProcessStartInfo
                     {
                         CreateNoWindow = true,
                         FileName = "CMD.exe"
                     };
-                    string strCmd = $"/C taskkill /F /PID {process.Id}";
+                    var strCmd = $"/C taskkill /F /PID {process.Id}";
                     startInfo.Arguments = strCmd;
-                    Process processTemp = new Process();
+                    var processTemp = new Process();
                     processTemp.StartInfo = startInfo;
                     processTemp.Start();
                 }
-            }
 
             _initialChromeProcesses.Clear();
 
             var allChromeDriverProcesses = Process.GetProcessesByName("chromedriver");
 
             foreach (var chromeDriverService in allChromeDriverProcesses)
-            {
                 try
                 {
                     chromeDriverService.Kill();
@@ -267,7 +255,6 @@ namespace BotCore
                 {
                     //ignored
                 }
-            }
         }
 
         public void Stop()
@@ -280,10 +267,7 @@ namespace BotCore
 
             var files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory + "\\zipSource");
 
-            foreach (var file in files)
-            {
-                File.Delete(file);
-            }
+            foreach (var file in files) File.Delete(file);
 
             DriverServices.Clear();
 
@@ -293,7 +277,6 @@ namespace BotCore
         private void LoopWithLimit()
         {
             while (CanRun)
-            {
                 try
                 {
                     if (DriverServices.Count >= BrowserLimit)
@@ -301,48 +284,43 @@ namespace BotCore
                         KillAllProcesses();
                         DriverServices.Clear();
                     }
+
                     Thread.Sleep(500);
                 }
                 catch (Exception)
                 {
                     //ignored
                 }
-            }
         }
 
         private void Request(object obj)
         {
             try
             {
-                Random r = new Random();
-                SessionConfigurationDto itm = (SessionConfigurationDto)obj;
+                var r = new Random();
+                var itm = (SessionConfigurationDto) obj;
                 var array = itm.Url.Split(':');
 
                 var driverService = ChromeDriverService.CreateDefaultService();
                 driverService.HideCommandPromptWindow = true;
 
-                Proxy proxy = new Proxy
+                var proxy = new Proxy
                 {
                     Kind = ProxyKind.Manual
                 };
-                string proxyUrl = array[0] + ":" + array[1];
+                var proxyUrl = array[0] + ":" + array[1];
                 proxy.SslProxy = proxyUrl;
                 proxy.HttpProxy = proxyUrl;
 
-                var chromeOptions = new ChromeOptions { Proxy = proxy, AcceptInsecureCertificates = true };
+                var chromeOptions = new ChromeOptions {Proxy = proxy, AcceptInsecureCertificates = true};
 
                 var localChrome = AppDomain.CurrentDomain.BaseDirectory + "\\Extensions\\LocalChrome\\chrome.exe";
-                if (File.Exists(localChrome))
-                {
-                    chromeOptions.BinaryLocation = localChrome;
-                }
+                if (File.Exists(localChrome)) chromeOptions.BinaryLocation = localChrome;
 
 
                 if (_useLowCpuRam)
-                {
                     chromeOptions.AddExtension(AppDomain.CurrentDomain.BaseDirectory +
                                                "\\Extensions\\TwitchAlternative.crx");
-                }
 
                 if (Headless)
                     chromeOptions.AddArgument("headless");
@@ -350,7 +328,7 @@ namespace BotCore
                     chromeOptions.AddExtension(ZipDirectory + itm.Count + ".zip");
 
                 string[] resolutions =
-                    { "960,720", "1080,720", "1280,800", "1280,720", "960,600", "1024,768", "800,600" };
+                    {"960,720", "1080,720", "1280,800", "1280,720", "960,600", "1024,768", "800,600"};
 
                 chromeOptions.AddArgument("window-size=" + resolutions[r.Next(0, resolutions.Length - 1)]);
                 chromeOptions.AddArgument(
@@ -364,7 +342,7 @@ namespace BotCore
                 chromeOptions.PageLoadStrategy = PageLoadStrategy.Default;
 
                 var driver = new ChromeDriver(driverService, chromeOptions)
-                { Url = StreamUrl };
+                    {Url = StreamUrl};
 
                 if (BrowserLimit > 0)
                 {
@@ -377,23 +355,29 @@ namespace BotCore
 
                 IncreaseViewer?.Invoke();
 
-                bool firstPage = false;
+                var firstPage = false;
 
                 var startDate = DateTime.Now;
 
                 if (itm.Service == StreamService.Service.Twitch)
                 {
                     if (!Headless && !_useLowCpuRam)
-                    {
-                        IJavaScriptExecutor js = driver;
-                        js.ExecuteScript("window.localStorage.setItem('video-quality', '" + itm.PreferredQuality + "');");
-                        driver.Navigate().Refresh();
-                    }
+                        try
+                        {
+                            IJavaScriptExecutor js = driver;
+                            js.ExecuteScript("window.localStorage.setItem('video-quality', '" + itm.PreferredQuality +
+                                             "');");
+                            driver.Navigate().Refresh();
+                        }
+                        catch (Exception)
+                        {
+                            //ignored
+                        }
 
-                    bool matureClicked = false;
-                    int matureCheckCount = 0;
-                    bool cacheClicked = false;
-                    int cacheCheckCount = 0;
+                    var matureClicked = false;
+                    var matureCheckCount = 0;
+                    var cacheClicked = false;
+                    var cacheCheckCount = 0;
 
                     if (itm.LoginInfo != null)
                     {
@@ -402,13 +386,9 @@ namespace BotCore
                         var allCookies = GetCookie(itm.LoginInfo.Username);
 
                         if (allCookies != null)
-                        {
                             foreach (var cookie in allCookies)
-                            {
                                 driver.Manage().Cookies.AddCookie(new Cookie(cookie.Name, cookie.Value, cookie.Domain,
-                                    cookie.Path, new DateTime(ticks: cookie.Expiry)));
-                            }
-                        }
+                                    cookie.Path, new DateTime(cookie.Expiry)));
 
                         try
                         {
@@ -511,11 +491,10 @@ namespace BotCore
                             try
                             {
                                 if (!matureClicked && matureCheckCount < 5)
-                                {
                                     try
                                     {
                                         var mature = driver.FindElement(By.XPath(
-                                            "/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div/div[7]/div/div[3]/button/div/div"));
+                                            "/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div/div[5]/div/div[3]/button/div/div"));
 
                                         mature?.Click();
                                         matureClicked = true;
@@ -525,7 +504,6 @@ namespace BotCore
                                     {
                                         //ignored because there is no mature button
                                     }
-                                }
                             }
                             catch (Exception)
                             {
@@ -535,7 +513,6 @@ namespace BotCore
                             try
                             {
                                 if (!cacheClicked && cacheCheckCount < 5)
-                                {
                                     try
                                     {
                                         var cache = driver.FindElement(By.XPath(
@@ -553,7 +530,6 @@ namespace BotCore
                                     {
                                         //ignored because there is no cache button
                                     }
-                                }
                             }
                             catch (Exception)
                             {
@@ -568,7 +544,7 @@ namespace BotCore
 
                                 if (connectionError != null)
                                 {
-                                    Actions actions = new Actions(driver);
+                                    var actions = new Actions(driver);
 
                                     actions.Click(connectionError).Perform();
                                 }
@@ -578,7 +554,8 @@ namespace BotCore
                                 //ignored
                             }
 
-                            if (_refreshInterval != 0 && DateTime.Now - startDate > TimeSpan.FromMinutes(_refreshInterval))
+                            if (_refreshInterval != 0 &&
+                                DateTime.Now - startDate > TimeSpan.FromMinutes(_refreshInterval))
                             {
                                 driver.Navigate().Refresh();
 
@@ -606,76 +583,6 @@ namespace BotCore
                     {
                         //ignored
                     }
-
-
-                    #region Quality
-                    //Thread.Sleep(5500);
-
-                    //var skip = driver.FindElements(By.ClassName("ytp-ad-skip-button-container"));
-                    //skip.FirstOrDefault()?.Click();
-
-                    //Thread.Sleep(1000);
-
-                    //var settings = driver.FindElements(By.ClassName("ytp-settings-button"));
-                    //settings.FirstOrDefault()?.Click();
-
-                    //Thread.Sleep(2000);
-
-                    //var qualityButton = driver.FindElement(By.XPath(
-                    //    "/html/body/ytd-app/div/ytd-page-manager/ytd-watch-flexy/div[5]/div[1]/div/div[1]/div/div/div/ytd-player/div/div/div[27]/div/div/div[3]/div[3]"));
-
-                    //if (qualityButton != null)
-                    //{
-                    //    qualityButton.Click();
-                    //}
-
-                    //Thread.Sleep(1000);
-
-                    //var lowestQuality = driver.FindElement(By.XPath(
-                    //    "/html/body/ytd-app/div/ytd-page-manager/ytd-watch-flexy/div[5]/div[1]/div/div[1]/div/div/div/ytd-player/div/div/div[27]/div/div/div[3]/div[3]"));
-
-                    //lowestQuality?.Click();
-                    #endregion
-
-                    //if (itm.LoginInfo != null)
-                    //{
-                    //    #region Login
-
-                    //    var signIn = driver.FindElement(By.XPath(
-                    //        "/html/body/ytd-app/div/div/ytd-masthead/div[3]/div[3]/div[2]/ytd-button-renderer/a/tp-yt-paper-button"));
-
-                    //    signIn?.Click();
-
-                    //    Thread.Sleep(3000);
-
-                    //    var usernameBox = driver.FindElement(By.XPath(
-                    //        "/html/body/div[1]/div[1]/div[2]/div/div[2]/div/div/div[2]/div/div[1]/div/form/span/section/div/div/div[1]/div/div[1]/div/div[1]/input"));
-
-                    //    usernameBox.SendKeys(itm.LoginInfo.Username);
-
-                    //    Thread.Sleep(1000);
-
-                    //    var next = driver.FindElement(By.XPath(
-                    //        "/html/body/div[1]/div[1]/div[2]/div/div[2]/div/div/div[2]/div/div[2]/div/div[1]/div/div/button/span"));
-
-                    //    next?.Click();
-
-                    //    Thread.Sleep(3000);
-
-                    //    var passwordBox = driver.FindElement(By.XPath(
-                    //        "/html/body/div[1]/div[1]/div[2]/div/div[2]/div/div/div[2]/div/div[1]/div/form/span/section/div/div/div[1]/div[1]/div/div/div/div/div[1]/div/div[1]/input"));
-
-                    //    passwordBox.SendKeys(itm.LoginInfo.Password);
-
-                    //    Thread.Sleep(1000);
-
-                    //    next = driver.FindElement(By.XPath(
-                    //        "/html/body/div[1]/div[1]/div[2]/div/div[2]/div/div/div[2]/div/div[2]/div/div[1]/div/div/button/span"));
-
-                    //    next?.Click();
-
-                    //    #endregion
-                    //}
 
                     while (true)
                     {
@@ -720,7 +627,6 @@ namespace BotCore
                     var isPlaying = false;
 
                     while (true)
-                    {
                         try
                         {
                             if (_firstPage)
@@ -764,7 +670,7 @@ namespace BotCore
                                 }
                             }
 
-                            if ((!isPlaying))
+                            if (!isPlaying)
                             {
                                 var play = driver.FindElement(By.XPath(
                                     "/html/body/div/div[1]/div[14]/div[2]/div/div[2]/div/div/div/div/div/div/div[1]/div/div/div/div/div[4]/div[2]/button/svg"));
@@ -782,7 +688,6 @@ namespace BotCore
                         {
                             //ignored
                         }
-                    }
                 }
                 else if (itm.Service == StreamService.Service.NimoTv)
                 {
@@ -819,7 +724,7 @@ namespace BotCore
 
                         try
                         {
-                            if ((!isPlaying))
+                            if (!isPlaying)
                             {
                                 var play = driver.FindElement(By.XPath(
                                     "/html/body/div[2]/div[2]/div[2]/div[1]/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div[2]/div/span"));
@@ -869,6 +774,7 @@ namespace BotCore
                         {
                             LiveViewer.Invoke("N/A");
                         }
+
                         Thread.Sleep(1000);
                     }
                 }
@@ -878,7 +784,6 @@ namespace BotCore
 
 
                     while (true)
-                    {
                         try
                         {
                             if (_firstPage)
@@ -903,8 +808,6 @@ namespace BotCore
                         {
                             //ignored
                         }
-
-                    }
                 }
 
                 try
@@ -921,7 +824,7 @@ namespace BotCore
                 if (ex.Message.Contains("only supports Chrome version"))
                 {
                     CanRun = false;
-                    InitializationError?.Invoke(new Exception($"Please update your Google Chrome!"));
+                    InitializationError?.Invoke(new Exception("Please update your Google Chrome!"));
                 }
             }
             catch (Exception ex)
