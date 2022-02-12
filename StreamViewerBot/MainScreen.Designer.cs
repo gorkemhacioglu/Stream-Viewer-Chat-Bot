@@ -209,6 +209,11 @@
             this.numRefreshMinutes.Size = new System.Drawing.Size(64, 23);
             this.numRefreshMinutes.TabIndex = 14;
             this.numRefreshMinutes.Tag = "Refresh Browsers (Min.)";
+            this.numRefreshMinutes.Value = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
             // 
             // lblRefreshMin
             // 
@@ -489,7 +494,7 @@
             this.lstserviceType.Size = new System.Drawing.Size(79, 23);
             this.lstserviceType.TabIndex = 41;
             this.lstserviceType.Tag = "";
-            this.lstserviceType.SelectedIndexChanged += new System.EventHandler(this.lstserviceType_SelectedIndexChanged);
+            this.lstserviceType.SelectedIndexChanged += new System.EventHandler(this.lstServiceType_SelectedIndexChanged);
             // 
             // MainScreen
             // 

@@ -1,16 +1,17 @@
 var config = {
     mode: "fixed_servers",
     rules: {
-      singleProxy: {
-        scheme: "http",
-        host: "{ip}",
-        port: parseInt({port})
-      },
-      bypassList: ["foobar.com"]
+        singleProxy: {
+            scheme: "http",
+            host: "{ip}",
+            port: parseInt({port})
+        },
+        bypassList: ["foobar.com"]
     }
-  };
+};
 
-chrome.proxy.settings.set({value: config, scope: "regular"}, function() {});
+chrome.proxy.settings.set({value: config, scope: "regular"}, function () {
+});
 
 function callbackFn(details) {
     return {
@@ -22,7 +23,7 @@ function callbackFn(details) {
 }
 
 chrome.webRequest.onAuthRequired.addListener(
-        callbackFn,
-        {urls: ["<all_urls>"]},
-        ['blocking']
+    callbackFn,
+    {urls: ["<all_urls>"]},
+    ['blocking']
 );

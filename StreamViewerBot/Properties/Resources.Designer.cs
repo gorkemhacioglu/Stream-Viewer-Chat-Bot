@@ -140,7 +140,7 @@ namespace StreamViewerBot.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Login is required for Facebook Live to gain viewers. You have to login for all browsers..
+        ///   Looks up a localized string similar to Login is required for Facebook Live to gain viewers. Please run the bot and log in on each browser..
         /// </summary>
         internal static string MainScreen_LoginRequiredForFacebook {
             get {

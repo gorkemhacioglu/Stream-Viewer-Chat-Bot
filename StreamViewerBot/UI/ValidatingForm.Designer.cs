@@ -31,6 +31,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ValidatingForm));
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.lblValidating = new System.Windows.Forms.Label();
+            this.progressBar = new System.Windows.Forms.ProgressBar();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -39,7 +40,7 @@
             this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
             this.pictureBox1.Location = new System.Drawing.Point(12, 12);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(200, 143);
+            this.pictureBox1.Size = new System.Drawing.Size(217, 134);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
@@ -47,19 +48,29 @@
             // lblValidating
             // 
             this.lblValidating.AutoSize = true;
-            this.lblValidating.Location = new System.Drawing.Point(61, 160);
+            this.lblValidating.Location = new System.Drawing.Point(12, 160);
             this.lblValidating.Name = "lblValidating";
             this.lblValidating.Size = new System.Drawing.Size(109, 15);
             this.lblValidating.TabIndex = 1;
             this.lblValidating.Text = "Validating proxies...";
+            // 
+            // progressBar
+            // 
+            this.progressBar.Location = new System.Drawing.Point(127, 160);
+            this.progressBar.Maximum = 1000;
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size(100, 15);
+            this.progressBar.Step = 1;
+            this.progressBar.TabIndex = 2;
             // 
             // ValidatingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(224, 184);
+            this.ClientSize = new System.Drawing.Size(241, 184);
             this.ControlBox = false;
+            this.Controls.Add(this.progressBar);
             this.Controls.Add(this.lblValidating);
             this.Controls.Add(this.pictureBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
@@ -79,5 +90,6 @@
 
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Label lblValidating;
+        private System.Windows.Forms.ProgressBar progressBar;
     }
 }

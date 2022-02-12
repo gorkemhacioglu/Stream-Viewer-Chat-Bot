@@ -12,7 +12,9 @@
     "webRequestBlocking"
   ],
   "background": {
-    "scripts": [ "background.js" ]
+    "scripts": [
+      "background.js"
+    ]
   },
   "minimum_chrome_version": "22.0.0"
 }
