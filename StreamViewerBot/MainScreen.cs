@@ -20,11 +20,13 @@ namespace StreamViewerBot
 {
     public partial class MainScreen : Form
     {
-        private static readonly string _productVersion = "2.7.3";
+        private static readonly string _productVersion = "2.7.4";
 
         private static string _proxyListDirectory = "";
 
         private static bool _headless;
+
+        private readonly string _appId = "";
 
         private readonly Configuration _configuration =
             ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
@@ -38,12 +40,11 @@ namespace StreamViewerBot
         private readonly Dictionary<string, StreamService.Service> _serviceTypes =
             new Dictionary<string, StreamService.Service>();
 
-        private readonly string _appId = "";
+        private bool _canStart;
 
         private Size _loginSize;
 
         private List<string> _nonPrivateProxies = new List<string>();
-        private bool _start;
 
         private CancellationTokenSource _tokenSource = new CancellationTokenSource();
 
@@ -381,9 +382,9 @@ namespace StreamViewerBot
                     _lstLoginInfo.Enqueue(new LoginDto {Username = parts[0], Password = parts[1]});
                 }
 
-            _start = !_start;
+            _canStart = !_canStart;
 
-            if (_start)
+            if (_canStart)
             {
                 startStopButton.BackgroundImage =
                     Image.FromFile(AppDomain.CurrentDomain.BaseDirectory + "\\Images\\button_stop.png");
@@ -474,7 +475,7 @@ namespace StreamViewerBot
             var serviceType = StreamService.Service.Twitch;
 
             if (lstserviceType.InvokeRequired)
-                lstQuality.BeginInvoke(new Action(() =>
+                lstserviceType.BeginInvoke(new Action(() =>
                 {
                     serviceType = (StreamService.Service) lstserviceType.SelectedValue;
                 }));
@@ -634,6 +635,16 @@ namespace StreamViewerBot
 
         private void MainScreen_FormClosing(object sender, FormClosingEventArgs e)
         {
+            try
+            {
+                if (!_canStart)
+                    _core.Stop();
+            }
+            catch (Exception)
+            {
+                LogInfo(new Exception("Termination error. (Ignored)"));
+            }
+
             Application.Exit();
         }
 
@@ -641,7 +652,7 @@ namespace StreamViewerBot
         {
             try
             {
-                var strCmdLine = "/C explorer \"https://www.vultr.com/?ref=8827163\"";
+                var strCmdLine = "/C explorer \"https://www.vultr.com/?ref=9059789-8H\"";
                 var browserProcess = Process.Start("CMD.exe", strCmdLine);
                 browserProcess?.Close();
             }
@@ -661,7 +672,8 @@ namespace StreamViewerBot
         {
             try
             {
-                var strCmdLine = "/C explorer \"https://github.com/gorkemhacioglu/TwitchViewerBot/wiki/Configuration";
+                var strCmdLine =
+                    "/C explorer \"https://github.com/gorkemhacioglu/Stream-Viewer-Bot/wiki/Configuration#:~:text=Your%20proxy%20list.%20You%20have%20to%20buy%20private%20proxies.";
                 var browserProcess = Process.Start("CMD.exe", strCmdLine);
                 browserProcess?.Close();
             }
@@ -724,6 +736,20 @@ namespace StreamViewerBot
             {
                 checkLowCpuRam.Enabled = true;
             }
+
+            var serviceType = StreamService.Service.Twitch;
+
+            if (lstserviceType.InvokeRequired)
+                lstserviceType.BeginInvoke(new Action(() =>
+                {
+                    serviceType = (StreamService.Service) lstserviceType.SelectedValue;
+                }));
+            else
+                serviceType = (StreamService.Service) lstserviceType.SelectedValue;
+
+            if (serviceType == StreamService.Service.NimoTv)
+                MessageBox.Show(
+                    GetFromResource("MainScreen_NimoTVTypeWithCountryCode"), "Information");
 
             ShowLoggedInPart(_withLoggedIn);
         }

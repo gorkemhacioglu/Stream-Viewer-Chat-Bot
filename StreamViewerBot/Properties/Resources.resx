@@ -194,4 +194,7 @@
             PublicKeyToken=b03f5f7f11d50a3a
         </value>
     </data>
+    <data name="MainScreen_NimoTVTypeWithCountryCode" xml:space="preserve">
+        <value>Username is phone number on NimoTV. Please type it with country code like +90xxxxxxxxxx</value>
+    </data>
 </root>
