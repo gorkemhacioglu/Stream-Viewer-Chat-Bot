@@ -188,9 +188,9 @@
             // 
             this.picVulture.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("picVulture.BackgroundImage")));
             this.picVulture.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.picVulture.Location = new System.Drawing.Point(217, 337);
+            this.picVulture.Location = new System.Drawing.Point(207, 337);
             this.picVulture.Name = "picVulture";
-            this.picVulture.Size = new System.Drawing.Size(119, 39);
+            this.picVulture.Size = new System.Drawing.Size(160, 39);
             this.picVulture.TabIndex = 13;
             this.picVulture.TabStop = false;
             this.picVulture.Click += new System.EventHandler(this.pictureBox2_Click);
@@ -428,11 +428,11 @@
             // 
             this.lblNeedCloudServer.AutoSize = true;
             this.lblNeedCloudServer.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point);
-            this.lblNeedCloudServer.Location = new System.Drawing.Point(224, 319);
+            this.lblNeedCloudServer.Location = new System.Drawing.Point(207, 319);
             this.lblNeedCloudServer.Name = "lblNeedCloudServer";
-            this.lblNeedCloudServer.Size = new System.Drawing.Size(105, 15);
+            this.lblNeedCloudServer.Size = new System.Drawing.Size(159, 15);
             this.lblNeedCloudServer.TabIndex = 0;
-            this.lblNeedCloudServer.Text = "Need cloud server?";
+            this.lblNeedCloudServer.Text = "Run this on Cloud! $100 FREE";
             // 
             // picWebshare
             // 
@@ -451,7 +451,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point);
-            this.label1.Location = new System.Drawing.Point(52, 319);
+            this.label1.Location = new System.Drawing.Point(51, 319);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(119, 15);
             this.label1.TabIndex = 33;

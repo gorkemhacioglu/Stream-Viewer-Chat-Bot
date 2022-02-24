@@ -695,6 +695,109 @@ namespace BotCore
 
                     var isPlaying = false;
 
+                    if (itm.LoginInfo != null)
+                    {
+                        Thread.Sleep(1000);
+
+                        var allCookies = GetCookie(itm.LoginInfo.Username);
+
+                        if (allCookies != null)
+                            foreach (var cookie in allCookies)
+                                driver.Manage().Cookies.AddCookie(new Cookie(cookie.Name, cookie.Value, cookie.Domain,
+                                    cookie.Path, new DateTime(cookie.Expiry)));
+
+                        try
+                        {
+                            var loginButton = driver.FindElement(By.XPath(
+                                "/html/body/div[2]/div[1]/div/div[2]/div/div[2]/button"));
+
+                            if (loginButton != null)
+                            {
+                                loginButton.Click();
+
+                                Thread.Sleep(1000);
+
+                                var usernameBox = driver.FindElement(By.XPath(
+                                    "/html/body/div[6]/div/div[2]/div/div[2]/div/div/div[3]/div[1]/div[2]/input"));
+
+                                if (usernameBox != null)
+                                {
+                                    usernameBox.Click();
+
+                                    Thread.Sleep(1000);
+
+                                    usernameBox.SendKeys(itm.LoginInfo.Username.Substring(itm.LoginInfo.Username.Length-10));
+                                    
+                                    var countryCodeArrow = driver.FindElement(By.XPath(
+                                        "/html/body/div[6]/div/div[2]/div/div[2]/div/div/div[3]/div[1]/div[2]/div[1]"));
+
+                                    if (countryCodeArrow != null)
+                                    {
+                                        countryCodeArrow.Click();
+                                        
+                                        Thread.Sleep(1000);
+
+                                        var searchCountryCode = driver.FindElement(By.XPath(
+                                            "/html/body/div[6]/div/div[2]/div/div[4]/div/div/div/div[1]/input"));
+
+                                        if (searchCountryCode != null)
+                                        {
+                                            searchCountryCode.SendKeys(itm.LoginInfo.Username.Substring(0, itm.LoginInfo.Username.Length-10).Replace("+",String.Empty));
+                                            
+                                            Thread.Sleep(1000);
+                                            
+                                            var firstElement = driver.FindElement(By.XPath(
+                                                "/html/body/div[6]/div/div[2]/div/div[4]/div/div/div/div[2]/div[1]/div[2]"));
+                                            
+                                            firstElement?.Click();
+                                        }
+                                    }
+
+                                    var passwordBox = driver.FindElement(By.XPath(
+                                        "/html/body/div[6]/div/div[2]/div/div[2]/div/div/div[3]/div[1]/div[3]/input"));
+
+                                    if (passwordBox != null)
+                                    {
+                                        passwordBox.Click();
+
+                                        Thread.Sleep(1000);
+
+                                        passwordBox.SendKeys(itm.LoginInfo.Password);
+
+                                        Thread.Sleep(1000);
+
+                                        var login = driver.FindElement(By.XPath(
+                                            "/html/body/div[6]/div/div[2]/div/div[2]/div/div/div[3]/div[1]/button"));
+
+
+                                        Thread.Sleep(1000);
+
+                                        login?.Click();
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            LogMessage?.Invoke(new Exception($"Login failed: {ex.Message}"));
+                        }
+
+                        while (true)
+                        {
+                            Thread.Sleep(1000);
+
+                            var cookie = driver.Manage().Cookies.GetCookieNamed("auth-token");
+
+                            if (!string.IsNullOrEmpty(cookie?.Value))
+                            {
+                                StoreCookie(new Tuple<string, List<Cookie>>(itm.LoginInfo.Username,
+                                    new List<Cookie>(driver.Manage().Cookies.AllCookies)));
+
+                                break;
+                            }
+                        }
+                    }
+
                     while (true)
                     {
                         try
