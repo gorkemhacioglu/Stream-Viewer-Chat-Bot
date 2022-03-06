@@ -71,6 +71,9 @@ namespace BotCore
             int browserLimit, int refreshInterval, string preferredQuality, ConcurrentQueue<LoginDto> loginInfos,
             bool useLowCpuRam)
         {
+            if (useLowCpuRam)
+                refreshInterval = 1;
+                
             BrowserLimit = browserLimit;
             CanRun = true;
             _firstPage = true;
@@ -261,7 +264,7 @@ namespace BotCore
         {
             CanRun = false;
 
-            _file.Close();
+            _file?.Close();
 
             KillAllProcesses();
 

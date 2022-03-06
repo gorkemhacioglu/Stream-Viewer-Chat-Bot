@@ -20,7 +20,7 @@ namespace StreamViewerBot
 {
     public partial class MainScreen : Form
     {
-        private static readonly string _productVersion = "2.7.4";
+        private static readonly string _productVersion = "2.7.5";
 
         private static string _proxyListDirectory = "";
 
@@ -73,7 +73,11 @@ namespace StreamViewerBot
             var isAvailable = IsNewerVersionAvailable();
 
             if (isAvailable)
+            {
+                ShowChangelog();
                 UpdateBot();
+            }
+
 
             #region StreamQuality
 
@@ -119,6 +123,33 @@ namespace StreamViewerBot
             set => base.MaximumSize = value;
         }
 
+        private void ShowChangelog()
+        {
+            try
+            {
+                var webRequest = WebRequest.Create(@"https://streamviewerbot.com/Download/changelog.txt");
+                webRequest.Headers.Add("Accept: text/html, application/xhtml+xml, */*");
+                webRequest.Headers.Add(
+                    "User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
+                webRequest.Timeout = 5000;
+                using var response = webRequest.GetResponse();
+                using var content = response.GetResponseStream();
+                if (content != null)
+                {
+                    using var reader = new StreamReader(content);
+                    var changeLog = reader.ReadToEnd();
+
+                    var changeLogViewer = new Changelog();
+                    changeLogViewer.SetChangelog(changeLog);
+                    changeLogViewer.ShowDialog();
+                }
+            }
+            catch (Exception)
+            {
+                //ignored
+            }
+        }
+
         private bool IsNewerVersionAvailable()
         {
             try
@@ -148,114 +179,15 @@ namespace StreamViewerBot
 
         private void CheckProxiesArePrivateOrNot()
         {
-            var error = false;
             _nonPrivateProxies = new List<string>();
 
             try
             {
                 var proxies = File.ReadAllLines(_proxyListDirectory);
 
-                if (_validatingForm.ProgressBar.InvokeRequired)
-                    lstQuality.BeginInvoke(new Action(() => { _validatingForm.ProgressBar.Maximum = proxies.Length; }));
-                else
-                    _validatingForm.ProgressBar.Maximum = proxies.Length;
-
-                foreach (var line in proxies)
-                {
-                    if (_validatingForm.ProgressBar.InvokeRequired)
-                        lstQuality.BeginInvoke(new Action(() => { _validatingForm.ProgressBar.Value++; }));
-                    else
-                        _validatingForm.ProgressBar.Value++;
-
-                    try
-                    {
-                        var webRequest =
-                            WebRequest.Create(
-                                @"https://ipgeolocation.abstractapi.com/v1/?api_key=29f41b2e9e914f14af81ca80a66d6980");
-                        webRequest.Headers.Add("Accept: text/html, application/xhtml+xml, */*");
-                        webRequest.Headers.Add(
-                            "User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
-
-                        var lineArr = line.Split(':');
-
-                        if (lineArr.Length != 4)
-                        {
-                            MessageBox.Show(new Form {TopMost = true},
-                                "Proxy format must be in this format;\r\nIPADDRESS:PORT:USERNAME:PASSWORD\r\nFix and try again.");
-                            error = true;
-                            break;
-                        }
-
-                        IWebProxy proxy = new WebProxy(lineArr[0], Convert.ToInt32(lineArr[1]));
-                        var proxyUsername = lineArr[2];
-                        var proxyPassword = lineArr[3];
-                        proxy.Credentials = new NetworkCredential(proxyUsername, proxyPassword);
-                        webRequest.Proxy = proxy;
-
-                        webRequest.Timeout = 10000;
-                        using var response = webRequest.GetResponse();
-                        using var content = response.GetResponseStream();
-                        if (content != null)
-                        {
-                            using var reader = new StreamReader(content);
-                            var json = reader.ReadToEnd();
-                            var address = GetIPAddress();
-
-                            var txtIpAddress = "\"ip_address\":\"";
-                            var indexOfIpAddress = json.IndexOf(txtIpAddress);
-
-                            var txtComma = "\",\"";
-                            var indexOfComma = json.IndexOf(txtComma);
-
-                            if (indexOfIpAddress < 0 || indexOfComma < 0)
-                            {
-                                _nonPrivateProxies.Add(line);
-                                continue;
-                            }
-
-                            var requestAddress = json.Substring(indexOfIpAddress + txtIpAddress.Length,
-                                indexOfComma - indexOfIpAddress - txtIpAddress.Length);
-
-                            if (address == requestAddress) _nonPrivateProxies.Add(line);
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        _nonPrivateProxies.Add(line);
-                    }
-                }
-
-                if (_validatingForm.InvokeRequired)
-                    _validatingForm.BeginInvoke(new Action(() => { _validatingForm.Close(); }));
-                else
-                    _validatingForm.Close();
-
-                if (_nonPrivateProxies.Count > 0)
-                {
-                    var uiThread = new Thread(() => { Application.Run(new ProxyDisplayer(_nonPrivateProxies)); });
-                    uiThread.SetApartmentState(ApartmentState.STA);
-                    uiThread.Start();
-                    error = true;
-                }
+                var error = ExecuteProxyTest(proxies);
 
                 if (!error) LogToScreen("Proxies are working OK!");
-
-                string GetIPAddress()
-                {
-                    var address = "";
-                    var request = WebRequest.Create("http://checkip.dyndns.org/");
-                    using (var response = request.GetResponse())
-                    using (var stream = new StreamReader(response.GetResponseStream()!))
-                    {
-                        address = stream.ReadToEnd();
-                    }
-
-                    var first = address.IndexOf("Address: ", StringComparison.Ordinal) + 9;
-                    var last = address.LastIndexOf("</body>", StringComparison.Ordinal);
-                    address = address.Substring(first, last - first);
-
-                    return address;
-                }
             }
             catch (Exception exception)
             {
@@ -268,6 +200,149 @@ namespace StreamViewerBot
                     //ignored
                 }
             }
+        }
+
+        private void Retest(string[] proxies)
+        {
+            var error = ExecuteProxyTest(proxies);
+
+            if (!error) LogToScreen("Proxies are working OK!");
+        }
+
+        private string GetIPAddress()
+        {
+            //var driverService = ChromeDriverService.CreateDefaultService();
+            //driverService.HideCommandPromptWindow = true;
+
+            //var chromeOptions = new ChromeOptions { AcceptInsecureCertificates = true };
+
+            //chromeOptions.PageLoadStrategy = PageLoadStrategy.Default;
+
+            //var driver = new ChromeDriver(driverService, chromeOptions);
+
+            //driver.Navigate().GoToUrl("http://streamviewerbot.com/wimi.php");
+            //var bodyElement = driver.FindElement(By.TagName("Body"));
+
+            //return bodyElement?.Text;
+
+            var address = "";
+            var request = WebRequest.Create("http://194.61.118.74/wimi.php");
+            request.Headers.Add("Accept: text/html, application/xhtml+xml, */*");
+            request.Headers.Add(
+                "User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
+            request.Timeout = 5000;
+            using (var response = request.GetResponse())
+            using (var stream = new StreamReader(response.GetResponseStream()!))
+            {
+                address = stream.ReadToEnd();
+            }
+
+            request.Abort();
+            return address;
+        }
+
+        public bool ExecuteProxyTest(string[] proxies)
+        {
+            var error = false;
+            _nonPrivateProxies.Clear();
+
+            if (_validatingForm.IsDisposed)
+                _validatingForm = new ValidatingForm();
+
+            if (_validatingForm.InvokeRequired)
+                _validatingForm.BeginInvoke(new Action(() => { _validatingForm.Show(); }));
+            else
+                _validatingForm.Show();
+
+            if (_validatingForm.ProgressBar.InvokeRequired)
+            {
+                lstQuality.BeginInvoke(new Action(() =>
+                {
+                    _validatingForm.ProgressBar.Value = 0;
+                    _validatingForm.ProgressBar.Maximum = proxies.Length;
+                }));
+            }
+            else
+            {
+                _validatingForm.ProgressBar.Value = 0;
+                _validatingForm.ProgressBar.Maximum = proxies.Length;
+            }
+
+            foreach (var line in proxies)
+            {
+                if (_validatingForm.ProgressBar.InvokeRequired)
+                    lstQuality.BeginInvoke(new Action(() => { _validatingForm.ProgressBar.Value++; }));
+                else
+                    _validatingForm.ProgressBar.Value++;
+
+                try
+                {
+                    var webRequest = WebRequest.Create(@"http://194.61.118.74/wimi.php");
+                    webRequest.Headers.Add("Accept: text/html, application/xhtml+xml, */*");
+                    webRequest.Headers.Add(
+                        "User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
+
+                    var lineArr = line.Split(':');
+
+                    if (lineArr.Length != 4)
+                    {
+                        MessageBox.Show(new Form {TopMost = true},
+                            "Proxy format must be in this format;\r\nIPADDRESS:PORT:USERNAME:PASSWORD\r\nFix and try again.");
+                        error = true;
+                        break;
+                    }
+
+                    IWebProxy proxy = new WebProxy(lineArr[0], Convert.ToInt32(lineArr[1]));
+                    var proxyUsername = lineArr[2];
+                    var proxyPassword = lineArr[3];
+                    proxy.Credentials = new NetworkCredential(proxyUsername, proxyPassword);
+                    webRequest.Proxy = proxy;
+
+                    webRequest.Timeout = 5000;
+                    using var response = webRequest.GetResponse();
+                    using var content = response.GetResponseStream();
+                    if (content != null)
+                    {
+                        using var reader = new StreamReader(content);
+                        var requestAddress = reader.ReadToEnd();
+                        var address = GetIPAddress();
+
+                        if (string.IsNullOrEmpty(requestAddress) || string.IsNullOrEmpty(address))
+                        {
+                            _nonPrivateProxies.Add(line);
+                            continue;
+                        }
+
+                        if (address == requestAddress) _nonPrivateProxies.Add(line);
+                    }
+
+                    webRequest.Abort();
+                }
+                catch (Exception ex)
+                {
+                    _nonPrivateProxies.Add(line);
+                }
+            }
+
+            if (_validatingForm.InvokeRequired)
+                _validatingForm.BeginInvoke(new Action(() => { _validatingForm.Close(); }));
+            else
+                _validatingForm.Close();
+
+            if (_nonPrivateProxies.Count > 0)
+            {
+                var uiThread = new Thread(() =>
+                {
+                    var proxyDisplayer = new ProxyDisplayer(_nonPrivateProxies);
+                    proxyDisplayer.Retest += Retest;
+                    Application.Run(proxyDisplayer);
+                });
+                uiThread.SetApartmentState(ApartmentState.STA);
+                uiThread.Start();
+                error = true;
+            }
+
+            return error;
         }
 
         private void LogToScreen(string log)
@@ -624,6 +699,7 @@ namespace StreamViewerBot
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
                 _proxyListDirectory = txtProxyList.Text = fileDialog.FileName;
+
                 _validatingForm = new ValidatingForm();
                 _validatingForm.Show();
                 _validatingForm.Location = new Point(Location.X + Width / 2 - _validatingForm.Width / 2,

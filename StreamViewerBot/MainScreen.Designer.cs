@@ -210,7 +210,7 @@
             this.numRefreshMinutes.TabIndex = 14;
             this.numRefreshMinutes.Tag = "Refresh Browsers (Min.)";
             this.numRefreshMinutes.Value = new decimal(new int[] {
-            5,
+            10,
             0,
             0,
             0});
@@ -461,9 +461,9 @@
             // 
             this.picBinance.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("picBinance.BackgroundImage")));
             this.picBinance.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.picBinance.Location = new System.Drawing.Point(393, 305);
+            this.picBinance.Location = new System.Drawing.Point(393, 304);
             this.picBinance.Name = "picBinance";
-            this.picBinance.Size = new System.Drawing.Size(93, 74);
+            this.picBinance.Size = new System.Drawing.Size(97, 80);
             this.picBinance.TabIndex = 38;
             this.picBinance.TabStop = false;
             // 
@@ -544,7 +544,7 @@
             this.MaximumSize = new System.Drawing.Size(836, 435);
             this.Name = "MainScreen";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Stream Viewer Bot";
+            this.Text = "WE STAND WITH UKRAINE! - Stream Viewer Bot";
             this.TopMost = true;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainScreen_FormClosing);
             this.Shown += new System.EventHandler(this.MainScreen_Shown);

@@ -26,6 +26,8 @@
         <None Remove="Images\info.png" />
         <None Remove="Images\twitch.png" />
         <None Remove="Images\twitter.png" />
+        <None Remove="Images\ukraine.ico" />
+        <None Remove="Images\ukraine.png" />
         <None Remove="Images\validating.gif" />
         <None Remove="Images\viewers.png" />
         <None Remove="Images\webshare.png" />
@@ -74,6 +76,9 @@
         <EmbeddedResource Include="Images\twitter.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </EmbeddedResource>
+        <EmbeddedResource Include="Images\ukraine.ico">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </EmbeddedResource>
         <EmbeddedResource Include="Images\validating.gif">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </EmbeddedResource>
@@ -92,6 +97,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="OpenQA.Selenium.Chrome.ChromeDriverExtensions" Version="1.2.0" />
         <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="98.0.4758.8000" />
         <PackageReference Include="Serilog" Version="2.10.0" />
         <PackageReference Include="Serilog.Sinks.NewRelic.Logs" Version="1.2.0" />
