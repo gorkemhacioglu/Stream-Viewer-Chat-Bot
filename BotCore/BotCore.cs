@@ -73,7 +73,7 @@ namespace BotCore
         {
             if (useLowCpuRam)
                 refreshInterval = 1;
-                
+
             BrowserLimit = browserLimit;
             CanRun = true;
             _firstPage = true;
@@ -331,7 +331,7 @@ namespace BotCore
                     chromeOptions.AddExtension(ZipDirectory + itm.Count + ".zip");
 
                 string[] resolutions =
-                    {"960,720", "1080,720", "1280,800", "1280,720", "960,600", "1024,768", "800,600"};
+                    {"1280,720", "1280,760", "1280,800", "1280,700", "1280,768", "1280,940"};
 
                 chromeOptions.AddArgument("window-size=" + resolutions[r.Next(0, resolutions.Length - 1)]);
                 chromeOptions.AddArgument(
@@ -729,15 +729,16 @@ namespace BotCore
 
                                     Thread.Sleep(1000);
 
-                                    usernameBox.SendKeys(itm.LoginInfo.Username.Substring(itm.LoginInfo.Username.Length-10));
-                                    
+                                    usernameBox.SendKeys(
+                                        itm.LoginInfo.Username.Substring(itm.LoginInfo.Username.Length - 10));
+
                                     var countryCodeArrow = driver.FindElement(By.XPath(
                                         "/html/body/div[6]/div/div[2]/div/div[2]/div/div/div[3]/div[1]/div[2]/div[1]"));
 
                                     if (countryCodeArrow != null)
                                     {
                                         countryCodeArrow.Click();
-                                        
+
                                         Thread.Sleep(1000);
 
                                         var searchCountryCode = driver.FindElement(By.XPath(
@@ -745,13 +746,15 @@ namespace BotCore
 
                                         if (searchCountryCode != null)
                                         {
-                                            searchCountryCode.SendKeys(itm.LoginInfo.Username.Substring(0, itm.LoginInfo.Username.Length-10).Replace("+",String.Empty));
-                                            
+                                            searchCountryCode.SendKeys(itm.LoginInfo.Username
+                                                .Substring(0, itm.LoginInfo.Username.Length - 10)
+                                                .Replace("+", String.Empty));
+
                                             Thread.Sleep(1000);
-                                            
+
                                             var firstElement = driver.FindElement(By.XPath(
                                                 "/html/body/div[6]/div/div[2]/div/div[4]/div/div/div/div[2]/div[1]/div[2]"));
-                                            
+
                                             firstElement?.Click();
                                         }
                                     }
@@ -888,6 +891,74 @@ namespace BotCore
                 {
                     Thread.Sleep(3000);
 
+                    if (itm.LoginInfo != null)
+                    {
+                        Thread.Sleep(1000);
+
+                        var allCookies = GetCookie(itm.LoginInfo.Username);
+
+                        if (allCookies != null)
+                            foreach (var cookie in allCookies)
+                                driver.Manage().Cookies.AddCookie(new Cookie(cookie.Name, cookie.Value, cookie.Domain,
+                                    cookie.Path, new DateTime(cookie.Expiry)));
+
+                        try
+                        {
+                            var usernameBox = driver.FindElement(By.XPath(
+                                "/html/body/div[1]/div/div[1]/div/div[2]/div[2]/div[2]/div/form/div[2]/div[1]/label/input"));
+
+                            if (usernameBox != null)
+                            {
+                                usernameBox.Click();
+
+                                Thread.Sleep(1000);
+
+                                usernameBox.SendKeys(itm.LoginInfo.Username);
+
+                                var passwordBox = driver.FindElement(By.XPath(
+                                    "/html/body/div[1]/div/div[1]/div/div[2]/div[2]/div[2]/div/form/div[2]/div[2]/label/input"));
+
+                                if (passwordBox != null)
+                                {
+                                    passwordBox.Click();
+
+                                    Thread.Sleep(1000);
+
+                                    passwordBox.SendKeys(itm.LoginInfo.Password);
+
+                                    Thread.Sleep(1000);
+
+                                    var login = driver.FindElement(By.XPath(
+                                        "/html/body/div[1]/div/div[1]/div/div[2]/div[2]/div[2]/div/form/div[2]/div[3]/div/div/div[1]/div/span/span"));
+                                    
+                                    Thread.Sleep(1000);
+
+                                    login?.Click();
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            LogMessage?.Invoke(new Exception($"Login failed: {ex.Message}"));
+                        }
+
+                        Thread.Sleep(3000);
+                        driver.Navigate().GoToUrl(StreamUrl);
+                        while (true)
+                        {
+                            Thread.Sleep(1000);
+
+                            var cookie = driver.Manage().Cookies.GetCookieNamed("c_user");
+
+                            if (!string.IsNullOrEmpty(cookie?.Value))
+                            {
+                                StoreCookie(new Tuple<string, List<Cookie>>(itm.LoginInfo.Username,
+                                    new List<Cookie>(driver.Manage().Cookies.AllCookies)));
+
+                                break;
+                            }
+                        }
+                    }
 
                     while (true)
                         try
