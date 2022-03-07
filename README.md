@@ -1,22 +1,15 @@
-# Stream Viewer Bot
+# ![alt text](https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Flag_of_Ukraine.svg/125px-Flag_of_Ukraine.svg.png) WE STAND WITH UKRAINE! -  Stream Viewer Bot
 ## **[Wiki for more information](https://github.com/gorkemhacioglu/Stream-Viewer-Bot/wiki)**
 
 Give us a star, if you liked it!
 
 Supports: **Twitch | Youtube | Facebook Live | Twitter | DLive | Nimo Tv**
 
-![alt text](https://mytwitchbot.com/images/ui2_7.png)
+![alt text](https://mytwitchbot.com/images/ui2_7_5.png)
 
 **[Download for Windows x64](http://mytwitchbot.com/Download/win-x64.zip)**
 
 You must have **private** proxies. You can buy it from [**HERE**](https://www.webshare.io/?referral_code=ceuygyx4sir2)
  at an affordable price. ***Please don't forget to change your proxy types to private. Free proxies that system will give you will not work, because these are not private proxies.***
 
-Create a .txt file with your proxies and it must be in this format;
-
-IPADRESS:PORT:USERNAME:PASSWORD<br />
-IPADRESS:PORT:USERNAME:PASSWORD<br />
-IPADRESS:PORT:USERNAME:PASSWORD<br />
-....
-
-*Please download latest version manually, if you faced any AutoUpdater problem.*
+## **[How to configure?](https://github.com/gorkemhacioglu/Stream-Viewer-Bot/wiki/Configuration)**
