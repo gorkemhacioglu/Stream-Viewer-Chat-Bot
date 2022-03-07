@@ -78,6 +78,7 @@
             this.MinimizeBox = false;
             this.Name = "ValidatingForm";
             this.ShowIcon = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "ValidatingForm";
             this.TopMost = true;
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();

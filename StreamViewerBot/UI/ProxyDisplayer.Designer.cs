@@ -32,6 +32,7 @@
             this.txtProxyList = new System.Windows.Forms.RichTextBox();
             this.lblMessage = new System.Windows.Forms.Label();
             this.lblBuyProxy = new System.Windows.Forms.Label();
+            this.btnRetest = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // lblHeader
@@ -49,7 +50,7 @@
             this.txtProxyList.Location = new System.Drawing.Point(12, 37);
             this.txtProxyList.Name = "txtProxyList";
             this.txtProxyList.ReadOnly = true;
-            this.txtProxyList.Size = new System.Drawing.Size(494, 470);
+            this.txtProxyList.Size = new System.Drawing.Size(494, 439);
             this.txtProxyList.TabIndex = 1;
             this.txtProxyList.Text = "";
             // 
@@ -77,11 +78,22 @@
             this.lblBuyProxy.MouseEnter += new System.EventHandler(this.lblBuyProxy_MouseEnter);
             this.lblBuyProxy.MouseLeave += new System.EventHandler(this.lblBuyProxy_MouseLeave);
             // 
+            // btnRetest
+            // 
+            this.btnRetest.Location = new System.Drawing.Point(220, 482);
+            this.btnRetest.Name = "btnRetest";
+            this.btnRetest.Size = new System.Drawing.Size(75, 23);
+            this.btnRetest.TabIndex = 4;
+            this.btnRetest.Text = "Retest";
+            this.btnRetest.UseVisualStyleBackColor = true;
+            this.btnRetest.Click += new System.EventHandler(this.btnRetest_Click);
+            // 
             // ProxyDisplayer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(518, 540);
+            this.Controls.Add(this.btnRetest);
             this.Controls.Add(this.lblBuyProxy);
             this.Controls.Add(this.lblMessage);
             this.Controls.Add(this.txtProxyList);
@@ -89,6 +101,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "ProxyDisplayer";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Proxy Check";
             this.TopMost = true;
             this.ResumeLayout(false);
@@ -102,5 +115,6 @@
         private System.Windows.Forms.RichTextBox txtProxyList;
         private System.Windows.Forms.Label lblMessage;
         private System.Windows.Forms.Label lblBuyProxy;
+        private System.Windows.Forms.Button btnRetest;
     }
 }

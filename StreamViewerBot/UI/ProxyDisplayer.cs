@@ -2,19 +2,22 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace StreamViewerBot.UI
 {
     public partial class ProxyDisplayer : Form
     {
+        public Action<string[]> Retest;
+
         public ProxyDisplayer(List<string> proxyList)
         {
             InitializeComponent();
 
             txtProxyList.Text = string.Empty;
 
-            foreach (var proxy in proxyList) txtProxyList.AppendText(proxy + Environment.NewLine);
+            foreach (var proxy in proxyList) txtProxyList.Text += proxy+Environment.NewLine;
         }
 
         private void lblBuyProxy_Click(object sender, EventArgs e)
@@ -39,6 +42,12 @@ namespace StreamViewerBot.UI
         private void lblBuyProxy_MouseLeave(object sender, EventArgs e)
         {
             lblBuyProxy.ForeColor = Color.LimeGreen;
+        }
+
+        private void btnRetest_Click(object sender, EventArgs e)
+        {
+            Retest.Invoke(txtProxyList.Text.Split('\n').SkipLast(1).ToArray());
+            Close();
         }
     }
 }
