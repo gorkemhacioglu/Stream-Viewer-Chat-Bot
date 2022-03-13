@@ -20,7 +20,7 @@ namespace StreamViewerBot
 {
     public partial class MainScreen : Form
     {
-        private static readonly string _productVersion = "2.7.5";
+        private static readonly string _productVersion = "2.7.6";
 
         private static string _proxyListDirectory = "";
 
@@ -211,22 +211,8 @@ namespace StreamViewerBot
 
         private string GetIPAddress()
         {
-            //var driverService = ChromeDriverService.CreateDefaultService();
-            //driverService.HideCommandPromptWindow = true;
-
-            //var chromeOptions = new ChromeOptions { AcceptInsecureCertificates = true };
-
-            //chromeOptions.PageLoadStrategy = PageLoadStrategy.Default;
-
-            //var driver = new ChromeDriver(driverService, chromeOptions);
-
-            //driver.Navigate().GoToUrl("http://streamviewerbot.com/wimi.php");
-            //var bodyElement = driver.FindElement(By.TagName("Body"));
-
-            //return bodyElement?.Text;
-
             var address = "";
-            var request = WebRequest.Create("http://194.61.118.74/wimi.php");
+            var request = WebRequest.Create("https://api.ipify.org/");
             request.Headers.Add("Accept: text/html, application/xhtml+xml, */*");
             request.Headers.Add(
                 "User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
@@ -318,7 +304,7 @@ namespace StreamViewerBot
 
                     webRequest.Abort();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     _nonPrivateProxies.Add(line);
                 }
@@ -728,7 +714,7 @@ namespace StreamViewerBot
         {
             try
             {
-                var strCmdLine = "/C explorer \"https://www.vultr.com/?ref=9059789-8H\"";
+                var strCmdLine = "/C explorer \"https://www.vultr.com/?ref=8827163\"";
                 var browserProcess = Process.Start("CMD.exe", strCmdLine);
                 browserProcess?.Close();
             }

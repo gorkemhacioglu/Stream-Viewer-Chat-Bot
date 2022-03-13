@@ -173,6 +173,7 @@
             this.lblBrowserLimit.Size = new System.Drawing.Size(85, 15);
             this.lblBrowserLimit.TabIndex = 11;
             this.lblBrowserLimit.Text = "Browser Limit :";
+            this.lblBrowserLimit.Visible = false;
             // 
             // txtBrowserLimit
             // 
@@ -182,6 +183,7 @@
             this.txtBrowserLimit.PlaceholderText = "0";
             this.txtBrowserLimit.Size = new System.Drawing.Size(40, 23);
             this.txtBrowserLimit.TabIndex = 12;
+            this.txtBrowserLimit.Visible = false;
             this.txtBrowserLimit.TextChanged += new System.EventHandler(this.txtBrowserLimit_TextChanged);
             // 
             // picVulture
@@ -233,6 +235,7 @@
             this.tipLimitInfo.Size = new System.Drawing.Size(16, 16);
             this.tipLimitInfo.TabIndex = 16;
             this.tipLimitInfo.TabStop = false;
+            this.tipLimitInfo.Visible = false;
             this.tipLimitInfo.MouseHover += new System.EventHandler(this.picLimitInfo_MouseHover);
             // 
             // toolTip
@@ -428,11 +431,11 @@
             // 
             this.lblNeedCloudServer.AutoSize = true;
             this.lblNeedCloudServer.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point);
-            this.lblNeedCloudServer.Location = new System.Drawing.Point(207, 319);
+            this.lblNeedCloudServer.Location = new System.Drawing.Point(238, 319);
             this.lblNeedCloudServer.Name = "lblNeedCloudServer";
-            this.lblNeedCloudServer.Size = new System.Drawing.Size(159, 15);
+            this.lblNeedCloudServer.Size = new System.Drawing.Size(104, 15);
             this.lblNeedCloudServer.TabIndex = 0;
-            this.lblNeedCloudServer.Text = "Run this on Cloud! $100 FREE";
+            this.lblNeedCloudServer.Text = "Run this on Cloud!";
             // 
             // picWebshare
             // 
@@ -459,7 +462,7 @@
             // 
             // picBinance
             // 
-            this.picBinance.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("picBinance.BackgroundImage")));
+            this.picBinance.BackgroundImage = global::StreamViewerBot.Properties.Resources.binancePayQR;
             this.picBinance.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.picBinance.Location = new System.Drawing.Point(393, 304);
             this.picBinance.Name = "picBinance";

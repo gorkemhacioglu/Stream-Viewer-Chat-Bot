@@ -5,7 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Remove="Extensions\TwitchAlternative.crx"/>
+        <None Remove="Extensions\TwitchAlternative.crx" />
     </ItemGroup>
 
     <ItemGroup>
@@ -15,12 +15,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0"/>
-        <PackageReference Include="OpenQA.Selenium.Chrome.ChromeDriverExtensions" Version="1.2.0"/>
-        <PackageReference Include="Selenium.WebDriver" Version="4.1.0"/>
-        <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="98.0.4758.8000"/>
-        <PackageReference Include="Serilog" Version="2.10.0"/>
-        <PackageReference Include="Serilog.Sinks.NewRelic.Logs" Version="1.2.0"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
+        <PackageReference Include="OpenQA.Selenium.Chrome.ChromeDriverExtensions" Version="1.2.0" />
+        <PackageReference Include="Selenium.WebDriver" Version="4.1.0" />
+        <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="99.0.4844.5100" />
+        <PackageReference Include="Serilog" Version="2.10.0" />
+        <PackageReference Include="Serilog.Sinks.NewRelic.Logs" Version="1.2.0" />
     </ItemGroup>
 
     <ItemGroup>
