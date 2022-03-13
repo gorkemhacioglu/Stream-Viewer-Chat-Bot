@@ -20,7 +20,7 @@ namespace StreamViewerBot
 {
     public partial class MainScreen : Form
     {
-        private static readonly string _productVersion = "2.7.5";
+        private static readonly string _productVersion = "2.7.6";
 
         private static string _proxyListDirectory = "";
 
@@ -728,7 +728,7 @@ namespace StreamViewerBot
         {
             try
             {
-                var strCmdLine = "/C explorer \"https://www.vultr.com/?ref=9059789-8H\"";
+                var strCmdLine = "/C explorer \"https://www.vultr.com/?ref=8827163\"";
                 var browserProcess = Process.Start("CMD.exe", strCmdLine);
                 browserProcess?.Close();
             }

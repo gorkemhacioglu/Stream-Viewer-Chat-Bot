@@ -173,6 +173,7 @@
             this.lblBrowserLimit.Size = new System.Drawing.Size(85, 15);
             this.lblBrowserLimit.TabIndex = 11;
             this.lblBrowserLimit.Text = "Browser Limit :";
+            this.lblBrowserLimit.Visible = false;
             // 
             // txtBrowserLimit
             // 
@@ -182,6 +183,7 @@
             this.txtBrowserLimit.PlaceholderText = "0";
             this.txtBrowserLimit.Size = new System.Drawing.Size(40, 23);
             this.txtBrowserLimit.TabIndex = 12;
+            this.txtBrowserLimit.Visible = false;
             this.txtBrowserLimit.TextChanged += new System.EventHandler(this.txtBrowserLimit_TextChanged);
             // 
             // picVulture
@@ -233,6 +235,7 @@
             this.tipLimitInfo.Size = new System.Drawing.Size(16, 16);
             this.tipLimitInfo.TabIndex = 16;
             this.tipLimitInfo.TabStop = false;
+            this.tipLimitInfo.Visible = false;
             this.tipLimitInfo.MouseHover += new System.EventHandler(this.picLimitInfo_MouseHover);
             // 
             // toolTip
