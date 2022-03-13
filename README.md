@@ -1,4 +1,4 @@
-# ![alt text](https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Flag_of_Ukraine.svg/125px-Flag_of_Ukraine.svg.png) WE STAND WITH UKRAINE! -  Stream Viewer Bot
+# ![alt text](https://streamviewerbot.com/images/ukraineflag.png) WE STAND WITH UKRAINE! -  Stream Viewer Bot
 ## **[Wiki for more information](https://github.com/gorkemhacioglu/Stream-Viewer-Bot/wiki)**
 
 Give us a star, if you liked it!
