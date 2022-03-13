@@ -431,11 +431,11 @@
             // 
             this.lblNeedCloudServer.AutoSize = true;
             this.lblNeedCloudServer.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point);
-            this.lblNeedCloudServer.Location = new System.Drawing.Point(207, 319);
+            this.lblNeedCloudServer.Location = new System.Drawing.Point(238, 319);
             this.lblNeedCloudServer.Name = "lblNeedCloudServer";
-            this.lblNeedCloudServer.Size = new System.Drawing.Size(159, 15);
+            this.lblNeedCloudServer.Size = new System.Drawing.Size(104, 15);
             this.lblNeedCloudServer.TabIndex = 0;
-            this.lblNeedCloudServer.Text = "Run this on Cloud! $100 FREE";
+            this.lblNeedCloudServer.Text = "Run this on Cloud!";
             // 
             // picWebshare
             // 

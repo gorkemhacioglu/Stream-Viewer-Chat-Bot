@@ -318,7 +318,7 @@ namespace StreamViewerBot
 
                     webRequest.Abort();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     _nonPrivateProxies.Add(line);
                 }
