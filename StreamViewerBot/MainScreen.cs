@@ -226,7 +226,7 @@ namespace StreamViewerBot
             //return bodyElement?.Text;
 
             var address = "";
-            var request = WebRequest.Create("http://194.61.118.74/wimi.php");
+            var request = WebRequest.Create("https://api.ipify.org/");
             request.Headers.Add("Accept: text/html, application/xhtml+xml, */*");
             request.Headers.Add(
                 "User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
