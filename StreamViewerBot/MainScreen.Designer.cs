@@ -459,7 +459,7 @@
             // 
             // picBinance
             // 
-            this.picBinance.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("picBinance.BackgroundImage")));
+            this.picBinance.BackgroundImage = global::StreamViewerBot.Properties.Resources.binancePayQR;
             this.picBinance.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.picBinance.Location = new System.Drawing.Point(393, 304);
             this.picBinance.Name = "picBinance";
