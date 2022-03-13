@@ -211,20 +211,6 @@ namespace StreamViewerBot
 
         private string GetIPAddress()
         {
-            //var driverService = ChromeDriverService.CreateDefaultService();
-            //driverService.HideCommandPromptWindow = true;
-
-            //var chromeOptions = new ChromeOptions { AcceptInsecureCertificates = true };
-
-            //chromeOptions.PageLoadStrategy = PageLoadStrategy.Default;
-
-            //var driver = new ChromeDriver(driverService, chromeOptions);
-
-            //driver.Navigate().GoToUrl("http://streamviewerbot.com/wimi.php");
-            //var bodyElement = driver.FindElement(By.TagName("Body"));
-
-            //return bodyElement?.Text;
-
             var address = "";
             var request = WebRequest.Create("https://api.ipify.org/");
             request.Headers.Add("Accept: text/html, application/xhtml+xml, */*");
