@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,9 +21,13 @@ namespace StreamViewerBot
 {
     public partial class MainScreen : Form
     {
-        private static readonly string _productVersion = "2.7.6";
+        private static readonly string _productVersion = "2.8";
 
         private static string _proxyListDirectory = "";
+
+        private static string _chatMessagesDirectory = "";
+
+        private static string _ipCheckURL = "https://api.ipify.org/";
 
         private static bool _headless;
 
@@ -35,16 +40,24 @@ namespace StreamViewerBot
 
         private readonly Dictionary<string, string> _dataSourceQuality = new Dictionary<string, string>();
 
+        private string _quality = string.Empty;
+
         private readonly ConcurrentQueue<LoginDto> _lstLoginInfo = new ConcurrentQueue<LoginDto>();
 
         private readonly Dictionary<string, StreamService.Service> _serviceTypes =
             new Dictionary<string, StreamService.Service>();
+
+        private StreamService.Service _serviceType;
+
+
 
         private bool _canStart;
 
         private Size _loginSize;
 
         private List<string> _nonPrivateProxies = new List<string>();
+
+        private List<string> _chatMessages = new List<string>();
 
         private CancellationTokenSource _tokenSource = new CancellationTokenSource();
 
@@ -202,6 +215,33 @@ namespace StreamViewerBot
             }
         }
 
+        private bool CheckChatMessages()
+        {
+            _chatMessages = new List<string>();
+
+            try
+            {
+                var messages = File.ReadAllText(_chatMessagesDirectory);
+
+                _chatMessages = messages.Split(';').ToList();
+                
+                return true;
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show("Please make sure that your messages are valid. Split all messages with ;\r\nFor example=> Hello;Hi everyone;It's awesome;Cool!;Great to see you...");
+                return false;
+                try
+                {
+                    Log.Logger.Error(exception.ToString());
+                }
+                catch (Exception)
+                {
+                    //ignored
+                }
+            }
+        }
+
         private void Retest(string[] proxies)
         {
             var error = ExecuteProxyTest(proxies);
@@ -212,7 +252,7 @@ namespace StreamViewerBot
         private string GetIPAddress()
         {
             var address = "";
-            var request = WebRequest.Create("https://api.ipify.org/");
+            var request = WebRequest.Create(_ipCheckURL);
             request.Headers.Add("Accept: text/html, application/xhtml+xml, */*");
             request.Headers.Add(
                 "User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
@@ -263,7 +303,7 @@ namespace StreamViewerBot
 
                 try
                 {
-                    var webRequest = WebRequest.Create(@"http://194.61.118.74/wimi.php");
+                    var webRequest = WebRequest.Create(_ipCheckURL);
                     webRequest.Headers.Add("Accept: text/html, application/xhtml+xml, */*");
                     webRequest.Headers.Add(
                         "User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
@@ -400,6 +440,7 @@ namespace StreamViewerBot
         {
             LogInfo(new Exception("Reading configuration."));
             _proxyListDirectory = txtProxyList.Text = _configuration.AppSettings.Settings["proxyListDirectory"].Value;
+            _chatMessagesDirectory = txtChatMessages.Text = _configuration.AppSettings.Settings["chatMessageDirectory"].Value;
             txtStreamUrl.Text = _configuration.AppSettings.Settings["streamUrl"].Value;
             _headless = checkHeadless.Checked =
                 Convert.ToBoolean(_configuration.AppSettings.Settings["headless"].Value);
@@ -429,6 +470,7 @@ namespace StreamViewerBot
             _lstLoginInfo.Clear();
 
             if (_withLoggedIn)
+            {
                 foreach (var line in txtLoginInfos.Text.Split("\r\n"))
                 {
                     var parts = line.Split(' ');
@@ -442,6 +484,29 @@ namespace StreamViewerBot
 
                     _lstLoginInfo.Enqueue(new LoginDto {Username = parts[0], Password = parts[1]});
                 }
+
+                if (!CheckChatMessages())
+                    return;
+            }
+
+            _serviceType = StreamService.Service.Twitch;
+
+            if (lstserviceType.InvokeRequired)
+            {
+                lstserviceType.BeginInvoke(new Action(() =>
+                {
+                    _serviceType = (StreamService.Service)lstserviceType.SelectedValue;
+                }));
+            }
+            else
+            {
+                _serviceType = (StreamService.Service)lstserviceType.SelectedValue;
+            }
+
+            if (lstQuality.InvokeRequired)
+                lstQuality.BeginInvoke(new Action(() => { _quality = lstQuality.SelectedValue.ToString(); }));
+            else
+                _quality = lstQuality.SelectedValue.ToString();
 
             _canStart = !_canStart;
 
@@ -499,6 +564,7 @@ namespace StreamViewerBot
             _configuration.AppSettings.Settings["streamUrl"].Value = txtStreamUrl.Text;
             _configuration.AppSettings.Settings["headless"].Value = checkHeadless.Checked.ToString();
             _configuration.AppSettings.Settings["proxyListDirectory"].Value = txtProxyList.Text;
+            _configuration.AppSettings.Settings["chatMessageDirectory"].Value = txtChatMessages.Text;
             _configuration.AppSettings.Settings["refreshInterval"].Value = numRefreshMinutes.Value.ToString();
             _configuration.AppSettings.Settings["withLoggedIn"].Value = _withLoggedIn.ToString();
             _configuration.AppSettings.Settings["loginInfos"].Value = txtLoginInfos.Text;
@@ -526,25 +592,8 @@ namespace StreamViewerBot
 
             _core.LiveViewer += SetLiveViewer;
 
-            var quality = string.Empty;
-
-            if (lstQuality.InvokeRequired)
-                lstQuality.BeginInvoke(new Action(() => { quality = lstQuality.SelectedValue.ToString(); }));
-            else
-                quality = lstQuality.SelectedValue.ToString();
-
-            var serviceType = StreamService.Service.Twitch;
-
-            if (lstserviceType.InvokeRequired)
-                lstserviceType.BeginInvoke(new Action(() =>
-                {
-                    serviceType = (StreamService.Service) lstserviceType.SelectedValue;
-                }));
-            else
-                serviceType = (StreamService.Service) lstserviceType.SelectedValue;
-
-            _core.Start(_proxyListDirectory, txtStreamUrl.Text, serviceType, _headless, browserLimit,
-                Convert.ToInt32(numRefreshMinutes.Value), quality, _lstLoginInfo, checkLowCpuRam.Checked);
+            _core.Start(_proxyListDirectory, _chatMessages, txtStreamUrl.Text, _serviceType, _headless, browserLimit,
+                Convert.ToInt32(numRefreshMinutes.Value), _quality, _lstLoginInfo, checkLowCpuRam.Checked);
         }
 
 
@@ -692,6 +741,23 @@ namespace StreamViewerBot
                     Location.Y + Height / 2 - _validatingForm.Height / 2);
 
                 _ = Task.Run(CheckProxiesArePrivateOrNot);
+            }
+        }
+
+        private void chatMessagesList_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Only Twitch and NimoTV supported for now!\r\n\r\nCreate a .txt file and seperate your messages with ;\r\nBot will consume your messages and won't send a sent message again, so make your list as long as possible\r\n\r\nPlease don't forget to disable Followers-only mode and Subscriber-only chat on Twitch Moderation Settings");
+            var fileDialog = new OpenFileDialog();
+
+            fileDialog.Filter = "txt files (*.txt)|*.txt";
+            fileDialog.FilterIndex = 1;
+            fileDialog.Multiselect = false;
+
+            if (fileDialog.ShowDialog() == DialogResult.OK)
+            {
+                _chatMessagesDirectory = txtChatMessages.Text = fileDialog.FileName;
+
+                _ = Task.Run(CheckChatMessages);
             }
         }
 
