@@ -230,7 +230,6 @@ namespace StreamViewerBot
             catch (Exception exception)
             {
                 MessageBox.Show("Please make sure that your messages are valid. Split all messages with ;\r\nFor example=> Hello;Hi everyone;It's awesome;Cool!;Great to see you...");
-                return false;
                 try
                 {
                     Log.Logger.Error(exception.ToString());
@@ -239,6 +238,7 @@ namespace StreamViewerBot
                 {
                     //ignored
                 }
+                return false;
             }
         }
 
