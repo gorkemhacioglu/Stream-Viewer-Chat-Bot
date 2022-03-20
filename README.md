@@ -1,4 +1,4 @@
-# ![alt text](https://streamviewerbot.com/images/ukraineflag.png) We stand with UKRAINE! -  Stream Viewer & Chat Bot
+# ![alt text](https://streamviewerbot.com/images/ukraineflag.png) We stand with UKRAINE! -  Stream Viewer&Chat Bot
 
 Our easy to use app, allows you to gain chat capable live viewers in seconds.
 
