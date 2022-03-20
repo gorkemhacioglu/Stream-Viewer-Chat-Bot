@@ -1,11 +1,14 @@
-# ![alt text](https://streamviewerbot.com/images/ukraineflag.png) WE STAND WITH UKRAINE! -  Stream Viewer Bot
+# ![alt text](https://streamviewerbot.com/images/ukraineflag.png) We stand with UKRAINE! -  Stream Viewer & Chat Bot
+
+Our easy to use app, allows you to gain chat capable live viewers in seconds.
+
 ## **:information_source: [Wiki for more information](https://github.com/gorkemhacioglu/Stream-Viewer-Bot/wiki)**
 
 :star: Give us a star, if you liked it! :star:
 
 Supports: **Twitch | Youtube | Facebook Live | Twitter | DLive | Nimo Tv**
 
-![alt text](https://mytwitchbot.com/images/ui2_7_5.png)
+![alt text](https://mytwitchbot.com/images/ui2_8.png)
 
 **[Download for Windows x64](http://mytwitchbot.com/Download/win-x64.zip):arrow_down:**
 

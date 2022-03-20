@@ -71,6 +71,11 @@
             this.lblSupport = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.lstserviceType = new System.Windows.Forms.ComboBox();
+            this.browseChatMessages = new System.Windows.Forms.Button();
+            this.lblChatMessages = new System.Windows.Forms.Label();
+            this.txtChatMessages = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.startStopButton)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picVulture)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numRefreshMinutes)).BeginInit();
@@ -323,7 +328,7 @@
             this.txtLoginInfos.Name = "txtLoginInfos";
             this.txtLoginInfos.PlaceholderText = "Format is =>Username{Blank}Password{Enter}";
             this.txtLoginInfos.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtLoginInfos.Size = new System.Drawing.Size(288, 343);
+            this.txtLoginInfos.Size = new System.Drawing.Size(288, 308);
             this.txtLoginInfos.TabIndex = 21;
             this.txtLoginInfos.WordWrap = false;
             // 
@@ -499,11 +504,63 @@
             this.lstserviceType.Tag = "";
             this.lstserviceType.SelectedIndexChanged += new System.EventHandler(this.lstServiceType_SelectedIndexChanged);
             // 
+            // browseChatMessages
+            // 
+            this.browseChatMessages.Location = new System.Drawing.Point(609, 340);
+            this.browseChatMessages.Name = "browseChatMessages";
+            this.browseChatMessages.Size = new System.Drawing.Size(34, 23);
+            this.browseChatMessages.TabIndex = 42;
+            this.browseChatMessages.Text = "...";
+            this.browseChatMessages.UseVisualStyleBackColor = true;
+            this.browseChatMessages.Click += new System.EventHandler(this.chatMessagesList_Click);
+            // 
+            // lblChatMessages
+            // 
+            this.lblChatMessages.AutoSize = true;
+            this.lblChatMessages.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.lblChatMessages.Location = new System.Drawing.Point(517, 343);
+            this.lblChatMessages.Name = "lblChatMessages";
+            this.lblChatMessages.Size = new System.Drawing.Size(92, 15);
+            this.lblChatMessages.TabIndex = 43;
+            this.lblChatMessages.Text = "Chat Messages :";
+            // 
+            // txtChatMessages
+            // 
+            this.txtChatMessages.Location = new System.Drawing.Point(649, 340);
+            this.txtChatMessages.Name = "txtChatMessages";
+            this.txtChatMessages.Size = new System.Drawing.Size(159, 23);
+            this.txtChatMessages.TabIndex = 44;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point);
+            this.label3.Location = new System.Drawing.Point(575, 363);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(169, 13);
+            this.label3.TabIndex = 45;
+            this.label3.Text = "Sends messages randomly between";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point);
+            this.label4.Location = new System.Drawing.Point(585, 376);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(145, 13);
+            this.label4.TabIndex = 46;
+            this.label4.Text = "2-10 minutes for each viewer.";
+            // 
             // MainScreen
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(813, 396);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.txtChatMessages);
+            this.Controls.Add(this.lblChatMessages);
+            this.Controls.Add(this.browseChatMessages);
             this.Controls.Add(this.checkHeadless);
             this.Controls.Add(this.lstserviceType);
             this.Controls.Add(this.label2);
@@ -611,6 +668,11 @@
         private System.Windows.Forms.Label lblSupport;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ComboBox lstserviceType;
+        private System.Windows.Forms.Button browseChatMessages;
+        private System.Windows.Forms.Label lblChatMessages;
+        private System.Windows.Forms.TextBox txtChatMessages;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label4;
     }
 }
 

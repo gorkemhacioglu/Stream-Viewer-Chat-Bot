@@ -7,6 +7,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using BotCore.Dto;
 using Newtonsoft.Json;
 using OpenQA.Selenium;
@@ -17,16 +18,10 @@ namespace BotCore
 {
     public class Core
     {
-        public static string ZipDirectory = string.Empty;
-
-        public static string StreamUrl = string.Empty;
-
-        public static bool Headless;
-
-        public static int BrowserLimit;
-
         private static readonly ConcurrentQueue<ChromeDriverService> DriverServices =
             new ConcurrentQueue<ChromeDriverService>();
+
+        private static readonly Random _random = new Random();
 
         private readonly JsonSerializerSettings _isoDateFormatSettings = new JsonSerializerSettings
         {
@@ -39,6 +34,8 @@ namespace BotCore
         private readonly string _loginCookiesPath =
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "loginCookies.json");
 
+        private ConcurrentBag<string> _chatMessages = new ConcurrentBag<string>();
+
         private StreamReader _file;
 
         private bool _firstPage = true;
@@ -49,9 +46,17 @@ namespace BotCore
 
         private bool _useLowCpuRam;
 
-        public Action AllBrowsersTerminated;
+        public static string ZipDirectory = string.Empty;
+
+        public static string StreamUrl = string.Empty;
+
+        public static bool Headless;
+
+        public static int BrowserLimit;
 
         public bool CanRun = true;
+
+        public Action AllBrowsersTerminated;
 
         public Action DecreaseViewer;
 
@@ -67,7 +72,8 @@ namespace BotCore
 
         public string PreferredQuality;
 
-        public void Start(string proxyListDirectory, string stream, StreamService.Service service, bool headless,
+        public void Start(string proxyListDirectory, List<string> chatMessages, string stream,
+            StreamService.Service service, bool headless,
             int browserLimit, int refreshInterval, string preferredQuality, ConcurrentQueue<LoginDto> loginInfos,
             bool useLowCpuRam)
         {
@@ -86,6 +92,12 @@ namespace BotCore
             var di = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory + "\\zipSource\\");
             foreach (var res in di.GetFiles()) res.Delete();
             foreach (var dir in di.GetDirectories()) dir.Delete(true);
+
+            Shuffle(ref chatMessages);
+            foreach (var item in chatMessages)
+            {
+                _chatMessages.Add(item);
+            }
 
             if (BrowserLimit > 0)
             {
@@ -124,7 +136,7 @@ namespace BotCore
                         ZipFile.CreateFromDirectory(AppDomain.CurrentDomain.BaseDirectory + "\\zipDirectory",
                             AppDomain.CurrentDomain.BaseDirectory + "\\zipSource\\background" + i + ".zip");
 
-                        var thr = new Thread(Request) {Priority = ThreadPriority.AboveNormal};
+                        var thr = new Thread(Request) { Priority = ThreadPriority.AboveNormal };
                         var r = new Random();
                         var rInt = r.Next(5000, 8000);
 
@@ -137,7 +149,10 @@ namespace BotCore
 
                         thr.Start(new SessionConfigurationDto
                         {
-                            Url = line, Count = i, PreferredQuality = preferredQuality, LoginInfo = loginInfo,
+                            Url = line,
+                            Count = i,
+                            PreferredQuality = preferredQuality,
+                            LoginInfo = loginInfo,
                             Service = service
                         });
 
@@ -160,6 +175,17 @@ namespace BotCore
             } while (browserLimit > 0);
 
             DidItsJob?.Invoke();
+        }
+
+        private void Shuffle(ref List<string> list)
+        {
+            int n = list.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = _random.Next(n + 1);
+                (list[k], list[n]) = (list[n], list[k]);
+            }
         }
 
         private void StoreCookie(Tuple<string, List<Cookie>> cookie)
@@ -193,7 +219,7 @@ namespace BotCore
             {
                 if (!File.Exists(_loginCookiesPath))
                 {
-                    var item = new Dictionary<string, List<MyCookie>> {{cookie.Item1, myCookie}};
+                    var item = new Dictionary<string, List<MyCookie>> { { cookie.Item1, myCookie } };
                     File.WriteAllText(_loginCookiesPath, JsonConvert.SerializeObject(item), Encoding.UTF8);
                     return;
                 }
@@ -301,7 +327,7 @@ namespace BotCore
             try
             {
                 var r = new Random();
-                var itm = (SessionConfigurationDto) obj;
+                var itm = (SessionConfigurationDto)obj;
                 var array = itm.Url.Split(':');
 
                 var driverService = ChromeDriverService.CreateDefaultService();
@@ -315,7 +341,7 @@ namespace BotCore
                 proxy.SslProxy = proxyUrl;
                 proxy.HttpProxy = proxyUrl;
 
-                var chromeOptions = new ChromeOptions {Proxy = proxy, AcceptInsecureCertificates = true};
+                var chromeOptions = new ChromeOptions { Proxy = proxy, AcceptInsecureCertificates = true };
 
                 var localChrome = AppDomain.CurrentDomain.BaseDirectory + "\\Extensions\\LocalChrome\\chrome.exe";
                 if (File.Exists(localChrome)) chromeOptions.BinaryLocation = localChrome;
@@ -345,7 +371,7 @@ namespace BotCore
                 chromeOptions.PageLoadStrategy = PageLoadStrategy.Default;
 
                 var driver = new ChromeDriver(driverService, chromeOptions)
-                    {Url = StreamUrl};
+                { Url = StreamUrl };
 
                 if (BrowserLimit > 0)
                 {
@@ -361,6 +387,10 @@ namespace BotCore
                 var firstPage = false;
 
                 var startDate = DateTime.Now;
+
+                var messageStartDate = DateTime.Now;
+
+                var messageInterval = _random.Next(2, 10);
 
                 if (itm.Service == StreamService.Service.Twitch)
                 {
@@ -460,103 +490,103 @@ namespace BotCore
                         }
                     }
 
-                    try
+                    while (true)
                     {
-                        while (true)
+                        try
                         {
-                            try
+                            if (_firstPage)
                             {
-                                if (_firstPage)
-                                {
-                                    firstPage = true;
-                                    _firstPage = false;
-                                }
+                                firstPage = true;
+                                _firstPage = false;
+                            }
 
-                                if (firstPage)
-                                {
-                                    var liveViewers = driver.FindElement(By.XPath(
-                                        "/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[1]/div[1]/div[2]/div/div[1]/div/div/div/div[2]/div[2]/div[2]/div/div/div[1]/div[1]/div/p/span"));
+                            if (firstPage)
+                            {
+                                var liveViewers = driver.FindElement(By.XPath(
+                                    "/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[1]/div[1]/div[2]/div/div[1]/div/div/div/div[2]/div[2]/div[2]/div/div/div[1]/div[1]/div/p/span"));
 
-                                    if (liveViewers != null)
-                                    {
-                                        LiveViewer.Invoke(liveViewers.Text);
-                                        Thread.Sleep(5000);
-                                    }
+                                if (liveViewers != null)
+                                {
+                                    LiveViewer.Invoke(liveViewers.Text);
+                                    Thread.Sleep(5000);
                                 }
                             }
-                            catch (Exception)
-                            {
-                                LiveViewer.Invoke("N/A");
-                            }
+                        }
+                        catch (Exception)
+                        {
+                            LiveViewer.Invoke("N/A");
+                        }
 
-                            Thread.Sleep(1000);
+                        Thread.Sleep(1000);
 
-                            try
-                            {
-                                if (!matureClicked && matureCheckCount < 5)
-                                    try
-                                    {
-                                        var mature = driver.FindElement(By.XPath(
-                                            "/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div/div[5]/div/div[3]/button/div/div"));
-
-                                        mature?.Click();
-                                        matureClicked = true;
-                                        matureCheckCount++;
-                                    }
-                                    catch
-                                    {
-                                        //ignored because there is no mature button
-                                    }
-                            }
-                            catch (Exception)
-                            {
-                                // ignored
-                            }
-
-                            try
-                            {
-                                if (!cacheClicked && cacheCheckCount < 5)
-                                    try
-                                    {
-                                        var cache = driver.FindElement(By.XPath(
-                                            "/html/body/div[1]/div/div[2]/div[1]/div/div/div[3]/button/div/div/div"));
-
-                                        if (cache != null)
-                                        {
-                                            cache.Click();
-                                            cacheClicked = true;
-                                        }
-
-                                        cacheCheckCount++;
-                                    }
-                                    catch (Exception)
-                                    {
-                                        //ignored because there is no cache button
-                                    }
-                            }
-                            catch (Exception)
-                            {
-                                // ignored
-                            }
-
-
-                            try
-                            {
-                                var connectionError = driver.FindElement(By.XPath(
-                                    "//*[@id=\"root\"]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div[5]/div/div[3]/button/div/div[2]"));
-
-                                if (connectionError != null)
+                        try
+                        {
+                            if (!matureClicked && matureCheckCount < 5)
+                                try
                                 {
-                                    var actions = new Actions(driver);
+                                    var mature = driver.FindElement(By.XPath(
+                                        "/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div/div[5]/div/div[3]/button/div/div"));
 
-                                    actions.Click(connectionError).Perform();
+                                    mature?.Click();
+                                    matureClicked = true;
+                                    matureCheckCount++;
                                 }
-                            }
-                            catch (Exception)
-                            {
-                                //ignored
-                            }
+                                catch
+                                {
+                                    //ignored because there is no mature button
+                                }
+                        }
+                        catch (Exception)
+                        {
+                            // ignored
+                        }
 
+                        try
+                        {
+                            if (!cacheClicked && cacheCheckCount < 5)
+                                try
+                                {
+                                    var cache = driver.FindElement(By.XPath(
+                                        "/html/body/div[1]/div/div[2]/div[1]/div/div/div[3]/button/div/div/div"));
+
+                                    if (cache != null)
+                                    {
+                                        cache.Click();
+                                        cacheClicked = true;
+                                    }
+
+                                    cacheCheckCount++;
+                                }
+                                catch (Exception)
+                                {
+                                    //ignored because there is no cache button
+                                }
+                        }
+                        catch (Exception)
+                        {
+                            // ignored
+                        }
+
+
+                        try
+                        {
+                            var connectionError = driver.FindElement(By.XPath(
+                                "//*[@id=\"root\"]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div[5]/div/div[3]/button/div/div[2]"));
+
+                            if (connectionError != null)
+                            {
+                                var actions = new Actions(driver);
+
+                                actions.Click(connectionError).Perform();
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            //ignored
+                        }
+
+                        try
+                        {
                             if (_refreshInterval != 0 &&
                                 DateTime.Now - startDate > TimeSpan.FromMinutes(_refreshInterval))
                             {
@@ -565,10 +595,46 @@ namespace BotCore
                                 startDate = DateTime.Now;
                             }
                         }
+                        catch (Exception)
+                        {
+                            //ignored
+                        }
+
+                        try
+                        {
+                            if (messageInterval != 0 &&
+                                DateTime.Now - messageStartDate > TimeSpan.FromMinutes(messageInterval) && itm.LoginInfo != null)
+                            {
+                                SendMessage();
+
+                                messageStartDate = DateTime.Now;
+
+                                messageInterval = _random.Next(1, 2);
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            //ignored
+                        }
                     }
-                    catch (Exception)
+
+                    void SendMessage()
                     {
-                        //ignored
+                        try
+                        {
+                            var chatBox = driver.FindElement(By.ClassName("chat-wysiwyg-input__editor"));
+
+
+                            if (_chatMessages.TryTake(out var message))
+                            {
+                                chatBox?.SendKeys(message + Keys.Enter);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            //ignored  
+                        }
+
                     }
                 }
                 else if (itm.Service == StreamService.Service.Youtube)
@@ -614,12 +680,19 @@ namespace BotCore
                             LiveViewer.Invoke("N/A");
                         }
 
-
-                        if (_refreshInterval != 0 && DateTime.Now - startDate > TimeSpan.FromMinutes(_refreshInterval))
+                        try
                         {
-                            driver.Navigate().Refresh();
+                            if (_refreshInterval != 0 &&
+                                DateTime.Now - startDate > TimeSpan.FromMinutes(_refreshInterval))
+                            {
+                                driver.Navigate().Refresh();
 
-                            startDate = DateTime.Now;
+                                startDate = DateTime.Now;
+                            }
+                        }
+                        catch
+                        {
+                            //ignored
                         }
                     }
                 }
@@ -630,6 +703,7 @@ namespace BotCore
                     var isPlaying = false;
 
                     while (true)
+                    {
                         try
                         {
                             if (_firstPage)
@@ -691,6 +765,22 @@ namespace BotCore
                         {
                             //ignored
                         }
+
+                        try
+                        {
+                            if (_refreshInterval != 0 &&
+                                DateTime.Now - startDate > TimeSpan.FromMinutes(_refreshInterval))
+                            {
+                                driver.Navigate().Refresh();
+                                isPlaying = false;
+                                startDate = DateTime.Now;
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            //ignored
+                        }
+                    }
                 }
                 else if (itm.Service == StreamService.Service.NimoTv)
                 {
@@ -792,7 +882,7 @@ namespace BotCore
                         {
                             Thread.Sleep(1000);
 
-                            var cookie = driver.Manage().Cookies.GetCookieNamed("auth-token");
+                            var cookie = driver.Manage().Cookies.GetCookieNamed("userName");
 
                             if (!string.IsNullOrEmpty(cookie?.Value))
                             {
@@ -850,6 +940,57 @@ namespace BotCore
                             //ignored
                         }
 
+                        try
+                        {
+                            if (_refreshInterval != 0 &&
+                                DateTime.Now - startDate > TimeSpan.FromMinutes(_refreshInterval))
+                            {
+                                driver.Navigate().Refresh();
+                                isPlaying = false;
+                                startDate = DateTime.Now;
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            //ignored
+                        }
+
+                        try
+                        {
+                            if (messageInterval != 0 &&
+                                DateTime.Now - messageStartDate > TimeSpan.FromMinutes(messageInterval) && itm.LoginInfo != null)
+                            {
+                                SendMessage();
+
+                                messageStartDate = DateTime.Now;
+
+                                messageInterval = _random.Next(1, 2);
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            //ignored
+                        }
+
+                        void SendMessage()
+                        {
+                            try
+                            {
+                                var chatBox = driver.FindElement(By.ClassName("nimo-room__chatroom__chat-box__input"));
+
+
+                                if (_chatMessages.TryTake(out var message))
+                                {
+                                    chatBox?.SendKeys(message + Keys.Enter);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                //ignored  
+                            }
+
+                        }
+
                         Thread.Sleep(1000);
                     }
                 }
@@ -882,6 +1023,20 @@ namespace BotCore
                         catch (Exception)
                         {
                             LiveViewer.Invoke("N/A");
+                        }
+
+                        try
+                        {
+                            if (_refreshInterval != 0 &&
+                                DateTime.Now - startDate > TimeSpan.FromMinutes(_refreshInterval))
+                            {
+                                driver.Navigate().Refresh();
+                                startDate = DateTime.Now;
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            //ignored
                         }
 
                         Thread.Sleep(1000);
@@ -930,7 +1085,7 @@ namespace BotCore
 
                                     var login = driver.FindElement(By.XPath(
                                         "/html/body/div[1]/div/div[1]/div/div[2]/div[2]/div[2]/div/form/div[2]/div[3]/div/div/div[1]/div/span/span"));
-                                    
+
                                     Thread.Sleep(1000);
 
                                     login?.Click();
@@ -961,6 +1116,7 @@ namespace BotCore
                     }
 
                     while (true)
+                    {
                         try
                         {
                             if (_firstPage)
@@ -985,6 +1141,21 @@ namespace BotCore
                         {
                             //ignored
                         }
+
+                        try
+                        {
+                            if (_refreshInterval != 0 &&
+                                DateTime.Now - startDate > TimeSpan.FromMinutes(_refreshInterval))
+                            {
+                                driver.Navigate().Refresh();
+                                startDate = DateTime.Now;
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            //ignored
+                        }
+                    }
                 }
 
                 try
