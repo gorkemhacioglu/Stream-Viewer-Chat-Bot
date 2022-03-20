@@ -746,7 +746,7 @@ namespace StreamViewerBot
 
         private void chatMessagesList_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Only Twitch and NimoTV supported for now!\r\n\r\nCreate a .txt file and seperate your messages with ;\r\nBot will consume your messages and won't send a sent message again, so make your list as long as possible\r\n\r\nPlease don't forget to disable Followers-only mode and Subscriber-only chat on Twitch Moderation Settings");
+            MessageBox.Show("Only Twitch and NimoTV supported for now!\r\n\r\nCreate a .txt file with ; separated messages.\r\nBot will consume your messages and won't send a sent message again, so make your list as long as possible.\r\n\r\nPlease don't forget to disable Followers-only mode and Subscriber-only chat on Twitch Moderation Settings", "Warning");
             var fileDialog = new OpenFileDialog();
 
             fileDialog.Filter = "txt files (*.txt)|*.txt";

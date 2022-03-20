@@ -630,7 +630,7 @@ namespace BotCore
                                 chatBox?.SendKeys(message + Keys.Enter);
                             }
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             //ignored  
                         }
@@ -984,7 +984,7 @@ namespace BotCore
                                     chatBox?.SendKeys(message + Keys.Enter);
                                 }
                             }
-                            catch (Exception ex)
+                            catch (Exception)
                             {
                                 //ignored  
                             }
