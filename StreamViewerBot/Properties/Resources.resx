@@ -162,7 +162,7 @@
     <value>Do you want to update?</value>
   </data>
   <data name="MainScreen_NimoTVTypeWithCountryCode" xml:space="preserve">
-    <value>Username is phone number on NimoTV. Please type it with country code like +90xxxxxxxxxx</value>
+    <value>Username is phone number on NimoTV. Please type it with country code like +90/xxxxxxxxxx</value>
   </data>
   <data name="icon_onwhite1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Images\icon_onwhite.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral,

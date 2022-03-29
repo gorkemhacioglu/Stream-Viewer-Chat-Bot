@@ -49,8 +49,6 @@ namespace StreamViewerBot
 
         private StreamService.Service _serviceType;
 
-
-
         private bool _canStart;
 
         private Size _loginSize;
@@ -114,6 +112,7 @@ namespace StreamViewerBot
                 _serviceTypes.Add("Nimo Tv", StreamService.Service.NimoTv);
                 _serviceTypes.Add("Twitter", StreamService.Service.Twitter);
                 _serviceTypes.Add("Facebook", StreamService.Service.Facebook);
+                _serviceTypes.Add("Trovo.live", StreamService.Service.TrovoLive);
 
                 lstserviceType.ValueMember = "Value";
                 lstserviceType.DisplayMember = "Key";

@@ -9,7 +9,8 @@
             DLive,
             NimoTv,
             Twitter,
-            Facebook
+            Facebook,
+            TrovoLive
         }
 
         public Service ServiceType { get; set; }

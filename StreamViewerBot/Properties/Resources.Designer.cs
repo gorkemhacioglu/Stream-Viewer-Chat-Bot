@@ -149,7 +149,7 @@ namespace StreamViewerBot.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Username is phone number on NimoTV. Please type it with country code like +90xxxxxxxxxx.
+        ///   Looks up a localized string similar to Username is phone number on NimoTV. Please type it with country code like +90/xxxxxxxxxx.
         /// </summary>
         internal static string MainScreen_NimoTVTypeWithCountryCode {
             get {
