@@ -21,7 +21,7 @@ namespace StreamViewerBot
 {
     public partial class MainScreen : Form
     {
-        private static readonly string _productVersion = "2.8";
+        private static readonly string _productVersion = "2.8.1";
 
         private static string _proxyListDirectory = "";
 
