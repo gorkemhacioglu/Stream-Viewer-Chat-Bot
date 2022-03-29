@@ -357,7 +357,7 @@ namespace BotCore
                     chromeOptions.AddExtension(ZipDirectory + itm.Count + ".zip");
 
                 string[] resolutions =
-                    {"1280,720", "1280,760", "1280,800", "1280,700", "1280,768", "1280,940"};
+                    {"1480,900", "1550,790", "1600,900", "1920,1080", "1480,768", "1780,940"};
 
                 chromeOptions.AddArgument("window-size=" + resolutions[r.Next(0, resolutions.Length - 1)]);
                 chromeOptions.AddArgument(
