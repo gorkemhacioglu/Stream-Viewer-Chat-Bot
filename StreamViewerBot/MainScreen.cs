@@ -21,7 +21,7 @@ namespace StreamViewerBot
 {
     public partial class MainScreen : Form
     {
-        private static readonly string _productVersion = "2.8";
+        private static readonly string _productVersion = "2.8.1";
 
         private static string _proxyListDirectory = "";
 
@@ -48,8 +48,6 @@ namespace StreamViewerBot
             new Dictionary<string, StreamService.Service>();
 
         private StreamService.Service _serviceType;
-
-
 
         private bool _canStart;
 
@@ -114,6 +112,7 @@ namespace StreamViewerBot
                 _serviceTypes.Add("Nimo Tv", StreamService.Service.NimoTv);
                 _serviceTypes.Add("Twitter", StreamService.Service.Twitter);
                 _serviceTypes.Add("Facebook", StreamService.Service.Facebook);
+                _serviceTypes.Add("Trovo.live", StreamService.Service.TrovoLive);
 
                 lstserviceType.ValueMember = "Value";
                 lstserviceType.DisplayMember = "Key";

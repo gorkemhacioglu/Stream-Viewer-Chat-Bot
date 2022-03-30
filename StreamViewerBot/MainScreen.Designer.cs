@@ -67,8 +67,6 @@
             this.lblNeedCloudServer = new System.Windows.Forms.Label();
             this.picWebshare = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.picBinance = new System.Windows.Forms.PictureBox();
-            this.lblSupport = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.lstserviceType = new System.Windows.Forms.ComboBox();
             this.browseChatMessages = new System.Windows.Forms.Button();
@@ -87,7 +85,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.picBotViewer)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tipLiveViewer)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picWebshare)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picBinance)).BeginInit();
             this.SuspendLayout();
             // 
             // startStopButton
@@ -465,26 +462,6 @@
             this.label1.TabIndex = 33;
             this.label1.Text = "Need private proxies?";
             // 
-            // picBinance
-            // 
-            this.picBinance.BackgroundImage = global::StreamViewerBot.Properties.Resources.binancePayQR;
-            this.picBinance.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.picBinance.Location = new System.Drawing.Point(393, 304);
-            this.picBinance.Name = "picBinance";
-            this.picBinance.Size = new System.Drawing.Size(97, 80);
-            this.picBinance.TabIndex = 38;
-            this.picBinance.TabStop = false;
-            // 
-            // lblSupport
-            // 
-            this.lblSupport.AutoSize = true;
-            this.lblSupport.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point);
-            this.lblSupport.Location = new System.Drawing.Point(393, 286);
-            this.lblSupport.Name = "lblSupport";
-            this.lblSupport.Size = new System.Drawing.Size(97, 15);
-            this.lblSupport.TabIndex = 39;
-            this.lblSupport.Text = "Want to support?";
-            // 
             // label2
             // 
             this.label2.AutoSize = true;
@@ -564,8 +541,6 @@
             this.Controls.Add(this.checkHeadless);
             this.Controls.Add(this.lstserviceType);
             this.Controls.Add(this.label2);
-            this.Controls.Add(this.lblSupport);
-            this.Controls.Add(this.picBinance);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.picWebshare);
             this.Controls.Add(this.lblNeedCloudServer);
@@ -619,7 +594,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.picBotViewer)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.tipLiveViewer)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picWebshare)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picBinance)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -664,8 +638,6 @@
         private System.Windows.Forms.Label lblNeedCloudServer;
         private System.Windows.Forms.PictureBox picWebshare;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.PictureBox picBinance;
-        private System.Windows.Forms.Label lblSupport;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ComboBox lstserviceType;
         private System.Windows.Forms.Button browseChatMessages;

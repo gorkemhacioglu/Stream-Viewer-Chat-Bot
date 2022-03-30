@@ -63,16 +63,6 @@ namespace StreamViewerBot.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap binancePayQR {
-            get {
-                object obj = ResourceManager.GetObject("binancePayQR", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap bot {
             get {
                 object obj = ResourceManager.GetObject("bot", resourceCulture);
@@ -159,7 +149,7 @@ namespace StreamViewerBot.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Username is phone number on NimoTV. Please type it with country code like +90xxxxxxxxxx.
+        ///   Looks up a localized string similar to Username is phone number on NimoTV. Please type it with country code like +90/xxxxxxxxxx.
         /// </summary>
         internal static string MainScreen_NimoTVTypeWithCountryCode {
             get {

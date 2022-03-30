@@ -14,7 +14,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Remove="Images\binancePayQR.png" />
         <None Remove="Images\bot.png" />
         <None Remove="Images\button_emergency.png" />
         <None Remove="Images\button_start.png" />
@@ -40,9 +39,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="Images\binancePayQR.png">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </EmbeddedResource>
         <EmbeddedResource Include="Images\bot.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </EmbeddedResource>
