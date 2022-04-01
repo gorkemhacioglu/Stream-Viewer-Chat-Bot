@@ -575,6 +575,7 @@
             this.Controls.Add(this.txtStreamUrl);
             this.Controls.Add(this.startStopButton);
             this.Controls.Add(this.logScreen);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximumSize = new System.Drawing.Size(836, 435);
             this.Name = "MainScreen";

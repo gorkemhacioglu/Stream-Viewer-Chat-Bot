@@ -113,6 +113,7 @@ namespace StreamViewerBot
                 _serviceTypes.Add("Twitter", StreamService.Service.Twitter);
                 _serviceTypes.Add("Facebook", StreamService.Service.Facebook);
                 _serviceTypes.Add("Trovo.live", StreamService.Service.TrovoLive);
+                _serviceTypes.Add("Bigo Live", StreamService.Service.BigoLive);
 
                 lstserviceType.ValueMember = "Value";
                 lstserviceType.DisplayMember = "Key";
@@ -223,7 +224,7 @@ namespace StreamViewerBot
                 var messages = File.ReadAllText(_chatMessagesDirectory);
 
                 _chatMessages = messages.Split(';').ToList();
-                
+
                 return true;
             }
             catch (Exception exception)
@@ -311,7 +312,7 @@ namespace StreamViewerBot
 
                     if (lineArr.Length != 4)
                     {
-                        MessageBox.Show(new Form {TopMost = true},
+                        MessageBox.Show(new Form { TopMost = true },
                             "Proxy format must be in this format;\r\nIPADDRESS:PORT:USERNAME:PASSWORD\r\nFix and try again.");
                         error = true;
                         break;
@@ -481,7 +482,7 @@ namespace StreamViewerBot
                         return;
                     }
 
-                    _lstLoginInfo.Enqueue(new LoginDto {Username = parts[0], Password = parts[1]});
+                    _lstLoginInfo.Enqueue(new LoginDto { Username = parts[0], Password = parts[1] });
                 }
 
                 if (!CheckChatMessages())
@@ -869,10 +870,10 @@ namespace StreamViewerBot
             if (lstserviceType.InvokeRequired)
                 lstserviceType.BeginInvoke(new Action(() =>
                 {
-                    serviceType = (StreamService.Service) lstserviceType.SelectedValue;
+                    serviceType = (StreamService.Service)lstserviceType.SelectedValue;
                 }));
             else
-                serviceType = (StreamService.Service) lstserviceType.SelectedValue;
+                serviceType = (StreamService.Service)lstserviceType.SelectedValue;
 
             if (serviceType == StreamService.Service.NimoTv)
                 MessageBox.Show(
@@ -948,13 +949,34 @@ namespace StreamViewerBot
 
         private void lstServiceType_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var comboBox = (ComboBox) sender;
+            btnWithLoggedIn.Visible = checkLowCpuRam.Enabled = lstQuality.Enabled = true;
+
+            var comboBox = (ComboBox)sender;
 
             switch (comboBox.SelectedValue)
             {
+                case StreamService.Service.Twitch:
+                    break;
                 case StreamService.Service.Facebook:
                     MessageBox.Show(
                         GetFromResource("MainScreen_LoginRequiredForFacebook"), "Information");
+                    break;
+                case StreamService.Service.Twitter:
+                    if (_withLoggedIn)
+                    {
+                        btnWithLoggedIn_Click(null, null);
+                        btnWithLoggedIn.Visible = false;
+                    }
+                    break;
+                case StreamService.Service.DLive:
+                    if (_withLoggedIn)
+                    {
+                        btnWithLoggedIn_Click(null, null);
+                        btnWithLoggedIn.Visible = false;
+                    }
+                    break;
+                default:
+                    checkLowCpuRam.Enabled = lstQuality.Enabled = false;
                     break;
             }
         }
