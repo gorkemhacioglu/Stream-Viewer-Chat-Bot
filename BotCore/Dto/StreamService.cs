@@ -10,7 +10,8 @@
             NimoTv,
             Twitter,
             Facebook,
-            TrovoLive
+            TrovoLive,
+            BigoLive
         }
 
         public Service ServiceType { get; set; }

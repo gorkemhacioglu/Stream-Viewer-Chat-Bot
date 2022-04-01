@@ -1325,6 +1325,56 @@ namespace BotCore
                         Thread.Sleep(1000);
                     }
                 }
+                else if (itm.Service == StreamService.Service.BigoLive)
+                {
+                    Thread.Sleep(2000);
+                    
+                    driver.Navigate().Refresh();
+                    
+                    while (true)
+                    {
+                        try
+                        {
+                            if (_firstPage)
+                            {
+                                firstPage = true;
+                                _firstPage = false;
+                            }
+                        
+                            if (firstPage)
+                            {
+                                var liveViewers = driver.FindElement(By.ClassName(
+                                    "info-view-nums"));
+                        
+                                if (liveViewers != null)
+                                {
+                                    LiveViewer.Invoke(liveViewers.Text);
+                                    Thread.Sleep(5000);
+                                }
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            //ignored
+                        }
+
+                        try
+                        {
+                            if (_refreshInterval != 0 &&
+                                DateTime.Now - startDate > TimeSpan.FromMinutes(_refreshInterval))
+                            {
+                                driver.Navigate().Refresh();
+                                startDate = DateTime.Now;
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            //ignored
+                        }
+
+                        Thread.Sleep(1000);
+                    }
+                }
 
                 try
                 {
