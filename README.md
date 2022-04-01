@@ -8,7 +8,7 @@ Our easy to use app, allows you to gain chat capable live viewers in seconds.
 
 Supports: **Twitch | Youtube | Facebook Live | Twitter | DLive | Nimo Tv**
 
-![alt text](https://mytwitchbot.com/images/ui2_8.png)
+![alt text](https://streamviewerbot.com/images/ui2_8.png)
 
 **[Download for Windows x64](https://github.com/gorkemhacioglu/Stream-Viewer-Chat-Bot/releases/download/2.8/win-x64.zip):arrow_down:**
 
