@@ -6,7 +6,7 @@ Our easy to use app, allows you to gain chat capable live viewers in seconds.
 
 :star: Give us a star, if you liked it! :star:
 
-Supports: **Twitch | Youtube | Facebook Live | Twitter | DLive | Nimo Tv**
+Supports: **Twitch | Youtube | Facebook Live | Twitter | DLive | Nimo Tv | Trovo Live | Bigo Live**
 
 ![alt text](https://streamviewerbot.com/images/ui2_8.png)
 
