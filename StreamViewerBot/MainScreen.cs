@@ -219,27 +219,32 @@ namespace StreamViewerBot
         {
             _chatMessages = new List<string>();
 
-            try
+            if (File.Exists(_chatMessagesDirectory))
             {
-                var messages = File.ReadAllText(_chatMessagesDirectory);
-
-                _chatMessages = messages.Split(';').ToList();
-
-                return true;
-            }
-            catch (Exception exception)
-            {
-                MessageBox.Show("Please make sure that your messages are valid. Split all messages with ;\r\nFor example=> Hello;Hi everyone;It's awesome;Cool!;Great to see you...");
                 try
                 {
-                    Log.Logger.Error(exception.ToString());
+                    var messages = File.ReadAllText(_chatMessagesDirectory);
+
+                    _chatMessages = messages.Split(';').ToList();
+
+                    return true;
                 }
-                catch (Exception)
+                catch (Exception exception)
                 {
-                    //ignored
+                    MessageBox.Show("Please make sure that your messages are valid. Split all messages with ;\r\nFor example=> Hello;Hi everyone;It's awesome;Cool!;Great to see you...");
+                    try
+                    {
+                        Log.Logger.Error(exception.ToString());
+                    }
+                    catch (Exception)
+                    {
+                        //ignored
+                    }
+                    return false;
                 }
-                return false;
             }
+
+            return true;
         }
 
         private void Retest(string[] proxies)

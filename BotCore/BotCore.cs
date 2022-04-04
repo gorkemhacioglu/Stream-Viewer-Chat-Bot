@@ -1183,11 +1183,19 @@ namespace BotCore
                             {
                                 loginSignUpButton.Click();
 
-                                Thread.Sleep(1000);
-                                
-                                var usernameBox = driver.FindElement(By.XPath(
-                                    "/html/body/div[4]/div/div[2]/div[3]/div[1]/div[1]/div/input"));
+                                Thread.Sleep(4000);
 
+                                IWebElement usernameBox; 
+
+                                try
+                                {
+                                    usernameBox = driver.FindElement(By.XPath("/html/body/div[4]/div/div[2]/div[3]/div[1]/div[1]/div/input"));
+                                }
+                                catch
+                                {
+                                    usernameBox = driver.FindElement(By.XPath("/html/body/div[4]/div/div[2]/div[3]/div[1]/div[1]/div[1]/input"));
+                                }
+                                
                                 if (usernameBox != null)
                                 {
                                     usernameBox.Click();
