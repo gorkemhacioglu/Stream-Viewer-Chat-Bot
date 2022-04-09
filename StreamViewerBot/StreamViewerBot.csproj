@@ -11,6 +11,7 @@
         <RepositoryUrl>https://github.com/gorkemhacioglu/Stream-Viewer-Bot</RepositoryUrl>
         <Version>2.7.4</Version>
         <Copyright>Görkem Alican Hacıoğlu</Copyright>
+        <LangVersion>10</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -93,8 +94,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="OpenQA.Selenium.Chrome.ChromeDriverExtensions" Version="1.2.0" />
-        <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="100.0.4896.6000" />
+        <PackageReference Include="Microsoft.Playwright" Version="1.20.2" />
         <PackageReference Include="Serilog" Version="2.10.0" />
         <PackageReference Include="Serilog.Sinks.NewRelic.Logs" Version="1.2.0" />
         <PackageReference Include="System.Diagnostics.Process" Version="4.3.0" />

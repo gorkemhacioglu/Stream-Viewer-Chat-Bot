@@ -526,7 +526,7 @@
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(145, 13);
             this.label4.TabIndex = 46;
-            this.label4.Text = "2-10 minutes for each viewer.";
+            this.label4.Text = "1-10 minutes for each viewer.";
             // 
             // MainScreen
             // 

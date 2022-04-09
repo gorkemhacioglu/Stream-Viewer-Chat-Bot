@@ -665,7 +665,7 @@ namespace StreamViewerBot
 
         private void DidItsJob()
         {
-            LogInfo(new Exception("Bot did it's job, wait for viewers."));
+            LogInfo(new Exception("Bot did it's job, wait a couple of minutes to see bots on the stream platform."));
         }
 
         private void LogInfo(Exception exception)
