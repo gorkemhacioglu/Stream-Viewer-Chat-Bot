@@ -1,4 +1,6 @@
-﻿namespace BotCore.Dto
+﻿using Microsoft.Playwright;
+
+namespace BotCore.Dto
 {
     public class SessionConfigurationDto
     {
@@ -11,5 +13,7 @@
         public LoginDto LoginInfo { get; set; }
 
         public StreamService.Service Service { get; set; }
+
+        public Proxy Proxy { get; set; }
     }
 }

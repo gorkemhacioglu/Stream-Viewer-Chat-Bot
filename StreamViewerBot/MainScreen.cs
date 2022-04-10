@@ -21,7 +21,7 @@ namespace StreamViewerBot
 {
     public partial class MainScreen : Form
     {
-        private static readonly string _productVersion = "2.8.1";
+        private static readonly string _productVersion = "2.9";
 
         private static string _proxyListDirectory = "";
 
@@ -219,27 +219,32 @@ namespace StreamViewerBot
         {
             _chatMessages = new List<string>();
 
-            try
+            if (File.Exists(_chatMessagesDirectory))
             {
-                var messages = File.ReadAllText(_chatMessagesDirectory);
-
-                _chatMessages = messages.Split(';').ToList();
-
-                return true;
-            }
-            catch (Exception exception)
-            {
-                MessageBox.Show("Please make sure that your messages are valid. Split all messages with ;\r\nFor example=> Hello;Hi everyone;It's awesome;Cool!;Great to see you...");
                 try
                 {
-                    Log.Logger.Error(exception.ToString());
+                    var messages = File.ReadAllText(_chatMessagesDirectory);
+
+                    _chatMessages = messages.Split(';').ToList();
+
+                    return true;
                 }
-                catch (Exception)
+                catch (Exception exception)
                 {
-                    //ignored
+                    MessageBox.Show("Please make sure that your messages are valid. Split all messages with ;\r\nFor example=> Hello;Hi everyone;It's awesome;Cool!;Great to see you...");
+                    try
+                    {
+                        Log.Logger.Error(exception.ToString());
+                    }
+                    catch (Exception)
+                    {
+                        //ignored
+                    }
+                    return false;
                 }
-                return false;
             }
+
+            return true;
         }
 
         private void Retest(string[] proxies)
@@ -660,7 +665,7 @@ namespace StreamViewerBot
 
         private void DidItsJob()
         {
-            LogInfo(new Exception("Bot did it's job, wait for viewers."));
+            LogInfo(new Exception("Bot did it's job, wait at least 3-5 minutes to see on the stream platform."));
         }
 
         private void LogInfo(Exception exception)
@@ -697,6 +702,12 @@ namespace StreamViewerBot
         {
             try
             {
+                if (exception.Message.Contains("Timeout") && exception.Message.Contains("exceeded") || exception.Message.Contains("ERR_TIMED_OUT"))
+                {
+                    exception = new Exception(
+                        "Load Timeout: Low system resources may cause this. Close unused applications.");
+                }
+
                 Log.Logger.Error(exception.ToString());
             }
             catch (Exception)
@@ -746,7 +757,7 @@ namespace StreamViewerBot
 
         private void chatMessagesList_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Only Twitch and NimoTV supported for now!\r\n\r\nCreate a .txt file with ; separated messages.\r\nBot will consume your messages and won't send a sent message again, so make your list as long as possible.\r\n\r\nPlease don't forget to disable Followers-only mode and Subscriber-only chat on Twitch Moderation Settings", "Warning");
+            MessageBox.Show("Only Twitch, NimoTV and Trovo Live supported for now!\r\n\r\nCreate a .txt file with ; separated messages.\r\nBot will consume your messages and won't send a sent message again, so make your list as long as possible.\r\n\r\nPlease don't forget to disable Followers-only mode and Subscriber-only chat on Twitch Moderation Settings", "Warning");
             var fileDialog = new OpenFileDialog();
 
             fileDialog.Filter = "txt files (*.txt)|*.txt";
