@@ -129,7 +129,7 @@
             // checkHeadless
             // 
             this.checkHeadless.AutoSize = true;
-            this.checkHeadless.Location = new System.Drawing.Point(143, 191);
+            this.checkHeadless.Location = new System.Drawing.Point(142, 198);
             this.checkHeadless.Name = "checkHeadless";
             this.checkHeadless.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.checkHeadless.Size = new System.Drawing.Size(15, 14);
@@ -352,7 +352,7 @@
             // lblHeadless
             // 
             this.lblHeadless.AutoSize = true;
-            this.lblHeadless.Location = new System.Drawing.Point(12, 190);
+            this.lblHeadless.Location = new System.Drawing.Point(11, 197);
             this.lblHeadless.Name = "lblHeadless";
             this.lblHeadless.Size = new System.Drawing.Size(126, 15);
             this.lblHeadless.TabIndex = 24;
@@ -413,21 +413,23 @@
             // 
             this.lnlResourceSaving.AutoSize = true;
             this.lnlResourceSaving.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.lnlResourceSaving.Location = new System.Drawing.Point(12, 214);
+            this.lnlResourceSaving.Location = new System.Drawing.Point(12, 217);
             this.lnlResourceSaving.Name = "lnlResourceSaving";
             this.lnlResourceSaving.Size = new System.Drawing.Size(125, 15);
             this.lnlResourceSaving.TabIndex = 30;
             this.lnlResourceSaving.Text = "Use Low CPU&&RAM   :";
+            this.lnlResourceSaving.Visible = false;
             // 
             // checkLowCpuRam
             // 
             this.checkLowCpuRam.AutoSize = true;
-            this.checkLowCpuRam.Location = new System.Drawing.Point(143, 214);
+            this.checkLowCpuRam.Location = new System.Drawing.Point(143, 217);
             this.checkLowCpuRam.Name = "checkLowCpuRam";
             this.checkLowCpuRam.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.checkLowCpuRam.Size = new System.Drawing.Size(15, 14);
             this.checkLowCpuRam.TabIndex = 31;
             this.checkLowCpuRam.UseVisualStyleBackColor = true;
+            this.checkLowCpuRam.Visible = false;
             // 
             // lblNeedCloudServer
             // 
@@ -526,7 +528,7 @@
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(145, 13);
             this.label4.TabIndex = 46;
-            this.label4.Text = "2-10 minutes for each viewer.";
+            this.label4.Text = "1-10 minutes for each viewer.";
             // 
             // MainScreen
             // 
