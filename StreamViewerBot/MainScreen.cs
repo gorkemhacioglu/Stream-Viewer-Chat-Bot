@@ -21,7 +21,7 @@ namespace StreamViewerBot
 {
     public partial class MainScreen : Form
     {
-        private static readonly string _productVersion = "2.8.1";
+        private static readonly string _productVersion = "2.9";
 
         private static string _proxyListDirectory = "";
 
@@ -665,7 +665,7 @@ namespace StreamViewerBot
 
         private void DidItsJob()
         {
-            LogInfo(new Exception("Bot did it's job, wait a couple of minutes to see bots on the stream platform."));
+            LogInfo(new Exception("Bot did it's job, wait at least 3-5 minutes to see on the stream platform."));
         }
 
         private void LogInfo(Exception exception)
@@ -702,6 +702,12 @@ namespace StreamViewerBot
         {
             try
             {
+                if (exception.Message.Contains("Timeout") && exception.Message.Contains("exceeded") || exception.Message.Contains("ERR_TIMED_OUT"))
+                {
+                    exception = new Exception(
+                        "Load Timeout: Low system resources may cause this. Close unused applications.");
+                }
+
                 Log.Logger.Error(exception.ToString());
             }
             catch (Exception)
@@ -751,7 +757,7 @@ namespace StreamViewerBot
 
         private void chatMessagesList_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Only Twitch and NimoTV supported for now!\r\n\r\nCreate a .txt file with ; separated messages.\r\nBot will consume your messages and won't send a sent message again, so make your list as long as possible.\r\n\r\nPlease don't forget to disable Followers-only mode and Subscriber-only chat on Twitch Moderation Settings", "Warning");
+            MessageBox.Show("Only Twitch, NimoTV and Trovo Live supported for now!\r\n\r\nCreate a .txt file with ; separated messages.\r\nBot will consume your messages and won't send a sent message again, so make your list as long as possible.\r\n\r\nPlease don't forget to disable Followers-only mode and Subscriber-only chat on Twitch Moderation Settings", "Warning");
             var fileDialog = new OpenFileDialog();
 
             fileDialog.Filter = "txt files (*.txt)|*.txt";

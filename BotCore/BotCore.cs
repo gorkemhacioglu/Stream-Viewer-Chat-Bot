@@ -14,6 +14,8 @@ namespace BotCore;
 
 public class Core
 {
+    private IBrowser _browser = null;
+
     private static readonly ConcurrentQueue<IBrowser> Browsers = new();
 
     private static readonly Random _random = new();
@@ -332,19 +334,19 @@ public class Core
 
             var browserLaunchOptions = new BrowserTypeLaunchOptions
             {
-                Proxy = itm.Proxy,
                 Headless = false,
-                Channel = "chrome"
+                Channel = "chrome",
+                Proxy = new Proxy() {Server = "http://per-context"},
+                Timeout = 120000,
             };
 
-            //todo
-            // if (_useLowCpuRam)
-            //     chromeOptions.AddExtension(AppDomain.CurrentDomain.BaseDirectory +
-            //                                "\\Extensions\\TwitchAlternative.crx");
-            // args.Add("--disable-extensions-except=" + AppDomain.CurrentDomain.BaseDirectory +
-            //          "\\Extensions\\TwitchAlternative.crx");
-            // args.Add("--load-extension=" + AppDomain.CurrentDomain.BaseDirectory +
-            //          "\\Extensions\\TwitchAlternative.crx");
+            if (_useLowCpuRam)
+            {
+                args.Add("--disable-extensions-except=" + AppDomain.CurrentDomain.BaseDirectory +
+                         "\\Extensions\\TwitchAlternative.crx");
+                args.Add("--load-extension=" + AppDomain.CurrentDomain.BaseDirectory +
+                         "\\Extensions\\TwitchAlternative.crx");
+            }
 
             if (Headless) browserLaunchOptions.Headless = true;
 
@@ -354,9 +356,6 @@ public class Core
             string[] resolutions =
                 {"1480,900", "1550,790", "1600,900", "1920,1080", "1480,768", "1780,940"};
 
-            args.Add(
-                "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.75 Safari/537.36");
-
             args.Add("--mute-audio");
 
             args.Add("--enable-automation");
@@ -365,18 +364,23 @@ public class Core
 
             browserLaunchOptions.Args = args;
 
-            var browser = _playwright.Chromium.LaunchAsync(browserLaunchOptions).GetAwaiter().GetResult();
+            _browser ??= _playwright.Chromium.LaunchAsync(browserLaunchOptions).GetAwaiter().GetResult();
 
-            var page = browser.NewPageAsync(new BrowserNewPageOptions
+            var page = _browser.NewPageAsync(new BrowserNewPageOptions
             {
                 ViewportSize = new ViewportSize
                 {
                     Width = Convert.ToInt32(resolutions[r.Next(0, resolutions.Length - 1)].Split(',')[0]),
                     Height = Convert.ToInt32(resolutions[r.Next(0, resolutions.Length - 1)].Split(',')[1])
-                }
+                },
+                UserAgent =
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.75 Safari/537.36",
+                Geolocation = new Geolocation() {Latitude = r.Next(-90, 90), Longitude = r.Next(-180, 180)},
+                Proxy = itm.Proxy
             }).GetAwaiter().GetResult();
 
-            page.GotoAsync(StreamUrl).GetAwaiter().GetResult();
+            page.GotoAsync(StreamUrl, new PageGotoOptions() {Timeout = 120000, WaitUntil = WaitUntilState.Load})
+                .GetAwaiter().GetResult();
 
             if (BrowserLimit > 0)
             {
@@ -385,7 +389,8 @@ public class Core
                 return;
             }
 
-            Browsers.Enqueue(browser);
+            if(_browser == null)
+                Browsers.Enqueue(_browser);
 
             IncreaseViewer?.Invoke();
 
@@ -595,7 +600,7 @@ public class Core
                     {
                         var connectionError =
                             page.Locator(
-                                "xpath=//*[@id=\"root\"]/div/div[2]/div/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div[5]/div/div[3]/button/div/div[2]");
+                                "xpath=/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div/div[7]/div/div[3]/button/div/div[2]");
 
                         if (connectionError.CountAsync().GetAwaiter().GetResult() > 0)
                             connectionError.ClickAsync().GetAwaiter().GetResult();
@@ -1160,7 +1165,7 @@ public class Core
                     }
 
                     Thread.Sleep(3000);
-                    page.GotoAsync(StreamUrl).GetAwaiter().GetResult();
+                    page.ReloadAsync().GetAwaiter().GetResult();
 
                     while (true)
                     {
@@ -1311,7 +1316,7 @@ public class Core
                     }
 
                     Thread.Sleep(3000);
-                    page.GotoAsync(StreamUrl).GetAwaiter().GetResult();
+                    page.ReloadAsync().GetAwaiter().GetResult();
 
                     while (true)
                     {
@@ -1527,7 +1532,7 @@ public class Core
 
             try
             {
-                browser.CloseAsync().GetAwaiter().GetResult();
+                page.CloseAsync().GetAwaiter().GetResult();
             }
             catch (Exception)
             {
