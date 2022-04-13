@@ -14,8 +14,6 @@ namespace BotCore;
 
 public class Core
 {
-    private IBrowser _browser = null;
-
     private static readonly ConcurrentQueue<IBrowser> Browsers = new();
 
     private static readonly Random _random = new();
@@ -332,12 +330,15 @@ public class Core
 
             var args = new List<string>();
 
-            var browserLaunchOptions = new BrowserTypeLaunchOptions
+            string[] resolutions =
+                {"1480,900", "1550,790", "1600,900", "1920,1080", "1480,768", "1780,940"};
+
+            var browserLaunchOptions = new BrowserTypeLaunchOptions()
             {
                 Headless = false,
                 Channel = "chrome",
-                Proxy = new Proxy() {Server = "http://per-context"},
                 Timeout = 120000,
+                Proxy = itm.Proxy
             };
 
             if (_useLowCpuRam)
@@ -353,9 +354,6 @@ public class Core
             var localChrome = AppDomain.CurrentDomain.BaseDirectory + "\\Extensions\\LocalChrome\\chrome.exe";
             if (File.Exists(localChrome)) browserLaunchOptions.ExecutablePath = localChrome;
 
-            string[] resolutions =
-                {"1480,900", "1550,790", "1600,900", "1920,1080", "1480,768", "1780,940"};
-
             args.Add("--mute-audio");
 
             args.Add("--enable-automation");
@@ -364,9 +362,9 @@ public class Core
 
             browserLaunchOptions.Args = args;
 
-            _browser ??= _playwright.Chromium.LaunchAsync(browserLaunchOptions).GetAwaiter().GetResult();
+            var browser = _playwright.Chromium.LaunchAsync(browserLaunchOptions).GetAwaiter().GetResult();
 
-            var page = _browser.NewPageAsync(new BrowserNewPageOptions
+            var page = browser.NewPageAsync(new BrowserNewPageOptions()
             {
                 ViewportSize = new ViewportSize
                 {
@@ -376,7 +374,6 @@ public class Core
                 UserAgent =
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.75 Safari/537.36",
                 Geolocation = new Geolocation() {Latitude = r.Next(-90, 90), Longitude = r.Next(-180, 180)},
-                Proxy = itm.Proxy
             }).GetAwaiter().GetResult();
 
             page.GotoAsync(StreamUrl, new PageGotoOptions() {Timeout = 120000, WaitUntil = WaitUntilState.Load})
@@ -389,8 +386,7 @@ public class Core
                 return;
             }
 
-            if(_browser == null)
-                Browsers.Enqueue(_browser);
+            Browsers.Enqueue(browser);
 
             IncreaseViewer?.Invoke();
 
@@ -1232,6 +1228,18 @@ public class Core
             if (itm.Service == StreamService.Service.TrovoLive)
             {
                 Thread.Sleep(5000);
+
+                if (!Headless && !_useLowCpuRam)
+                    try
+                    {
+                        page.EvaluateAsync("window.localStorage.setItem('live/userClarityLevel', '" +
+                                           itm.PreferredQuality + "');");
+                        page.ReloadAsync().GetAwaiter().GetResult();
+                    }
+                    catch (Exception)
+                    {
+                        //ignored
+                    }
 
                 if (itm.LoginInfo != null)
                 {
