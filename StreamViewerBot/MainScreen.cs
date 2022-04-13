@@ -967,6 +967,11 @@ namespace StreamViewerBot
             switch (comboBox.SelectedValue)
             {
                 case StreamService.Service.Twitch:
+                    _dataSourceQuality.Clear();
+                    _dataSourceQuality.Add("Source", string.Empty);
+                    _dataSourceQuality.Add("480p", "{\"default\":\"480p30\"}");
+                    _dataSourceQuality.Add("360p", "{\"default\":\"360p30\"}");
+                    _dataSourceQuality.Add("160p", "{\"default\":\"160p30\"}");
                     break;
                 case StreamService.Service.Facebook:
                     MessageBox.Show(
@@ -986,9 +991,30 @@ namespace StreamViewerBot
                         btnWithLoggedIn.Visible = false;
                     }
                     break;
+                case StreamService.Service.TrovoLive:
+                    _dataSourceQuality.Clear();
+                    _dataSourceQuality.Add("Source", "");
+                    _dataSourceQuality.Add("1080p", "4|5000");
+                    _dataSourceQuality.Add("720p", "3|2500");
+                    _dataSourceQuality.Add("480p", "2|1500");
+                    _dataSourceQuality.Add("360p", "1|600");
+                    _dataSourceQuality.Add("144p", "0|280");
+                    break;
                 default:
                     checkLowCpuRam.Enabled = lstQuality.Enabled = false;
                     break;
+            }
+            
+            if (lstQuality.InvokeRequired)
+                lstQuality.BeginInvoke(new Action(() =>
+                {
+                    lstQuality.DataSource = new BindingSource(_dataSourceQuality, null);
+                    lstQuality.SelectedIndex = _dataSourceQuality.Count - 1;
+                }));
+            else
+            {
+                lstQuality.DataSource = new BindingSource(_dataSourceQuality, null);
+                lstQuality.SelectedIndex = _dataSourceQuality.Count - 1;
             }
         }
     }
