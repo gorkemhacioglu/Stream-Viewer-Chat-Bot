@@ -69,50 +69,43 @@ public class Core
 
     public string PreferredQuality;
 
-    public void Start(string proxyListDirectory, List<string> chatMessages, string stream,
-        StreamService.Service service, bool headless,
-        int browserLimit, int refreshInterval, string preferredQuality, ConcurrentQueue<LoginDto> loginInfos,
-        bool useLowCpuRam)
+    public void Start(ExecuteNeedsDto executeNeeds)
     {
-        if (useLowCpuRam)
-            refreshInterval = 1;
+        if (executeNeeds.UseLowCpuRam)
+            executeNeeds.RefreshInterval = 1;
 
         if (_playwright != null)
             _playwright.Dispose();
 
         _playwright = Playwright.CreateAsync().GetAwaiter().GetResult();
 
-        BrowserLimit = browserLimit;
+        BrowserLimit = executeNeeds.BrowserLimit;
         CanRun = true;
         _firstPage = true;
-        _useLowCpuRam = useLowCpuRam;
-        Headless = headless;
-        PreferredQuality = preferredQuality;
-        _refreshInterval = refreshInterval;
+        _useLowCpuRam = executeNeeds.UseLowCpuRam;
+        Headless = executeNeeds.Headless;
+        PreferredQuality = executeNeeds.PreferredQuality;
+        _refreshInterval = executeNeeds.RefreshInterval;
         var i = 0;
-        StreamUrl = stream;
-        var di = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory + "\\zipSource\\");
-        foreach (var res in di.GetFiles()) res.Delete();
-        foreach (var dir in di.GetDirectories()) dir.Delete(true);
-
-        Shuffle(ref chatMessages);
-        foreach (var item in chatMessages) _chatMessages.Add(item);
+        StreamUrl = executeNeeds.Stream;
+        
+        var executeNeedsChatMessages = executeNeeds.ChatMessages;
+        Shuffle(ref executeNeedsChatMessages);
+        foreach (var item in executeNeedsChatMessages) _chatMessages.Add(item);
 
         if (BrowserLimit > 0)
         {
             var thr = new Thread(LoopWithLimit);
             thr.Start();
         }
-
-        ZipDirectory = AppDomain.CurrentDomain.BaseDirectory + "\\zipSource\\background";
-
+        
         _initialChromeProcesses = Process.GetProcessesByName("chrome").ToList();
 
         do
         {
             try
             {
-                _file = new StreamReader(proxyListDirectory);
+                _file = new StreamReader(executeNeeds.ProxyListDirectory);
 
                 string line;
 
@@ -132,18 +125,6 @@ public class Core
                         Password = array[3]
                     };
 
-                    // var text = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory +
-                    //                             "\\zipDirectory\\backgroundTemplate.js");
-                    //
-                    //
-                    // text = text.Replace("{ip}", array[0]).Replace("{port}", array[1])
-                    //     .Replace("{username}", array[2]).Replace("{password}", array[3]);
-                    // File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "\\zipDirectory\\background.js",
-                    //     text);
-                    //
-                    // ZipFile.CreateFromDirectory(AppDomain.CurrentDomain.BaseDirectory + "\\zipDirectory",
-                    //     AppDomain.CurrentDomain.BaseDirectory + "\\zipSource\\background" + i + ".zip");
-
                     var thr = new Thread(Request) {Priority = ThreadPriority.AboveNormal};
                     var r = new Random();
                     var rInt = r.Next(5000, 8000);
@@ -153,15 +134,15 @@ public class Core
                     if (!CanRun)
                         continue;
 
-                    loginInfos.TryDequeue(out var loginInfo);
+                    executeNeeds.LoginInfos.TryDequeue(out var loginInfo);
 
                     thr.Start(new SessionConfigurationDto
                     {
                         Url = line,
                         Count = i,
-                        PreferredQuality = preferredQuality,
+                        PreferredQuality = executeNeeds.PreferredQuality,
                         LoginInfo = loginInfo,
-                        Service = service,
+                        Service = executeNeeds.Service,
                         Proxy = proxy
                     });
 
@@ -181,7 +162,7 @@ public class Core
 
             if (!CanRun)
                 break;
-        } while (browserLimit > 0);
+        } while (executeNeeds.BrowserLimit > 0);
 
         DidItsJob?.Invoke();
     }
@@ -255,7 +236,7 @@ public class Core
         var allChromeProcesses = Process.GetProcessesByName("chrome");
 
         foreach (var process in allChromeProcesses)
-            if (!_initialChromeProcesses.Any(x => x.Id == process.Id))
+            if (_initialChromeProcesses.All(x => x.Id != process.Id))
             {
                 var startInfo = new ProcessStartInfo
                 {
@@ -291,11 +272,7 @@ public class Core
         _file?.Close();
 
         KillAllProcesses();
-
-        var files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory + "\\zipSource");
-
-        foreach (var file in files) File.Delete(file);
-
+        
         Browsers.Clear();
 
         AllBrowsersTerminated?.Invoke();
@@ -542,6 +519,20 @@ public class Core
 
                     try
                     {
+                        var connectionError =
+                            page.Locator(
+                                "xpath=/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div/div[7]/div/div[3]/button/div/div[2]");
+
+                        if (connectionError.CountAsync().GetAwaiter().GetResult() > 0)
+                            connectionError.ClickAsync().GetAwaiter().GetResult();
+                    }
+                    catch (Exception)
+                    {
+                        //ignored
+                    }
+                    
+                    try
+                    {
                         if (!matureClicked && matureCheckCount < 5)
                             try
                             {
@@ -590,20 +581,6 @@ public class Core
                     catch (Exception)
                     {
                         // ignored
-                    }
-
-                    try
-                    {
-                        var connectionError =
-                            page.Locator(
-                                "xpath=/html/body/div[1]/div/div[2]/div[1]/main/div[2]/div[3]/div/div/div[2]/div/div[2]/div/div/div/div/div[7]/div/div[3]/button/div/div[2]");
-
-                        if (connectionError.CountAsync().GetAwaiter().GetResult() > 0)
-                            connectionError.ClickAsync().GetAwaiter().GetResult();
-                    }
-                    catch (Exception)
-                    {
-                        //ignored
                     }
 
                     try
@@ -1493,6 +1470,116 @@ public class Core
                 Thread.Sleep(2000);
 
                 page.ReloadAsync().GetAwaiter().GetResult();
+                
+                /*if (itm.LoginInfo != null)
+                {
+                    Thread.Sleep(1000);
+
+                    var allCookies = GetCookie(itm.LoginInfo.Username);
+
+                    if (allCookies != null)
+                        foreach (var cookie in allCookies)
+                        {
+                            Cookie[] cookies =
+                            {
+                                new()
+                                {
+                                    Domain = cookie.Domain, Expires = cookie.Expiry, Name = cookie.Name,
+                                    Path = cookie.Path, Secure = cookie.Secure, Url = cookie.Path,
+                                    HttpOnly = cookie.HttpOnly, Value = cookie.Value
+                                }
+                            };
+
+                            page.Context.AddCookiesAsync(cookies);
+                        }
+
+                    try
+                    {
+                        var loginSignUpButton =
+                            page.Locator("xpath=/html/body/div/div/div/header/div[2]/div/button");
+
+                        if (loginSignUpButton.CountAsync().GetAwaiter().GetResult() > 0)
+                        {
+                            Click(ref loginSignUpButton);
+                            
+                            var withCredentialsButton =
+                                page.Locator("xpath=/html/body/div/div[2]/div/header/div[3]/div/div[2]");
+
+                            if (withCredentialsButton.CountAsync().GetAwaiter().GetResult() > 0)
+                            {
+                                Click(ref withCredentialsButton);
+
+                                Thread.Sleep(4000);
+
+                                ILocator usernameBox;
+
+                                try
+                                {
+                                    usernameBox =
+                                        page.Locator(
+                                            "xpath=/html/body/div[4]/div/div[2]/div[3]/div[1]/div[1]/div/input");
+                                }
+                                catch
+                                {
+                                    usernameBox =
+                                        page.Locator(
+                                            "xpath=/html/body/div[4]/div/div[2]/div[3]/div[1]/div[1]/div[1]/input");
+                                }
+
+                                if (usernameBox.CountAsync().GetAwaiter().GetResult() > 0)
+                                {
+                                    Click(ref usernameBox);
+
+                                    Thread.Sleep(1000);
+
+                                    usernameBox.TypeAsync(itm.LoginInfo.Username).GetAwaiter().GetResult();
+
+                                    Thread.Sleep(1000);
+
+                                    var passwordBox =
+                                        page.Locator(
+                                            "xpath=/html/body/div[4]/div/div[2]/div[3]/div[1]/div[3]/div/input");
+
+                                    if (passwordBox.CountAsync().GetAwaiter().GetResult() > 0)
+                                    {
+                                        passwordBox.TypeAsync(itm.LoginInfo.Password).GetAwaiter().GetResult();
+
+                                        var login = page.Locator(
+                                            "xpath=/html/body/div[4]/div/div[2]/div[3]/div[1]/button");
+
+                                        Thread.Sleep(1000);
+
+                                        if (login.CountAsync().GetAwaiter().GetResult() > 0)
+                                            Click(ref login);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogMessage?.Invoke(new Exception($"Login failed: {ex.Message}"));
+                    }
+
+                    Thread.Sleep(3000);
+                    page.ReloadAsync().GetAwaiter().GetResult();
+
+                    while (true)
+                    {
+                        Thread.Sleep(1000);
+
+                        var cookie = page.Context.CookiesAsync().GetAwaiter().GetResult().Any(x => x.Name == "uid");
+
+                        if (cookie)
+                        {
+                            StoreCookie(new Tuple<string, List<BrowserContextCookiesResult>>(itm.LoginInfo.Username,
+                                new List<BrowserContextCookiesResult>(page.Context.CookiesAsync().GetAwaiter()
+                                    .GetResult().ToArray())));
+
+                            break;
+                        }
+                    }
+                }*/
 
                 while (true)
                 {
@@ -1507,7 +1594,7 @@ public class Core
                         if (firstPage)
                         {
                             var liveViewers = page.WaitForSelectorAsync(".info-view-nums").GetAwaiter().GetResult();
-
+                            
                             if (liveViewers != null)
                             {
                                 LiveViewer.Invoke(liveViewers.InnerTextAsync().GetAwaiter().GetResult());

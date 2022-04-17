@@ -74,6 +74,8 @@
             this.txtChatMessages = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.startStopButton)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picVulture)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numRefreshMinutes)).BeginInit();
@@ -205,7 +207,7 @@
             // 
             this.numRefreshMinutes.Location = new System.Drawing.Point(265, 160);
             this.numRefreshMinutes.Maximum = new decimal(new int[] {
-            1440,
+            15,
             0,
             0,
             0});
@@ -214,7 +216,7 @@
             this.numRefreshMinutes.TabIndex = 14;
             this.numRefreshMinutes.Tag = "Refresh Browsers (Min.)";
             this.numRefreshMinutes.Value = new decimal(new int[] {
-            10,
+            5,
             0,
             0,
             0});
@@ -343,11 +345,11 @@
             // lblLoginInfoTitle
             // 
             this.lblLoginInfoTitle.AutoSize = true;
-            this.lblLoginInfoTitle.Location = new System.Drawing.Point(609, 8);
+            this.lblLoginInfoTitle.Location = new System.Drawing.Point(522, 9);
             this.lblLoginInfoTitle.Name = "lblLoginInfoTitle";
-            this.lblLoginInfoTitle.Size = new System.Drawing.Size(99, 15);
+            this.lblLoginInfoTitle.Size = new System.Drawing.Size(279, 15);
             this.lblLoginInfoTitle.TabIndex = 23;
-            this.lblLoginInfoTitle.Text = "Login Credentials";
+            this.lblLoginInfoTitle.Text = "Login Credentials (Required for Facebook and Bigo)";
             // 
             // lblHeadless
             // 
@@ -435,11 +437,11 @@
             // 
             this.lblNeedCloudServer.AutoSize = true;
             this.lblNeedCloudServer.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point);
-            this.lblNeedCloudServer.Location = new System.Drawing.Point(238, 319);
+            this.lblNeedCloudServer.Location = new System.Drawing.Point(207, 319);
             this.lblNeedCloudServer.Name = "lblNeedCloudServer";
-            this.lblNeedCloudServer.Size = new System.Drawing.Size(104, 15);
+            this.lblNeedCloudServer.Size = new System.Drawing.Size(159, 15);
             this.lblNeedCloudServer.TabIndex = 0;
-            this.lblNeedCloudServer.Text = "Run this on Cloud!";
+            this.lblNeedCloudServer.Text = "Run this app on cloud server!";
             // 
             // picWebshare
             // 
@@ -530,11 +532,31 @@
             this.label4.TabIndex = 46;
             this.label4.Text = "1-10 minutes for each viewer.";
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(492, 91);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(15, 15);
+            this.label5.TabIndex = 47;
+            this.label5.Text = ">";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(492, 256);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(15, 15);
+            this.label6.TabIndex = 48;
+            this.label6.Text = ">";
+            // 
             // MainScreen
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(813, 396);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.label5);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.txtChatMessages);
@@ -648,6 +670,8 @@
         private System.Windows.Forms.TextBox txtChatMessages;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label6;
     }
 }
 
