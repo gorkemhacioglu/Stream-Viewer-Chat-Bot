@@ -21,7 +21,7 @@ namespace StreamViewerBot
 {
     public partial class MainScreen : Form
     {
-        private static readonly string _productVersion = "2.9";
+        private static readonly string _productVersion = "2.9.1";
 
         private static string _proxyListDirectory = "";
 
@@ -30,8 +30,6 @@ namespace StreamViewerBot
         private static string _ipCheckURL = "https://api.ipify.org/";
 
         private static bool _headless;
-
-        private readonly string _appId = "";
 
         private readonly Configuration _configuration =
             ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
@@ -67,15 +65,15 @@ namespace StreamViewerBot
         {
             InitializeComponent();
 
-            _appId = _configuration.AppSettings.Settings["appId"].Value;
+            var appId = _configuration.AppSettings.Settings["appId"].Value;
 
-            if (string.IsNullOrEmpty(_appId))
+            if (string.IsNullOrEmpty(appId))
             {
                 _configuration.AppSettings.Settings["appId"].Value = Guid.NewGuid().ToString();
                 _configuration.Save(ConfigurationSaveMode.Modified);
             }
 
-            Logger.CreateLogger(_appId);
+            Logger.CreateLogger(appId);
 
             Text += " v" + _productVersion;
 
@@ -85,6 +83,11 @@ namespace StreamViewerBot
 
             if (isAvailable)
             {
+                var isForcedUpdate = IsForcedUpdate();
+                
+                if(isForcedUpdate)
+                    UpdateBot(true);
+                
                 ShowChangelog();
                 UpdateBot();
             }
@@ -180,6 +183,33 @@ namespace StreamViewerBot
                     var latestVersion = reader.ReadToEnd();
 
                     return latestVersion != _productVersion;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            return false;
+        }
+        
+        private bool IsForcedUpdate()
+        {
+            try
+            {
+                var webRequest = WebRequest.Create(@"https://streamviewerbot.com/Download/isForcedUpdate.txt");
+                webRequest.Headers.Add("Accept: text/html, application/xhtml+xml, */*");
+                webRequest.Headers.Add(
+                    "User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
+                webRequest.Timeout = 5000;
+                using var response = webRequest.GetResponse();
+                using var content = response.GetResponseStream();
+                if (content != null)
+                {
+                    using var reader = new StreamReader(content);
+                    var value = Convert.ToBoolean(reader.ReadToEnd());
+
+                    return value;
                 }
             }
             catch (Exception)
@@ -395,12 +425,23 @@ namespace StreamViewerBot
             }
         }
 
-        private void UpdateBot()
+        private void UpdateBot(bool isForcedUpdate = false)
         {
+            if (isForcedUpdate)
+            {
+                ExecuteUpdate();
+                return;
+            }
+
             var dialogResult = MessageBox.Show(GetFromResource("MainScreen_UpdateBot_Do_you_want_to_update_"),
                 GetFromResource("MainScreen_UpdateBot_Newer_version_is_available_"), MessageBoxButtons.YesNo);
-
+            
             if (dialogResult == DialogResult.Yes)
+            {
+                ExecuteUpdate();
+            }
+
+            void ExecuteUpdate()
             {
                 var args = "https://streamviewerbot.com/Download/win-x64.zip" + "*" +
                            AppDomain.CurrentDomain.BaseDirectory.Replace(' ', '?') + "*" +
@@ -597,8 +638,20 @@ namespace StreamViewerBot
 
             _core.LiveViewer += SetLiveViewer;
 
-            _core.Start(_proxyListDirectory, _chatMessages, txtStreamUrl.Text, _serviceType, _headless, browserLimit,
-                Convert.ToInt32(numRefreshMinutes.Value), _quality, _lstLoginInfo, checkLowCpuRam.Checked);
+            var needs = new ExecuteNeedsDto()
+            {
+                Headless = _headless,
+                Service = _serviceType,
+                Stream = txtStreamUrl.Text,
+                BrowserLimit = browserLimit,
+                ChatMessages = _chatMessages,
+                LoginInfos = _lstLoginInfo,
+                PreferredQuality = _quality,
+                RefreshInterval = Convert.ToInt32(numRefreshMinutes.Value),
+                ProxyListDirectory = _proxyListDirectory,
+                UseLowCpuRam = false //TEMPORARY DISABLED => checkLowCpuRam.Checked
+            };
+            _core.Start(needs);
         }
 
 
@@ -999,6 +1052,10 @@ namespace StreamViewerBot
                     _dataSourceQuality.Add("480p", "2|1500");
                     _dataSourceQuality.Add("360p", "1|600");
                     _dataSourceQuality.Add("144p", "0|280");
+                    break;
+                case StreamService.Service.BigoLive:
+                    MessageBox.Show("Login is required for Bigo Live.\r\nPlease login manually after browsers deployed. Automated login is not available yet :(", "Information");
+                    checkLowCpuRam.Enabled = lstQuality.Enabled = false;
                     break;
                 default:
                     checkLowCpuRam.Enabled = lstQuality.Enabled = false;
