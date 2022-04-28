@@ -94,7 +94,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Playwright" Version="1.20.2" />
+        <PackageReference Include="Microsoft.Playwright" Version="1.21.0" />
         <PackageReference Include="Serilog" Version="2.10.0" />
         <PackageReference Include="Serilog.Sinks.NewRelic.Logs" Version="1.2.0" />
         <PackageReference Include="System.Diagnostics.Process" Version="4.3.0" />

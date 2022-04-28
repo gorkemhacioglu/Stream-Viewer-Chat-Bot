@@ -140,7 +140,7 @@ public class Core
 
                     var thr = new Thread(Request) {Priority = ThreadPriority.AboveNormal};
                     var r = new Random();
-                    var rInt = r.Next(5000, 8000);
+                    var rInt = r.Next(7000, 10000);
 
                     while (BrowserLimit > 0 && Browsers.Count >= BrowserLimit) Thread.Sleep(1000);
 
@@ -321,7 +321,7 @@ public class Core
             var args = new List<string>();
 
             string[] resolutions =
-                {"1480,900", "1550,790", "1600,900", "1920,1080", "1480,768", "1780,940"};
+                {"1480,900", "1550,790", "1500,900", "1920,1080", "1480,768", "1580,940"};
 
             var browserLaunchOptions = new BrowserTypeLaunchPersistentContextOptions()
             {
@@ -1686,7 +1686,7 @@ public class Core
         }
     }
 
-    private void PageOnPageError(object? sender, string e)
+    private void PageOnPageError(object sender, string e)
     {
         LogMessage?.Invoke(new Exception($"Crashed page detected, trying to recover"));
 
@@ -1697,7 +1697,7 @@ public class Core
             if (page != null && !page.IsClosed)
                 page?.ReloadAsync().GetAwaiter().GetResult();
         }
-        catch (Exception exception)
+        catch (Exception)
         {
             LogMessage?.Invoke(new Exception($"Couldn't recover :("));
         }
