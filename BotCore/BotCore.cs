@@ -14,7 +14,7 @@ namespace BotCore;
 
 public class Core
 {
-    private static readonly ConcurrentQueue<IBrowser> Browsers = new();
+    private static readonly ConcurrentQueue<IBrowserContext> Browsers = new();
 
     private static readonly Random _random = new();
 
@@ -69,13 +69,26 @@ public class Core
 
     public string PreferredQuality;
 
+    private static readonly string Profiles = "Profiles";
+
     public void Start(ExecuteNeedsDto executeNeeds)
     {
         if (executeNeeds.UseLowCpuRam)
             executeNeeds.RefreshInterval = 1;
 
         if (_playwright != null)
+        {
             _playwright.Dispose();
+        }
+
+        var profileDirectory = Path.Combine(Directory.GetCurrentDirectory(), Profiles);
+
+        var oldProfiles = Directory.GetDirectories(profileDirectory);
+
+        foreach (var profile in oldProfiles)
+        {
+            Directory.Delete(profile, true);
+        }
 
         _playwright = Playwright.CreateAsync().GetAwaiter().GetResult();
 
@@ -88,7 +101,7 @@ public class Core
         _refreshInterval = executeNeeds.RefreshInterval;
         var i = 0;
         StreamUrl = executeNeeds.Stream;
-        
+
         var executeNeedsChatMessages = executeNeeds.ChatMessages;
         Shuffle(ref executeNeedsChatMessages);
         foreach (var item in executeNeedsChatMessages) _chatMessages.Add(item);
@@ -98,7 +111,7 @@ public class Core
             var thr = new Thread(LoopWithLimit);
             thr.Start();
         }
-        
+
         _initialChromeProcesses = Process.GetProcessesByName("chrome").ToList();
 
         do
@@ -272,7 +285,7 @@ public class Core
         _file?.Close();
 
         KillAllProcesses();
-        
+
         Browsers.Clear();
 
         AllBrowsersTerminated?.Invoke();
@@ -310,7 +323,7 @@ public class Core
             string[] resolutions =
                 {"1480,900", "1550,790", "1600,900", "1920,1080", "1480,768", "1780,940"};
 
-            var browserLaunchOptions = new BrowserTypeLaunchOptions()
+            var browserLaunchOptions = new BrowserTypeLaunchPersistentContextOptions()
             {
                 Headless = false,
                 Channel = "chrome",
@@ -339,20 +352,27 @@ public class Core
 
             browserLaunchOptions.Args = args;
 
-            var browser = _playwright.Chromium.LaunchAsync(browserLaunchOptions).GetAwaiter().GetResult();
+            var profileDirectory = Path.Combine(Directory.GetCurrentDirectory(), Profiles, Guid.NewGuid().ToString());
 
-            var page = browser.NewPageAsync(new BrowserNewPageOptions()
-            {
-                ViewportSize = new ViewportSize
-                {
-                    Width = Convert.ToInt32(resolutions[r.Next(0, resolutions.Length - 1)].Split(',')[0]),
-                    Height = Convert.ToInt32(resolutions[r.Next(0, resolutions.Length - 1)].Split(',')[1])
-                },
-                UserAgent =
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.75 Safari/537.36",
-                Geolocation = new Geolocation() {Latitude = r.Next(-90, 90), Longitude = r.Next(-180, 180)},
-            }).GetAwaiter().GetResult();
+            var browser = _playwright.Chromium.LaunchPersistentContextAsync(profileDirectory, browserLaunchOptions)
+                .GetAwaiter().GetResult();
 
+            /*UserAgent =
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.75 Safari/537.36",*/
+
+            var page = browser.Pages.FirstOrDefault();
+
+            page ??= browser.NewPageAsync().GetAwaiter().GetResult();
+
+            page.SetViewportSizeAsync(Convert.ToInt32(resolutions[r.Next(0, resolutions.Length - 1)].Split(',')[0]),
+                Convert.ToInt32(resolutions[r.Next(0, resolutions.Length - 1)].Split(',')[1]));
+
+            browser.SetGeolocationAsync(new Geolocation() {Latitude = r.Next(-90, 90), Longitude = r.Next(-180, 180)});
+
+            //page.PageError += PageOnPageError;
+
+            page.SetDefaultTimeout(120000);
+            page.SetDefaultNavigationTimeout(120000);
             page.GotoAsync(StreamUrl, new PageGotoOptions() {Timeout = 120000, WaitUntil = WaitUntilState.Load})
                 .GetAwaiter().GetResult();
 
@@ -459,7 +479,11 @@ public class Core
                                     Thread.Sleep(1000);
 
                                     if (login.CountAsync().GetAwaiter().GetResult() > 0)
+                                    {
                                         Click(ref login);
+                                        LogMessage?.Invoke(
+                                            new Exception($"Login completed with user: {itm.LoginInfo.Username}"));
+                                    }
                                 }
                             }
                         }
@@ -530,7 +554,7 @@ public class Core
                     {
                         //ignored
                     }
-                    
+
                     try
                     {
                         if (!matureClicked && matureCheckCount < 5)
@@ -889,7 +913,11 @@ public class Core
                                     Thread.Sleep(1000);
 
                                     if (login.CountAsync().GetAwaiter().GetResult() > 0)
+                                    {
                                         Click(ref login);
+                                        LogMessage?.Invoke(
+                                            new Exception($"Login completed with user: {itm.LoginInfo.Username}"));
+                                    }
                                 }
                             }
                         }
@@ -1128,7 +1156,11 @@ public class Core
                                 Thread.Sleep(1000);
 
                                 if (login.CountAsync().GetAwaiter().GetResult() > 0)
+                                {
                                     Click(ref login);
+                                    LogMessage?.Invoke(
+                                        new Exception($"Login completed with user: {itm.LoginInfo.Username}"));
+                                }
                             }
                         }
                     }
@@ -1240,6 +1272,8 @@ public class Core
                             page.Context.AddCookiesAsync(cookies);
                         }
 
+                    Thread.Sleep(1000);
+
                     try
                     {
                         var loginSignUpButton =
@@ -1290,7 +1324,11 @@ public class Core
                                     Thread.Sleep(1000);
 
                                     if (login.CountAsync().GetAwaiter().GetResult() > 0)
+                                    {
                                         Click(ref login);
+                                        LogMessage?.Invoke(
+                                            new Exception($"Login completed with user: {itm.LoginInfo.Username}"));
+                                    }
                                 }
                             }
                         }
@@ -1470,7 +1508,7 @@ public class Core
                 Thread.Sleep(2000);
 
                 page.ReloadAsync().GetAwaiter().GetResult();
-                
+
                 /*if (itm.LoginInfo != null)
                 {
                     Thread.Sleep(1000);
@@ -1594,7 +1632,7 @@ public class Core
                         if (firstPage)
                         {
                             var liveViewers = page.WaitForSelectorAsync(".info-view-nums").GetAwaiter().GetResult();
-                            
+
                             if (liveViewers != null)
                             {
                                 LiveViewer.Invoke(liveViewers.InnerTextAsync().GetAwaiter().GetResult());
@@ -1645,6 +1683,23 @@ public class Core
         catch (Exception ex)
         {
             InitializationError?.Invoke(ex);
+        }
+    }
+
+    private void PageOnPageError(object? sender, string e)
+    {
+        LogMessage?.Invoke(new Exception($"Crashed page detected, trying to recover"));
+
+        try
+        {
+            var page = (IPage) sender;
+
+            if (page != null && !page.IsClosed)
+                page?.ReloadAsync().GetAwaiter().GetResult();
+        }
+        catch (Exception exception)
+        {
+            LogMessage?.Invoke(new Exception($"Couldn't recover :("));
         }
     }
 

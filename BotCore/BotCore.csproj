@@ -13,6 +13,10 @@
         <EmbeddedResource Include="Extensions\TwitchAlternative.crx">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </EmbeddedResource>
+        <None Remove="Profiles\Default.txt" />
+        <EmbeddedResource Include="Profiles\Default.txt">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </EmbeddedResource>
     </ItemGroup>
 
     <ItemGroup>
