@@ -415,7 +415,7 @@ public class Core
                 var cacheCheckCount = 0;
                 if (itm.LoginInfo != null)
                 {
-                    Thread.Sleep(1000);
+                    Thread.Sleep(2000);
 
                     var allCookies = GetCookie(itm.LoginInfo.Username);
 
@@ -427,14 +427,17 @@ public class Core
                                 new()
                                 {
                                     Domain = cookie.Domain, Expires = cookie.Expiry, Name = cookie.Name,
-                                    Path = cookie.Path, Secure = cookie.Secure, Url = cookie.Path,
+                                    Path = cookie.Path, Secure = cookie.Secure,
                                     HttpOnly = cookie.HttpOnly, Value = cookie.Value
                                 }
                             };
 
-                            page.Context.AddCookiesAsync(cookies);
+                            page.Context.AddCookiesAsync(cookies).GetAwaiter().GetResult();
                         }
+                    
+                    page.ReloadAsync().GetAwaiter().GetResult();
 
+                    Thread.Sleep(4000);
                     try
                     {
                         var loginButton =
@@ -830,14 +833,18 @@ public class Core
                                 new()
                                 {
                                     Domain = cookie.Domain, Expires = cookie.Expiry, Name = cookie.Name,
-                                    Path = cookie.Path, Secure = cookie.Secure, Url = cookie.Path,
+                                    Path = cookie.Path, Secure = cookie.Secure,
                                     HttpOnly = cookie.HttpOnly, Value = cookie.Value
                                 }
                             };
 
-                            page.Context.AddCookiesAsync(cookies);
+                            page.Context.AddCookiesAsync(cookies).GetAwaiter().GetResult();
                         }
 
+                    page.ReloadAsync().GetAwaiter().GetResult();
+                    
+                    Thread.Sleep(4000);
+                    
                     try
                     {
                         var loginButton =
@@ -1114,14 +1121,18 @@ public class Core
                                 new()
                                 {
                                     Domain = cookie.Domain, Expires = cookie.Expiry, Name = cookie.Name,
-                                    Path = cookie.Path, Secure = cookie.Secure, Url = cookie.Path,
+                                    Path = cookie.Path, Secure = cookie.Secure,
                                     HttpOnly = cookie.HttpOnly, Value = cookie.Value
                                 }
                             };
 
-                            page.Context.AddCookiesAsync(cookies);
+                            page.Context.AddCookiesAsync(cookies).GetAwaiter().GetResult();
                         }
-
+                    
+                    page.ReloadAsync().GetAwaiter().GetResult();
+                    
+                    Thread.Sleep(4000);
+                    
                     try
                     {
                         var usernameBox =
@@ -1264,15 +1275,17 @@ public class Core
                                 new()
                                 {
                                     Domain = cookie.Domain, Expires = cookie.Expiry, Name = cookie.Name,
-                                    Path = cookie.Path, Secure = cookie.Secure, Url = cookie.Path,
+                                    Path = cookie.Path, Secure = cookie.Secure,
                                     HttpOnly = cookie.HttpOnly, Value = cookie.Value
                                 }
                             };
 
-                            page.Context.AddCookiesAsync(cookies);
+                            page.Context.AddCookiesAsync(cookies).GetAwaiter().GetResult();
                         }
-
-                    Thread.Sleep(1000);
+                    
+                    page.ReloadAsync().GetAwaiter().GetResult();
+                    
+                    Thread.Sleep(4000);
 
                     try
                     {
@@ -1337,9 +1350,8 @@ public class Core
                     {
                         LogMessage?.Invoke(new Exception($"Login failed: {ex.Message}"));
                     }
-
-                    Thread.Sleep(3000);
-                    page.ReloadAsync().GetAwaiter().GetResult();
+                    
+                    Thread.Sleep(2000);
 
                     while (true)
                     {
@@ -1509,7 +1521,7 @@ public class Core
 
                 page.ReloadAsync().GetAwaiter().GetResult();
 
-                /*if (itm.LoginInfo != null)
+                if (itm.LoginInfo != null)
                 {
                     Thread.Sleep(1000);
 
@@ -1523,14 +1535,18 @@ public class Core
                                 new()
                                 {
                                     Domain = cookie.Domain, Expires = cookie.Expiry, Name = cookie.Name,
-                                    Path = cookie.Path, Secure = cookie.Secure, Url = cookie.Path,
+                                    Path = cookie.Path, Secure = cookie.Secure,
                                     HttpOnly = cookie.HttpOnly, Value = cookie.Value
                                 }
                             };
 
-                            page.Context.AddCookiesAsync(cookies);
+                            page.Context.AddCookiesAsync(cookies).GetAwaiter().GetResult();
                         }
 
+                    page.ReloadAsync().GetAwaiter().GetResult();
+                    
+                    Thread.Sleep(4000);
+                    
                     try
                     {
                         var loginSignUpButton =
@@ -1617,7 +1633,7 @@ public class Core
                             break;
                         }
                     }
-                }*/
+                }
 
                 while (true)
                 {
