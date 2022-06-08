@@ -21,7 +21,7 @@ namespace StreamViewerBot
 {
     public partial class MainScreen : Form
     {
-        private static readonly string _productVersion = "2.9.2.1";
+        private static readonly string _productVersion = "2.9.2.2";
 
         private static string _proxyListDirectory = "";
 
@@ -789,6 +789,8 @@ namespace StreamViewerBot
 
         private void browseProxyList_Click(object sender, EventArgs e)
         {
+            MessageBox.Show("You have to use private proxies, free proxies will not work!");
+            
             var fileDialog = new OpenFileDialog();
 
             fileDialog.Filter = "txt files (*.txt)|*.txt";
