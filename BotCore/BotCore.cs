@@ -51,6 +51,8 @@ public class Core
 
     private bool _useLowCpuRam;
 
+    private int _userAgentIndex = 0;
+
     public Action AllBrowsersTerminated;
 
     public bool CanRun = true;
@@ -156,10 +158,12 @@ public class Core
                         PreferredQuality = executeNeeds.PreferredQuality,
                         LoginInfo = loginInfo,
                         Service = executeNeeds.Service,
-                        Proxy = proxy
+                        Proxy = proxy,
+                        UserAgentString = executeNeeds.UserAgentStrings.Count > 0 ? executeNeeds.UserAgentStrings[_userAgentIndex] : string.Empty,
                     });
 
                     i++;
+                    _userAgentIndex = (_userAgentIndex + 1) % executeNeeds.UserAgentStrings.Count;
 
                     Thread.Sleep(BrowserLimit == 0 ? rInt : 1000);
                 }
@@ -337,6 +341,11 @@ public class Core
                 Timeout = 120000,
                 Proxy = itm.Proxy
             };
+
+            if (!string.IsNullOrWhiteSpace(itm.UserAgentString))
+            {
+                browserLaunchOptions.UserAgent = itm.UserAgentString;
+            }
 
             if (_useLowCpuRam)
             {

@@ -25,6 +25,8 @@ namespace StreamViewerBot
 
         private static string _proxyListDirectory = "";
 
+        private static string _userAgentListDirectory = "";
+
         private static string _chatMessagesDirectory = "";
 
         private static string _ipCheckURL = "https://api.ipify.org/";
@@ -52,6 +54,8 @@ namespace StreamViewerBot
         private Size _loginSize;
 
         private List<string> _nonPrivateProxies = new List<string>();
+
+        private List<string> _userAgentStrings = new List<string>();
 
         private List<string> _chatMessages = new List<string>();
 
@@ -243,6 +247,37 @@ namespace StreamViewerBot
                     //ignored
                 }
             }
+        }
+
+        private bool CheckUserAgentStrings()
+        {
+            _userAgentStrings = new List<string>();
+
+            if (File.Exists(_userAgentListDirectory))
+            {
+                try
+                {
+                    _userAgentStrings = File.ReadAllLines(_userAgentListDirectory).ToList();
+                    _ = _userAgentStrings.RemoveAll(userAgentString => string.IsNullOrWhiteSpace(userAgentString));
+
+                    return true;
+                }
+                catch (Exception exception)
+                {
+                    MessageBox.Show("Please make sure that your user agent strings are valid. Each user agent string must be placed on a new line.");
+                    try
+                    {
+                        Log.Logger.Error(exception.ToString());
+                    }
+                    catch (Exception)
+                    {
+                        //ignored
+                    }
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private bool CheckChatMessages()
@@ -486,6 +521,7 @@ namespace StreamViewerBot
         {
             LogInfo(new Exception("Reading configuration."));
             _proxyListDirectory = txtProxyList.Text = _configuration.AppSettings.Settings["proxyListDirectory"].Value;
+            _userAgentListDirectory = txtUserAgentList.Text = _configuration.AppSettings.Settings["userAgentListDirectory"].Value;
             _chatMessagesDirectory = txtChatMessages.Text = _configuration.AppSettings.Settings["chatMessageDirectory"].Value;
             txtStreamUrl.Text = _configuration.AppSettings.Settings["streamUrl"].Value;
             _headless = checkHeadless.Checked =
@@ -510,6 +546,12 @@ namespace StreamViewerBot
             if (string.IsNullOrEmpty(txtProxyList.Text) || string.IsNullOrEmpty(txtStreamUrl.Text))
             {
                 LogInfo(new Exception("Please choose a proxy directory and enter your stream URL."));
+                return;
+            }
+
+            if (!CheckUserAgentStrings())
+            {
+                LogInfo(new Exception("Please correct your user agent string file."));
                 return;
             }
 
@@ -610,6 +652,7 @@ namespace StreamViewerBot
             _configuration.AppSettings.Settings["streamUrl"].Value = txtStreamUrl.Text;
             _configuration.AppSettings.Settings["headless"].Value = checkHeadless.Checked.ToString();
             _configuration.AppSettings.Settings["proxyListDirectory"].Value = txtProxyList.Text;
+            _configuration.AppSettings.Settings["userAgentListDirectory"].Value = txtUserAgentList.Text;
             _configuration.AppSettings.Settings["chatMessageDirectory"].Value = txtChatMessages.Text;
             _configuration.AppSettings.Settings["refreshInterval"].Value = numRefreshMinutes.Value.ToString();
             _configuration.AppSettings.Settings["withLoggedIn"].Value = _withLoggedIn.ToString();
@@ -649,6 +692,7 @@ namespace StreamViewerBot
                 PreferredQuality = _quality,
                 RefreshInterval = Convert.ToInt32(numRefreshMinutes.Value),
                 ProxyListDirectory = _proxyListDirectory,
+                UserAgentStrings = _userAgentStrings,
                 UseLowCpuRam = false //TEMPORARY DISABLED => checkLowCpuRam.Checked
             };
             _core.Start(needs);
@@ -807,6 +851,24 @@ namespace StreamViewerBot
                     Location.Y + Height / 2 - _validatingForm.Height / 2);
 
                 _ = Task.Run(CheckProxiesArePrivateOrNot);
+            }
+        }
+
+        private void browseUserAgentList_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("User-Agent list allows you to specify user agents for bots. You can provide a .txt file with user-agent strings on each line.\r\n\r\nThis feature is optional. If you do not provide a file, all bots will use the default user agent string of Chrome browser.");
+
+            var fileDialog = new OpenFileDialog();
+
+            fileDialog.Filter = "txt files (*.txt)|*.txt";
+            fileDialog.FilterIndex = 1;
+            fileDialog.Multiselect = false;
+
+            if (fileDialog.ShowDialog() == DialogResult.OK)
+            {
+                _userAgentListDirectory = txtUserAgentList.Text = fileDialog.FileName;
+
+                _ = Task.Run(CheckUserAgentStrings);
             }
         }
 

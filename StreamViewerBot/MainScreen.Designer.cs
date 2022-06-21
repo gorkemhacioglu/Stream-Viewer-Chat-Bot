@@ -76,6 +76,9 @@
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
+            this.browseUserAgentList = new System.Windows.Forms.Button();
+            this.txtUserAgentList = new System.Windows.Forms.TextBox();
+            this.lblUserAgentList = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.startStopButton)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picVulture)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numRefreshMinutes)).BeginInit();
@@ -102,7 +105,7 @@
             // 
             // txtStreamUrl
             // 
-            this.txtStreamUrl.Location = new System.Drawing.Point(83, 267);
+            this.txtStreamUrl.Location = new System.Drawing.Point(83, 292);
             this.txtStreamUrl.Name = "txtStreamUrl";
             this.txtStreamUrl.Size = new System.Drawing.Size(306, 23);
             this.txtStreamUrl.TabIndex = 1;
@@ -110,7 +113,7 @@
             // lblStreamUrl
             // 
             this.lblStreamUrl.AutoSize = true;
-            this.lblStreamUrl.Location = new System.Drawing.Point(12, 270);
+            this.lblStreamUrl.Location = new System.Drawing.Point(12, 295);
             this.lblStreamUrl.Name = "lblStreamUrl";
             this.lblStreamUrl.Size = new System.Drawing.Size(65, 15);
             this.lblStreamUrl.TabIndex = 2;
@@ -550,11 +553,40 @@
             this.label6.TabIndex = 48;
             this.label6.Text = ">";
             // 
+            // browseUserAgentList
+            // 
+            this.browseUserAgentList.Location = new System.Drawing.Point(109, 265);
+            this.browseUserAgentList.Name = "browseUserAgentList";
+            this.browseUserAgentList.Size = new System.Drawing.Size(34, 23);
+            this.browseUserAgentList.TabIndex = 50;
+            this.browseUserAgentList.Text = "...";
+            this.browseUserAgentList.UseVisualStyleBackColor = true;
+            this.browseUserAgentList.Click += new System.EventHandler(this.browseUserAgentList_Click);
+            // 
+            // txtUserAgentList
+            // 
+            this.txtUserAgentList.Location = new System.Drawing.Point(151, 265);
+            this.txtUserAgentList.Name = "txtUserAgentList";
+            this.txtUserAgentList.Size = new System.Drawing.Size(238, 23);
+            this.txtUserAgentList.TabIndex = 49;
+            // 
+            // lblUserAgentList
+            // 
+            this.lblUserAgentList.AutoSize = true;
+            this.lblUserAgentList.Location = new System.Drawing.Point(12, 269);
+            this.lblUserAgentList.Name = "lblUserAgentList";
+            this.lblUserAgentList.Size = new System.Drawing.Size(91, 15);
+            this.lblUserAgentList.TabIndex = 51;
+            this.lblUserAgentList.Text = "User-Agent List:";
+            // 
             // MainScreen
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(813, 396);
+            this.Controls.Add(this.lblUserAgentList);
+            this.Controls.Add(this.browseUserAgentList);
+            this.Controls.Add(this.txtUserAgentList);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label4);
@@ -672,6 +704,9 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Button browseUserAgentList;
+        private System.Windows.Forms.TextBox txtUserAgentList;
+        private System.Windows.Forms.Label lblUserAgentList;
     }
 }
 
