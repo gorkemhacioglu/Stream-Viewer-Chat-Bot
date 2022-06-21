@@ -15,5 +15,7 @@ namespace BotCore.Dto
         public StreamService.Service Service { get; set; }
 
         public Proxy Proxy { get; set; }
+
+        public string UserAgentString { get; set; }
     }
 }

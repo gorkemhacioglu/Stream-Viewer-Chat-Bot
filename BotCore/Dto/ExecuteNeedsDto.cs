@@ -7,6 +7,8 @@ public class ExecuteNeedsDto
 {
     public string ProxyListDirectory { get; set; }
 
+    public List<string> UserAgentStrings { get; set; } = new List<string>();
+
     public List<string> ChatMessages { get; set; } = new List<string>();
 
     public string Stream { get; set; }
