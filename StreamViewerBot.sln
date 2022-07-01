@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BotCore", "BotCore\BotCore.csproj", "{314162EE-A2BF-4A62-A961-DA8B47939D5D}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoUpdater", "AutoUpdater\AutoUpdater.csproj", "{CAC57C41-6515-44E5-819E-18A8B55B6FAF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StreamViewerBot", "StreamViewerBot\StreamViewerBot.csproj", "{8EF8C0B7-4318-4AE6-A718-C0BB9D5BA31D}"
@@ -15,10 +13,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{314162EE-A2BF-4A62-A961-DA8B47939D5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{314162EE-A2BF-4A62-A961-DA8B47939D5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{314162EE-A2BF-4A62-A961-DA8B47939D5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{314162EE-A2BF-4A62-A961-DA8B47939D5D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CAC57C41-6515-44E5-819E-18A8B55B6FAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CAC57C41-6515-44E5-819E-18A8B55B6FAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CAC57C41-6515-44E5-819E-18A8B55B6FAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
