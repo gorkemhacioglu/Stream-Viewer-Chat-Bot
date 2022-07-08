@@ -6,7 +6,7 @@ Supports: **Twitch | Youtube | Facebook Live | Twitter | DLive | Nimo Tv | Trovo
 
 :star: Give us a star, if you like it! :star:
 
-![alt text](https://streamviewerbot.com/images/ui2_9.png)
+![alt text](https://streamviewerbot.com/images/ui3_0.png)
 
 **[Download for Windows x64](https://streamviewerbot.com/Download/win-x64.zip):arrow_down:**
 
