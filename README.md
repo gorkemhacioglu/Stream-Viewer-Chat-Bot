@@ -14,6 +14,8 @@ You must have **private** proxies. You can buy it from [**HERE**](https://www.we
  at an affordable price. ***Please don't forget to change your proxy types to private. Free proxies that system will give you will not work, because these are not private proxies.***
  
 * *Free usage has been limited to 3 Stream URLs to prevent others to make money with this free application.*
+* *Your hardware and proxy capacity determines the viewer count that you will have.*
+ 
 
 ## **:question: [How to configure](https://github.com/gorkemhacioglu/Stream-Viewer-Bot/wiki/Configuration)**
 ## **:information_source: [Wiki for more information](https://github.com/gorkemhacioglu/Stream-Viewer-Bot/wiki)**
