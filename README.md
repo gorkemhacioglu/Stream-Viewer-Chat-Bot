@@ -19,4 +19,4 @@ You must have **private** proxies. You can buy it from [**HERE**](https://www.we
 
 ## **:question: [How to configure](https://github.com/gorkemhacioglu/Stream-Viewer-Bot/wiki/Configuration)**
 ## **:information_source: [Wiki for more information](https://github.com/gorkemhacioglu/Stream-Viewer-Bot/wiki)**
-## **:envelope:	 [Discord](https://discord.gg/atJbCkdc)**
+## **:envelope:	 [Discord](https://discord.gg/t9N85a3eVv)**
