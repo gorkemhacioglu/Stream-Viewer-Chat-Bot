@@ -2,11 +2,13 @@
 
 Our easy to use app, allows you to gain chat capable live viewers in a couple of minutes.
 
-Supports: **Twitch | Youtube | Facebook Live | Twitter | DLive | Nimo Tv | Trovo Live | Bigo Live**
+**Supports:** *Twitch | Youtube | Facebook Live | Twitter | DLive | Nimo Tv | Trovo Live*
+
+**Don't have time and knowledge to run this app? Try our cloud service and gain viewers in seconds...** **[Cloud Run](https://streamviewerbot.com/index.php/shop):cloud:**
 
 :star: Give us a star, if you like it! :star:
 
-![alt text](https://streamviewerbot.com/images/ui_3_0_5.png)
+![alt text](https://streamviewerbot.com/images/ui3_0_6.png)
 
 **[Download for Windows x64](https://streamviewerbot.com/Download/win-x64.zip):arrow_down:**
 
