@@ -10,7 +10,7 @@ Our easy to use app, allows you to gain chat capable live viewers in a couple of
 
 ![alt text](https://streamviewerbot.com/images/ui3_0_6.png)
 
-**[Download for Windows x64](https://streamviewerbot.com/Download/win-x64.zip):arrow_down:**
+**[Download for Windows x64](https://streamviewerbot.com/Download/win-x64.zip):arrow_down:** 3 URL is free
 
 You must have **private** proxies. You can buy it from [**HERE**](https://www.webshare.io/?referral_code=ceuygyx4sir2)
  at an affordable price. ***Please don't forget to change your proxy types to private. Free proxies that system will give you will not work, because these are not private proxies.***
