@@ -4,7 +4,7 @@ Our easy to use app, allows you to gain chat capable live viewers in a couple of
 
 **Supports:** *Twitch | Youtube | Facebook Live | Twitter | DLive | Nimo Tv | Trovo Live*
 
-**Don't have time and knowledge to run this app? Try our cloud service and gain viewers in seconds...** **[Cloud Service](https://streamviewerbot.com/index.php/shop):cloud:**
+**Don't have time and knowledge to run this app? Try our **[Cloud Service](https://streamviewerbot.com/index.php/shop):cloud:** and gain viewers in seconds...** 
 
 :star: Give us a star, if you like it! :star:
 
