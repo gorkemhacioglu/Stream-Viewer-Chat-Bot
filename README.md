@@ -1,4 +1,4 @@
-# ![alt text](https://streamviewerbot.com/images/turkey.png) HELP TURKEY! -  Stream Viewer&Chat Bot
+# ![alt text](https://streamviewerbot.com/images/trk.png) HELP TURKEY! -  Stream Viewer&Chat Bot
 
 Our easy to use app, allows you to gain chat capable live viewers in a couple of minutes.
 
