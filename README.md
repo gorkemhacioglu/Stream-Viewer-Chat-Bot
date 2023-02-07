@@ -1,4 +1,4 @@
-# ![alt text](https://streamviewerbot.com/images/ukraine.png) We stand with UKRAINE! -  Stream Viewer&Chat Bot
+# ![alt text](https://streamviewerbot.com/images/turkey.png) HELP TURKEY! -  Stream Viewer&Chat Bot
 
 Our easy to use app, allows you to gain chat capable live viewers in a couple of minutes.
 
@@ -8,7 +8,7 @@ Our easy to use app, allows you to gain chat capable live viewers in a couple of
 
 :star: Give us a star, if you like it! :star:
 
-![alt text](https://streamviewerbot.com/images/ui3_0_7.png)
+![alt text](https://streamviewerbot.com/images/ui_23_2_1.png)
 
 **[Download for Windows x64](https://streamviewerbot.com/Download/win-x64.zip):arrow_down:** **3 URL FREE**
 
