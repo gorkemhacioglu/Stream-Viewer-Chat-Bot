@@ -18,7 +18,7 @@ Leaked free proxies may **NOT** work, please buy for yourself. You can buy it fr
 * *Unfortunately free usage is over to prevent others to make money with this free application.*
 * *Your hardware and proxy capacity determines the viewer count that you will have.*
  
-## **:white_check_mark: [VirusTotal Result](https://www.virustotal.com/gui/file/e1f423cc6b8066ff059f1cfe38dcab5367c922191dcf2c24e02b3e119049ced7?nocache=1)**
+## **:white_check_mark: [VirusTotal Result](https://www.virustotal.com/gui/file/f57747dcb091ceb39461b8586cf0a8574b39728f7e7bfcad2fba9fec73b50833?nocache=1)**
 ## **:question: [How to configure](https://github.com/gorkemhacioglu/Stream-Viewer-Bot/wiki/Configuration)**
 ## **:information_source: [Wiki for more information](https://github.com/gorkemhacioglu/Stream-Viewer-Bot/wiki)**
 ## **:envelope:	 [Discord](https://discord.gg/t9N85a3eVv)**
