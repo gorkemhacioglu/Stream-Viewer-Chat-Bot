@@ -2,7 +2,7 @@
 
 Our easy to use app, allows you to gain chat capable live viewers in a couple of minutes.
 
-**Supports:** *Twitch | Youtube | Kick | Facebook Live | Twitter | DLive | Nimo Tv | Trovo Live*
+**Supports:** *Twitch | Youtube | Kick | DLive | Nimo Tv | Trovo Live*
 
 **Don't have time and knowledge to run this app? Try our **[Cloud Service](https://streamviewerbot.com/index.php/shop):cloud:** and gain viewers in seconds...** 
 
@@ -10,7 +10,7 @@ Our easy to use app, allows you to gain chat capable live viewers in a couple of
 
 ![alt text](https://streamviewerbot.com/images/ui_23_2_4.png)
 
-**[Download for Windows x64](https://streamviewerbot.com/Download/win-x64.zip):arrow_down:** **3 URL FREE**
+**[Download for Windows x64](https://streamviewerbot.com/Download/win-x64.zip):arrow_down:**
 
 Leaked free proxies may **NOT** work, please buy for yourself. You can buy it from [**HERE**](https://www.webshare.io/?referral_code=ceuygyx4sir2)
  at an affordable price.
