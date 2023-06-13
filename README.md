@@ -11,7 +11,7 @@ Our easy to use app, allows you to gain chat capable live viewers in a couple of
 
 :star: Give us a star, if you like it! :star:
 
-![alt text](https://streamviewerbot.com/images/ui_23_2_4.png)
+![image](https://github.com/gorkemhacioglu/Stream-Viewer-Chat-Bot/assets/32572262/90eee264-1dbb-4207-aa04-7dc65d05ef30)
 
 **[Download for Windows x64](https://streamviewerbot.com/Download/win-x64.zip):arrow_down:**
 
