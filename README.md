@@ -1,6 +1,6 @@
 ### **!! WARNING !!**
 ### PLEASE DO NOT DOWNLOAD ANYTHING FROM: https://github.com/streamviewerchatbot/Stream-Viewer-Bot
-### This repository contains malicious software that has been published without our knowledge. Please report it.
+### That repository contains malicious software that has been published without our knowledge. Please report it.
 
 # Stream Viewer&Chat Bot
 Our easy to use app, allows you to gain chat capable live viewers in a couple of minutes.
