@@ -1,5 +1,5 @@
 ### ⚠️WARNING
-### PLEASE DO NOT DOWNLOAD ANYTHING FROM: https://github.com/streamviewerchatbot/Stream-Viewer-Bot
+### PLEASE DO NOT DOWNLOAD ANYTHING FROM: https://github.com/streamviewersbot/stream-viewer-bot
 ### That repository contains malicious software that has been published without our knowledge. Please report it.
 </br>
 
