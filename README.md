@@ -1,9 +1,5 @@
-### ⚠️WARNING
-### PLEASE DO NOT DOWNLOAD ANYTHING FROM: https://github.com/streamviewersbot/stream-viewer-bot
-### That repository contains malicious software that has been published without our knowledge. Please report it.
-</br>
-
 # 🤖Stream Viewer & Chat Bot
+## 2 URL QUOTA IS FREE!
 Our easy to use app, allows you to gain chat capable live viewers in a couple of minutes.
 
 **Supports:** *Twitch | Youtube | Kick | DLive | Nimo Tv | Trovo Live*
