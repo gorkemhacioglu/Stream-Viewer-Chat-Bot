@@ -1,7 +1,7 @@
 # 🤖Stream Viewer & Chat Bot
 
 ### ⚠️PLEASE DO NOT DOWNLOAD ANYTHING FROM THESE REPOSITORIES! ⚠️
-### ⚠️ THESE ARE REPLICAS AND MALWARES OF THIS TOOL!⚠️
+### ⚠️ THESE REPOS BELOW ARE REPLICAS AND MALWARES!⚠️
 #### https://github.com/StreamViewBot/StreamViewerBot
 #### https://github.com/stream-viewers-bot/StreamViewerBot
 #### https://github.com/Kickviewer/Kick-Viewer-Bot/
