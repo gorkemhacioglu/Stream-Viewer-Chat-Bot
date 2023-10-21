@@ -1,13 +1,13 @@
 # 🤖Stream Viewer & Chat Bot
 
+# FREE UP TO 2 URL!
+
 ### ⚠️PLEASE DO NOT DOWNLOAD ANYTHING FROM THESE REPOSITORIES! ⚠️
 ### ⚠️ THESE REPOS BELOW ARE REPLICAS AND MALWARES!⚠️
 #### https://github.com/StreamViewBot/StreamViewerBot
 #### https://github.com/stream-viewers-bot/StreamViewerBot
 #### https://github.com/Kickviewer/Kick-Viewer-Bot/
 
- 
-# 2 URL QUOTA IS FREE!
 Our easy to use app, allows you to gain chat capable live viewers in a couple of minutes.
 
 **Supports:** *Twitch | Youtube | Kick | DLive | Nimo Tv | Trovo Live*
