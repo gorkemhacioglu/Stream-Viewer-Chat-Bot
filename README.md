@@ -2,12 +2,6 @@
 
 # FREE UP TO 2 URL!
 
-### ⚠️PLEASE DO NOT DOWNLOAD ANYTHING FROM THESE REPOSITORIES! ⚠️
-### ⚠️ THESE REPOS BELOW ARE REPLICAS AND MALWARES!⚠️
-#### https://github.com/StreamViewBot/StreamViewerBot
-#### https://github.com/stream-viewers-bot/StreamViewerBot
-#### https://github.com/Kickviewer/Kick-Viewer-Bot/
-
 Our easy to use app, allows you to gain chat capable live viewers in a couple of minutes.
 
 **Supports:** *Twitch | Youtube | Kick | DLive | Nimo Tv | Trovo Live*
@@ -18,7 +12,7 @@ Our easy to use app, allows you to gain chat capable live viewers in a couple of
 
 ![image](https://github.com/gorkemhacioglu/Stream-Viewer-Chat-Bot/assets/32572262/90eee264-1dbb-4207-aa04-7dc65d05ef30)
 
-**[Download for Windows x64](https://download.streamviewerbot.com/Download/win-x64.zip):arrow_down:**
+**[Download for Windows x64](https://streamviewerbot.com/Download/win-x64.zip):arrow_down:**
 
 Leaked free proxies may **NOT** work, please buy for yourself. You can buy it from [**HERE**](https://www.webshare.io/?referral_code=ceuygyx4sir2)
  at an affordable price.
